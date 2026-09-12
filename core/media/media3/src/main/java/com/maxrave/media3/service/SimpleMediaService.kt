@@ -105,14 +105,24 @@ internal class SimpleMediaService :
             },
         )
 
-        if (mediaSession == null) {
-            mediaSession =
-                provideMediaLibrarySession(
-                    this,
-                    player,
-                    simpleMediaSessionCallback,
-                )
+        // Always release any lingering session before creating a new one.
+        // When Android kills and recreates the service, the old session ID may
+        // still be registered in the Media3 framework, causing
+        // "Session ID must be unique" if we try to build without releasing first.
+        mediaSession?.run {
+            try {
+                release()
+            } catch (e: Exception) {
+                Logger.w("Service", "Failed to release stale session: ${e.message}")
+            }
+            mediaSession = null
         }
+        mediaSession =
+            provideMediaLibrarySession(
+                this,
+                player,
+                simpleMediaSessionCallback,
+            )
 
         simpleMediaServiceHandler.onUpdateNotification = { list ->
             val commandButtonList = list.map { it.toCommandButton(this) }
@@ -224,11 +234,11 @@ internal class SimpleMediaService :
 
     @UnstableApi
     override fun onDestroy() {
+        // Always release the session so its ID is freed for any future
+        // recreation. The conditional check was too narrow — Android can
+        // destroy the service without going through onTaskRemoved.
+        release()
         super.onDestroy()
-        Logger.w("Service", "Simple Media Service Destroyed")
-        if (simpleMediaServiceHandler.shouldReleaseOnTaskRemoved()) {
-            release()
-        }
     }
 
     override fun onTrimMemory(level: Int) {

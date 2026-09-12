@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -80,6 +81,12 @@ class HomeViewModel(
     private var _params: MutableStateFlow<String?> = MutableStateFlow(null)
     val params: StateFlow<String?> = _params
 
+    // Debounced trigger: multiple flow collectors (location, language, cookie, params)
+    // all request a refresh by emitting to this shared flow. A single debounced
+    // collector then calls getHomeItemList() once, preventing the startup stampede
+    // where each collector's call would cancel the previous one.
+    private val _refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
     // For showing alert that should log in to YouTube
     private val _showLogInAlert: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val showLogInAlert: StateFlow<Boolean> = _showLogInAlert
@@ -106,26 +113,43 @@ class HomeViewModel(
             exploreChart(regionCodeChart.value ?: "ZZ")
             language = dataStoreManager.getString(SELECTED_LANGUAGE).first()
                 ?: SUPPORTED_LANGUAGE.codes.first()
-            //  refresh when region change
+
+            // Single debounced collector: all the flow watchers below emit to
+            // _refreshTrigger instead of calling getHomeItemList() directly.
+            // The 300ms debounce coalesces the burst of initial emissions
+            // (location, language, cookie, params all fire within milliseconds)
+            // into a single network request, preventing the stampede where each
+            // call would cancel the previous one and leave the UI in an error state.
+            val refreshJob =
+                launch {
+                    @OptIn(kotlinx.coroutines.FlowPreview::class)
+                    _refreshTrigger
+                        .debounce(300)
+                        .collectLatest {
+                            getHomeItemList(params.value)
+                        }
+                }
+
+            //  refresh when region changes
             val job1 =
                 launch {
                     dataStoreManager.location.distinctUntilChanged().collect {
                         regionCode = it
-                        getHomeItemList(params.value)
+                        _refreshTrigger.tryEmit(Unit)
                     }
                 }
-            //  refresh when language change
+            //  refresh when language changes
             val job2 =
                 launch {
                     dataStoreManager.language.distinctUntilChanged().collect {
                         language = it
-                        getHomeItemList(params.value)
+                        _refreshTrigger.tryEmit(Unit)
                     }
                 }
             val job3 =
                 launch {
                     dataStoreManager.cookie.distinctUntilChanged().collect {
-                        getHomeItemList(params.value)
+                        _refreshTrigger.tryEmit(Unit)
                         _accountInfo.emit(
                             Pair(
                                 dataStoreManager.getString("AccountName").first(),
@@ -137,7 +161,7 @@ class HomeViewModel(
             val job4 =
                 launch {
                     params.collectLatest {
-                        getHomeItemList(it)
+                        _refreshTrigger.tryEmit(Unit)
                     }
                 }
             val job5 =
@@ -150,7 +174,7 @@ class HomeViewModel(
                                 Logger.w(tag, "Cookie changed, refreshing home")
                                 loading.value = true
                                 delay(1000) // To wait for the cookie to be saved properly
-                                getHomeItemList(params.value)
+                                _refreshTrigger.tryEmit(Unit)
                             }
                         }
                 }
@@ -167,6 +191,7 @@ class HomeViewModel(
                                 ?.url
                     }
                 }
+            refreshJob.join()
             job1.join()
             job2.join()
             job3.join()
