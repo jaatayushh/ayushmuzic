@@ -551,7 +551,6 @@ fun SettingScreen(
     val autoBackupLastTime by viewModel.autoBackupLastTime.collectAsStateWithLifecycle()
     val updateChannel by viewModel.updateChannel.collectAsStateWithLifecycle()
     val enableLiquidGlass by viewModel.enableLiquidGlass.collectAsStateWithLifecycle()
-    val enableDynamicIsland by viewModel.enableDynamicIsland.collectAsStateWithLifecycle()
     val themeMode by sharedViewModel.getThemeMode().collectAsStateWithLifecycle(DataStoreManager.THEME_MODE_DARK)
     val themeColorSource by sharedViewModel.getThemeColorSource().collectAsStateWithLifecycle(DataStoreManager.THEME_COLOR_DEFAULT)
     val customThemeColorHex by sharedViewModel.getCustomThemeColor().collectAsStateWithLifecycle(DataStoreManager.DEFAULT_THEME_COLOR_HEX)
@@ -894,12 +893,6 @@ fun SettingScreen(
                         isEnable = getPlatform() == Platform.Android,
                     )
                 }
-                SettingItem(
-                    title = "Dynamic Island Mini Player",
-                    subtitle = "Show an interactive floating pill at the top notch with live animated waveform and quick playback controls",
-                    smallSubtitle = true,
-                    switch = (enableDynamicIsland to { viewModel.setEnableDynamicIsland(it) }),
-                )
             }
         }
         item(key = "content") {

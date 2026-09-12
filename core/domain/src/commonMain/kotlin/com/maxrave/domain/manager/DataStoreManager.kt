@@ -476,10 +476,6 @@ interface DataStoreManager {
 
     suspend fun setEnableLiquidGlass(enable: Boolean)
 
-    val enableDynamicIsland: Flow<String>
-
-    suspend fun setEnableDynamicIsland(enable: Boolean)
-
     /** One of [THEME_MODE_SYSTEM], [THEME_MODE_DARK], [THEME_MODE_LIGHT]. */
     val themeMode: Flow<String>
 
