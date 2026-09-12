@@ -183,6 +183,9 @@ class SettingsViewModel(
     private var _enableLiquidGlass: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val enableLiquidGlass: StateFlow<Boolean> = _enableLiquidGlass
 
+    private var _enableDynamicIsland: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    val enableDynamicIsland: StateFlow<Boolean> = _enableDynamicIsland
+
     private val _explicitContentEnabled = MutableStateFlow(false)
     val explicitContentEnabled: StateFlow<Boolean> = _explicitContentEnabled
 
@@ -321,6 +324,7 @@ class SettingsViewModel(
         getBackupDownloaded()
         getUpdateChannel()
         getEnableLiquidGlass()
+        getEnableDynamicIsland()
         getExplicitContentEnabled()
         getDiscordLoggedIn()
         getDiscordRichPresenceEnabled()
@@ -643,6 +647,21 @@ class SettingsViewModel(
         viewModelScope.launch {
             dataStoreManager.setEnableLiquidGlass(enableLiquidGlass)
             getEnableLiquidGlass()
+        }
+    }
+
+    private fun getEnableDynamicIsland() {
+        viewModelScope.launch {
+            dataStoreManager.enableDynamicIsland.collect { enableDynamicIsland ->
+                _enableDynamicIsland.value = enableDynamicIsland == DataStoreManager.TRUE
+            }
+        }
+    }
+
+    fun setEnableDynamicIsland(enableDynamicIsland: Boolean) {
+        viewModelScope.launch {
+            dataStoreManager.setEnableDynamicIsland(enableDynamicIsland)
+            getEnableDynamicIsland()
         }
     }
 

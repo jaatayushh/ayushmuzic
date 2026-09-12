@@ -20,7 +20,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.ui.platform.LocalDensity
+import com.maxrave.simpmusic.ui.component.DynamicIslandPlayer
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -152,6 +156,7 @@ fun App(
 
     val isTranslucentBottomBar by viewModel.getTranslucentBottomBar().collectAsStateWithLifecycle(DataStoreManager.FALSE)
     val isLiquidGlassEnabled by viewModel.getEnableLiquidGlass().collectAsStateWithLifecycle(DataStoreManager.FALSE)
+    val isDynamicIslandEnabled by viewModel.getEnableDynamicIsland().collectAsStateWithLifecycle(DataStoreManager.TRUE)
     // Analytics only makes sense with local tracking on, so its tab follows that setting.
     val isLocalTrackingEnabled by viewModel.getLocalTrackingEnabled().collectAsStateWithLifecycle(DataStoreManager.FALSE)
     val showAnalyticsTab = isLocalTrackingEnabled == TRUE
@@ -697,6 +702,24 @@ fun App(
                         ) {
                             isShowNowPlaylistScreen = false
                         }
+                    }
+                }
+
+                if (isDynamicIslandEnabled == TRUE && isShowMiniPlayer && !isShowNowPlaylistScreen) {
+                    val localDensity = LocalDensity.current
+                    val topPadding = with(localDensity) { WindowInsets.statusBars.getTop(localDensity).toDp() } + 6.dp
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = topPadding),
+                        contentAlignment = Alignment.TopCenter,
+                    ) {
+                        DynamicIslandPlayer(
+                            sharedViewModel = viewModel,
+                            onOpenNowPlaying = {
+                                isShowNowPlaylistScreen = true
+                            },
+                        )
                     }
                 }
 

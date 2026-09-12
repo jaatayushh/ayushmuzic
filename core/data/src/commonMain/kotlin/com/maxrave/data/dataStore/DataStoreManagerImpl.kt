@@ -1580,6 +1580,26 @@ internal class DataStoreManagerImpl(
         }
     }
 
+    override val enableDynamicIsland: Flow<String>
+        get() =
+            settingsDataStore.data.map { preferences ->
+                preferences[DYNAMIC_ISLAND] ?: TRUE
+            }
+
+    override suspend fun setEnableDynamicIsland(enable: Boolean) {
+        withContext(Dispatchers.IO) {
+            if (enable) {
+                settingsDataStore.edit { settings ->
+                    settings[DYNAMIC_ISLAND] = TRUE
+                }
+            } else {
+                settingsDataStore.edit { settings ->
+                    settings[DYNAMIC_ISLAND] = FALSE
+                }
+            }
+        }
+    }
+
     override val explicitContentEnabled: Flow<String> =
         settingsDataStore.data.map { preferences ->
             preferences[EXPLICIT_CONTENT_ENABLED] ?: TRUE
@@ -1853,6 +1873,7 @@ internal class DataStoreManagerImpl(
         val BACKUP_DOWNLOADED = stringPreferencesKey("backup_downloaded")
 
         val LIQUID_GLASS = stringPreferencesKey("liquid_glass")
+        val DYNAMIC_ISLAND = stringPreferencesKey("dynamic_island")
 
         val EXPLICIT_CONTENT_ENABLED = stringPreferencesKey("explicit_content_enabled")
 

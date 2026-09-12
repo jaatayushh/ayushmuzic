@@ -1776,6 +1776,8 @@ class SharedViewModel(
 
     fun getEnableLiquidGlass() = dataStoreManager.enableLiquidGlass
 
+    fun getEnableDynamicIsland() = dataStoreManager.enableDynamicIsland
+
     fun getLocalTrackingEnabled() = dataStoreManager.localTrackingEnabled
 
     // Drives the Mix for you tab: YouTube hands an anonymous session no mixes at all.
