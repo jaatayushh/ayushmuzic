@@ -7,7 +7,7 @@
 
   <p>
     <a href="https://github.com/jaatayushh/ayushmuzic"><img src="https://img.shields.io/badge/GitHub-jaatayushh%2Fayushmuzic-181717?logo=github&logoColor=white" alt="GitHub Repo"></a>
-    <img src="https://img.shields.io/badge/Version-2.1.0-6C5CE7?style=flat&logo=android" alt="Version">
+    <img src="https://img.shields.io/badge/Version-1.0.1-6C5CE7?style=flat&logo=android" alt="Version">
     <img src="https://img.shields.io/badge/Platform-Android%20%7C%20Windows%20%7C%20Linux%20%7C%20macOS-3DDC84?logo=android&logoColor=white" alt="Platforms">
     <img src="https://img.shields.io/badge/Framework-Compose%20Multiplatform-000000?logo=jetpackcompose" alt="Compose Multiplatform">
     <img src="https://img.shields.io/badge/License-GPL--3.0-FF6B6B" alt="License">
