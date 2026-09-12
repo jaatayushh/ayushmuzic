@@ -54,8 +54,12 @@ jobs:
       - name: Update environment variables
         env:
           BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
-        run:
-          echo $BASE_64_SIGNING_KEY | base64 -d > simpmusic.jks
+        run: |
+          if [ -n "$BASE_64_SIGNING_KEY" ]; then
+            echo $BASE_64_SIGNING_KEY | base64 -d > simpmusic.jks
+          else
+            echo "Warning: BASE_64_SIGNING_KEY secret is not set, skipping keystore generation."
+          fi
 
       - name: Update build product flavor
         run: |
@@ -96,8 +100,12 @@ jobs:
       - name: Update environment variables
         env:
           BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
-        run:
-          echo $BASE_64_SIGNING_KEY | base64 -d > simpmusic.jks
+        run: |
+          if [ -n "$BASE_64_SIGNING_KEY" ]; then
+            echo $BASE_64_SIGNING_KEY | base64 -d > simpmusic.jks
+          else
+            echo "Warning: BASE_64_SIGNING_KEY secret is not set, skipping keystore generation."
+          fi
 
       - name: Update build product flavor
         run: |
@@ -342,3 +350,30 @@ jobs:
         with:
           name: desktop-mac-dmg
           path: dist/*.dmg
+    p u b l i s h - r e l e a s e : 
+         n a m e :   P u b l i s h   G i t H u b   R e l e a s e 
+         n e e d s :   [ b u i l d - f u l l - r e l e a s e ,   b u i l d - f o s s - r e l e a s e ,   b u i l d - d e s k t o p - p a c k a g e s ] 
+         r u n s - o n :   u b u n t u - l a t e s t 
+         p e r m i s s i o n s : 
+             c o n t e n t s :   w r i t e 
+         s t e p s : 
+             -   u s e s :   a c t i o n s / c h e c k o u t @ v 6 
+             -   n a m e :   D o w n l o a d   a l l   a r t i f a c t s 
+                 u s e s :   a c t i o n s / d o w n l o a d - a r t i f a c t @ v 4 
+                 w i t h : 
+                     p a t h :   a r t i f a c t s 
+             -   n a m e :   R e a d   a p p   v e r s i o n 
+                 i d :   v e r s i o n 
+                 r u n :   | 
+                     V E R S I O N = $ ( g r e p   ' ^ v e r s i o n - n a m e '   g r a d l e / l i b s . v e r s i o n s . t o m l   |   h e a d   - 1   |   c u t   - d ' " '   - f 2 ) 
+                     e c h o   " v e r s i o n = $ V E R S I O N "   > >   " $ G I T H U B _ O U T P U T " 
+             -   n a m e :   C r e a t e   R e l e a s e   a n d   U p l o a d 
+                 e n v : 
+                     G I T H U B _ T O K E N :   $ { {   s e c r e t s . G I T H U B _ T O K E N   } } 
+                     V E R S I O N :   $ { {   s t e p s . v e r s i o n . o u t p u t s . v e r s i o n   } } 
+                 r u n :   | 
+                     #   C r e a t e   r e l e a s e   i f   i t   d o e s n ' t   e x i s t 
+                     g h   r e l e a s e   v i e w   " v $ V E R S I O N "   | |   g h   r e l e a s e   c r e a t e   " v $ V E R S I O N "   - t   " A y u s h M u z i c   v $ V E R S I O N "   - n   " R e l e a s e   v $ V E R S I O N " 
+                     #   U p l o a d   a l l   f i l e s 
+                     f i n d   a r t i f a c t s   - t y p e   f   \ (   - n a m e   " * . a p k "   - o   - n a m e   " * . m s i x "   - o   - n a m e   " * . d m g "   - o   - n a m e   " * . A p p I m a g e "   \ )   - e x e c   g h   r e l e a s e   u p l o a d   " v $ V E R S I O N "   { }   - - c l o b b e r   \ ;  
+ 
