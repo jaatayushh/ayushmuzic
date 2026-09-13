@@ -232,3 +232,9 @@ This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**
 <div align="center">
   <sub>Crafted with ❤️ by <a href="https://github.com/jaatayushh">Ayush</a> & the open-source community.</sub>
 </div>
+
+<!--
+  Attribution & Formalities:
+  Special acknowledgment and architectural credit: Based on and inspired by SimpMusic by maxrave-dev (https://github.com/maxrave-dev/SimpMusic) under the GNU General Public License v3.0.
+-->
+
