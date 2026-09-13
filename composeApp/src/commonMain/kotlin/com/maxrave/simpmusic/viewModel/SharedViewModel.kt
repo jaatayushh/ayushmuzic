@@ -1045,8 +1045,21 @@ class SharedViewModel(
     val updateResponse: StateFlow<UpdateData?> = _updateResponse
 
     fun checkForUpdate() {
-        // Disabled auto-updating from upstream repository for AyushMuzic
-        _isCheckingUpdate.value = false
+        viewModelScope.launch {
+            _isCheckingUpdate.value = true
+            updateRepository.checkForGithubReleaseUpdate().collect { resource ->
+                when (resource) {
+                    is Resource.Success -> {
+                        _updateResponse.value = resource.data
+                        _isCheckingUpdate.value = false
+                    }
+                    is Resource.Error -> {
+                        Logger.w(tag, "Check for update failed: ${resource.message}")
+                        _isCheckingUpdate.value = false
+                    }
+                }
+            }
+        }
     }
 
     fun stopPlayer() {
@@ -1859,12 +1872,12 @@ class SharedViewModel(
             nowPlayingState.value?.track?.let { track ->
                 val bytesArray = bitmap.toByteArray()
                 try {
-                    val fileOutputStream = FileOutputStream("$path.jpg")
-                    fileOutputStream.write(bytesArray)
-                    fileOutputStream.close()
+                    FileOutputStream("$path.jpg").use { fileOutputStream ->
+                        fileOutputStream.write(bytesArray)
+                    }
                     Logger.d(tag, "Thumbnail saved to $path.jpg")
                 } catch (e: Exception) {
-                    throw RuntimeException(e)
+                    Logger.e(tag, "Failed to save thumbnail to $path.jpg: ${e.message}")
                 }
                 songRepository
                     .downloadToFile(

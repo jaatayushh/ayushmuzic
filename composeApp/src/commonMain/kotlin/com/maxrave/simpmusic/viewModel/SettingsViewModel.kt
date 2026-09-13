@@ -1197,7 +1197,7 @@ class SettingsViewModel(
     fun setSponsorBlockCategories(list: ArrayList<String>) {
         log("setSponsorBlockCategories: $list", LogLevel.WARN)
         viewModelScope.launch {
-            runBlocking(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 dataStoreManager.setSponsorBlockCategories(list)
             }
             getSponsorBlockCategories()

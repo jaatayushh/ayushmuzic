@@ -366,11 +366,15 @@ fun App(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.checkForUpdate()
+    }
+
     LaunchedEffect(updateData) {
         val response = updateData ?: return@LaunchedEffect
-        if (viewModel.showedUpdateDialog &&
-            response.tagName != getString(Res.string.version_format, VersionManager.getVersionName())
-        ) {
+        val currentVersion = VersionManager.getVersionName().removePrefix("v").trim()
+        val remoteVersion = response.tagName.removePrefix("v").trim()
+        if (remoteVersion.isNotEmpty() && remoteVersion != currentVersion && !viewModel.showedUpdateDialog) {
             shouldShowUpdateDialog = true
         }
     }
@@ -746,13 +750,13 @@ fun App(
                             ),
                         onDismissRequest = {
                             shouldShowUpdateDialog = false
-                            viewModel.showedUpdateDialog = false
+                            viewModel.showedUpdateDialog = true
                         },
                         confirmButton = {
                             TextButton(
                                 onClick = {
                                     shouldShowUpdateDialog = false
-                                    viewModel.showedUpdateDialog = false
+                                    viewModel.showedUpdateDialog = true
                                     openUrl("https://github.com/jaatayushh/ayushmuzic/releases")
                                 },
                             ) {
@@ -766,7 +770,7 @@ fun App(
                             TextButton(
                                 onClick = {
                                     shouldShowUpdateDialog = false
-                                    viewModel.showedUpdateDialog = false
+                                    viewModel.showedUpdateDialog = true
                                 },
                             ) {
                                 Text(
@@ -808,13 +812,11 @@ fun App(
                                 } ?: stringResource(Res.string.unknown)
 
                             val updateMessage =
-                                runBlocking {
-                                    getString(
-                                        Res.string.update_message,
-                                        response.tagName,
-                                        formatted,
-                                    )
-                                }
+                                stringResource(
+                                    Res.string.update_message,
+                                    response.tagName,
+                                    formatted,
+                                )
                             Column(
                                 Modifier
                                     .heightIn(

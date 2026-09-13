@@ -80,6 +80,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -2479,9 +2480,10 @@ internal class MediaServiceHandlerImpl(
             rpcSenderJob?.cancel()
             rpcSenderJob = null
 
-            // Cancel coroutine scope
-            coroutineScope.cancel()
-            backgroundScope.cancel()
+            // Cancel child coroutines without cancelling the scopes themselves,
+            // so this singleton handler remains reusable if the service is recreated.
+            coroutineScope.coroutineContext.cancelChildren()
+            backgroundScope.coroutineContext.cancelChildren()
 
             Logger.w("ServiceHandler", "Handler released successfully. Scope active: ${coroutineScope.isActive}")
         } catch (e: Exception) {

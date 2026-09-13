@@ -18,11 +18,13 @@ import com.maxrave.domain.utils.toQueryList
 import com.maxrave.logger.LogLevel
 import com.maxrave.logger.Logger
 import com.maxrave.simpmusic.viewModel.base.BaseViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -115,9 +117,19 @@ class SearchViewModel(
     var regionCode: String? = null
     var language: String? = null
 
+    private var searchHistoryJob: Job? = null
+
     init {
-        regionCode = runBlocking { dataStoreManager.location.first() }
-        language = runBlocking { dataStoreManager.getString(SELECTED_LANGUAGE).first() }
+        viewModelScope.launch {
+            dataStoreManager.location.distinctUntilChanged().collect {
+                regionCode = it
+            }
+        }
+        viewModelScope.launch {
+            dataStoreManager.getString(SELECTED_LANGUAGE).distinctUntilChanged().collect {
+                language = it
+            }
+        }
         getSearchHistory()
         getMoodAndGenres()
     }
@@ -155,7 +167,8 @@ class SearchViewModel(
     }
 
     private fun getSearchHistory() {
-        viewModelScope.launch {
+        searchHistoryJob?.cancel()
+        searchHistoryJob = viewModelScope.launch {
             searchRepository.getSearchHistory().collect { values ->
                 if (values.isNotEmpty()) {
                     values.toQueryList().reversed().let { list ->
@@ -174,7 +187,6 @@ class SearchViewModel(
         viewModelScope.launch {
             searchRepository.insertSearchHistory(SearchHistory(query = query)).collectLatest {
                 Logger.d(tag, "Inserted search history: $query, $it")
-                getSearchHistory()
             }
         }
     }
@@ -182,8 +194,7 @@ class SearchViewModel(
     fun deleteSearchHistory() {
         viewModelScope.launch {
             searchRepository.deleteSearchHistory()
-            delay(1000)
-            getSearchHistory()
+            _searchHistory.value = emptyList()
         }
     }
 

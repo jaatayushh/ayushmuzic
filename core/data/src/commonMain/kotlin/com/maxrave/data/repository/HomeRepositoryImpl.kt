@@ -17,6 +17,7 @@ import com.maxrave.domain.repository.HomeRepository
 import com.maxrave.domain.utils.Resource
 import com.maxrave.kotlinytmusicscraper.YouTube
 import com.maxrave.logger.Logger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
@@ -65,104 +66,63 @@ internal class HomeRepositoryImpl(
         songString: String,
     ): Flow<Resource<Pair<String?, List<HomeItem>>>> =
         flow {
-            runCatching {
+            try {
                 val limit = dataStoreManager.homeLimit.first()
                 youTube
                     .customQuery(browseId = "FEmusic_home", params = params)
                     .onSuccess { result ->
                         val list: ArrayList<HomeItem> = arrayListOf()
-                        if (result.contents
-                                ?.singleColumnBrowseResultsRenderer
-                                ?.tabs
-                                ?.get(
-                                    0,
-                                )?.tabRenderer
-                                ?.content
-                                ?.sectionListRenderer
-                                ?.contents
-                                ?.get(
-                                    0,
-                                )?.musicCarouselShelfRenderer
+                        val carousel = result.contents
+                            ?.singleColumnBrowseResultsRenderer
+                            ?.tabs
+                            ?.getOrNull(0)
+                            ?.tabRenderer
+                            ?.content
+                            ?.sectionListRenderer
+                            ?.contents
+                            ?.getOrNull(0)
+                            ?.musicCarouselShelfRenderer
+
+                        val straplineRun = carousel
+                            ?.header
+                            ?.musicCarouselShelfBasicHeaderRenderer
+                            ?.strapline
+                            ?.runs
+                            ?.getOrNull(0)
+
+                        if (straplineRun?.text != null) {
+                            val accountName = straplineRun.text ?: ""
+                            val accountThumbUrl = carousel
                                 ?.header
                                 ?.musicCarouselShelfBasicHeaderRenderer
-                                ?.strapline
-                                ?.runs
-                                ?.get(
-                                    0,
-                                )?.text != null
-                        ) {
-                            val accountName =
-                                result.contents
-                                    ?.singleColumnBrowseResultsRenderer
-                                    ?.tabs
-                                    ?.get(
-                                        0,
-                                    )?.tabRenderer
-                                    ?.content
-                                    ?.sectionListRenderer
-                                    ?.contents
-                                    ?.get(
-                                        0,
-                                    )?.musicCarouselShelfRenderer
-                                    ?.header
-                                    ?.musicCarouselShelfBasicHeaderRenderer
-                                    ?.strapline
-                                    ?.runs
-                                    ?.get(
-                                        0,
-                                    )?.text ?: ""
-                            val accountThumbUrl =
-                                result.contents
-                                    ?.singleColumnBrowseResultsRenderer
-                                    ?.tabs
-                                    ?.get(
-                                        0,
-                                    )?.tabRenderer
-                                    ?.content
-                                    ?.sectionListRenderer
-                                    ?.contents
-                                    ?.get(
-                                        0,
-                                    )?.musicCarouselShelfRenderer
-                                    ?.header
-                                    ?.musicCarouselShelfBasicHeaderRenderer
-                                    ?.thumbnail
-                                    ?.musicThumbnailRenderer
-                                    ?.thumbnail
-                                    ?.thumbnails
-                                    ?.get(
-                                        0,
-                                    )?.url
-                                    ?.replace("s88", "s352") ?: ""
-                            if (accountName != "" && accountThumbUrl != "") {
+                                ?.thumbnail
+                                ?.musicThumbnailRenderer
+                                ?.thumbnail
+                                ?.thumbnails
+                                ?.getOrNull(0)
+                                ?.url
+                                ?.replace("s88", "s352") ?: ""
+
+                            if (accountName.isNotEmpty() && accountThumbUrl.isNotEmpty()) {
                                 dataStoreManager.putString("AccountName", accountName)
                                 dataStoreManager.putString("AccountThumbUrl", accountThumbUrl)
                             }
                         }
-                        val continueParam =
-                            result.contents
-                                ?.singleColumnBrowseResultsRenderer
-                                ?.tabs
-                                ?.get(
-                                    0,
-                                )?.tabRenderer
-                                ?.content
-                                ?.sectionListRenderer
-                                ?.continuations
-                                ?.get(
-                                    0,
-                                )?.nextContinuationData
-                                ?.continuation
-                        val data =
-                            result.contents
-                                ?.singleColumnBrowseResultsRenderer
-                                ?.tabs
-                                ?.get(
-                                    0,
-                                )?.tabRenderer
-                                ?.content
-                                ?.sectionListRenderer
-                                ?.contents
+                        val sectionList = result.contents
+                            ?.singleColumnBrowseResultsRenderer
+                            ?.tabs
+                            ?.getOrNull(0)
+                            ?.tabRenderer
+                            ?.content
+                            ?.sectionListRenderer
+
+                        val continueParam = sectionList
+                            ?.continuations
+                            ?.getOrNull(0)
+                            ?.nextContinuationData
+                            ?.continuation
+
+                        val data = sectionList?.contents
                         list.addAll(
                             parseMixedContent(
                                 data,
@@ -170,73 +130,53 @@ internal class HomeRepositoryImpl(
                                 songString,
                             ),
                         )
-//                        var count = 0
-//                        while (count < limit && continueParam != null) {
-//                            youTube
-//                                .customQuery(browseId = "", continuation = continueParam)
-//                                .onSuccess { response ->
-//                                    continueParam =
-//                                        response.continuationContents
-//                                            ?.sectionListContinuation
-//                                            ?.continuations
-//                                            ?.get(
-//                                                0,
-//                                            )?.nextContinuationData
-//                                            ?.continuation
-//                                    Logger.d("Repository", "continueParam: $continueParam")
-//                                    val dataContinue =
-//                                        response.continuationContents?.sectionListContinuation?.contents
-//                                    list.addAll(
-//                                        parseMixedContent(
-//                                            dataContinue,
-//                                            viewString,
-//                                            songString,
-//                                        ),
-//                                    )
-//                                    count++
-//                                    Logger.d("Repository", "count: $count")
-//                                }.onFailure {
-//                                    Logger.e("Repository", "Error: ${it.message}")
-//                                    count++
-//                                }
-//                        }
                         Logger.d("Repository", "List size: ${list.size}")
                         emit(Resource.Success(continueParam to list.toList()))
                     }.onFailure { error ->
                         emit(Resource.Error<Pair<String?, List<HomeItem>>>(error.message.toString()))
                     }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logger.e("HomeRepository", "getHomeData error: ${e.message}")
+                emit(Resource.Error<Pair<String?, List<HomeItem>>>(e.message ?: "Unknown error"))
             }
         }.flowOn(Dispatchers.IO)
 
     override fun getHomeDataContinue(
         continueParam: String,
         viewString: String,
-        songString: String
+        songString: String,
     ): Flow<Resource<Pair<String?, List<HomeItem>>>> = flow {
-        youTube
-            .customQuery(browseId = "", continuation = continueParam)
-            .onSuccess { response ->
-                val newContinueParam =
-                    response.continuationContents
-                        ?.sectionListContinuation
-                        ?.continuations
-                        ?.get(
-                            0,
-                        )?.nextContinuationData
-                        ?.continuation
-                Logger.d("Repository", "continueParam: $continueParam")
-                val dataContinue =
-                    response.continuationContents?.sectionListContinuation?.contents
-                val list =
-                    parseMixedContent(
-                        dataContinue,
-                        viewString,
-                        songString,
-                    )
-                emit(Resource.Success(newContinueParam to list))
-            }.onFailure {
-                emit(Resource.Error<Pair<String?, List<HomeItem>>>(it.message.toString()))
-            }
+        try {
+            youTube
+                .customQuery(browseId = "", continuation = continueParam)
+                .onSuccess { response ->
+                    val newContinueParam =
+                        response.continuationContents
+                            ?.sectionListContinuation
+                            ?.continuations
+                            ?.getOrNull(0)
+                            ?.nextContinuationData
+                            ?.continuation
+                    Logger.d("Repository", "continueParam: $continueParam")
+                    val dataContinue =
+                        response.continuationContents?.sectionListContinuation?.contents
+                    val list =
+                        parseMixedContent(
+                            dataContinue,
+                            viewString,
+                            songString,
+                        )
+                    emit(Resource.Success(newContinueParam to list))
+                }.onFailure {
+                    emit(Resource.Error<Pair<String?, List<HomeItem>>>(it.message.toString()))
+                }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            emit(Resource.Error<Pair<String?, List<HomeItem>>>(e.message ?: "Unknown error"))
+        }
     }.flowOn(Dispatchers.IO)
 
     override fun getNewRelease(

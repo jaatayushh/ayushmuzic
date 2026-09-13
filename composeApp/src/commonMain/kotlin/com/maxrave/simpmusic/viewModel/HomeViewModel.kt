@@ -27,6 +27,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import simpmusic.composeapp.generated.resources.Res
@@ -403,7 +407,7 @@ class HomeViewModel(
         listeningRecommendationJob?.cancel()
         listeningRecommendationJob = viewModelScope.launch {
             try {
-                val recentSongs = songRepository.getRecentSong(15, 0)
+                val recentSongs = songRepository.getRecentSong(20, 0)
                 if (recentSongs.isEmpty()) return@launch
 
                 val quickPicksTitle = runCatching { getString(Res.string.quick_picks) }.getOrDefault("Quick picks")
@@ -421,45 +425,75 @@ class HomeViewModel(
                     contents = jumpBackInContents,
                 )
 
-                val seedSong = recentSongs.first()
-                songRepository.getRelatedData(seedSong.videoId).collect { relatedRes ->
-                    if (relatedRes is Resource.Success && !relatedRes.data?.first.isNullOrEmpty()) {
-                        val tracks = relatedRes.data?.first ?: emptyList()
-                        val recommendedContents = tracks.map { track ->
-                            track.toHomeContent()
-                        }
-                        val recommendedShelf = HomeItem(
-                            title = quickPicksTitle,
-                            subtitle = "Similar to \"${seedSong.title}\"",
-                            contents = recommendedContents,
-                        )
+                // Pick up to 5 distinct recent songs/artists as seeds
+                val seedSongs = recentSongs.distinctBy { it.artistName?.firstOrNull() ?: it.videoId }.take(5)
+                val recentVideoIds = recentSongs.map { it.videoId }.toSet()
 
-                        val updatedList = buildList {
-                            if (!hasQuickPicks) {
-                                add(recommendedShelf)
+                // Fetch related tracks for all seed songs concurrently
+                val relatedResults: List<List<Track>> = coroutineScope {
+                    seedSongs.map { seed ->
+                        async {
+                            val res = songRepository.getRelatedData(seed.videoId).firstOrNull {
+                                it is Resource.Success || it is Resource.Error
                             }
-                            add(jumpBackInShelf)
-                            addAll(rawHomeItems.filter { it.title != "Jump back in" && (hasQuickPicks || it.title != quickPicksTitle) })
-                        }
-                        _homeItemList.value = updatedList
-                    } else {
-                        val updatedList = buildList {
-                            if (!hasQuickPicks) {
-                                add(
-                                    HomeItem(
-                                        title = quickPicksTitle,
-                                        subtitle = "Based on your listening",
-                                        contents = jumpBackInContents,
-                                    ),
-                                )
+                            if (res is Resource.Success) {
+                                res.data?.first ?: emptyList()
                             } else {
-                                add(jumpBackInShelf)
+                                emptyList()
                             }
-                            addAll(rawHomeItems.filter { it.title != "Jump back in" && (hasQuickPicks || it.title != quickPicksTitle) })
                         }
-                        _homeItemList.value = updatedList
+                    }.awaitAll()
+                }
+
+                // Interleave tracks from different seeds so the shelf is a diverse mix
+                val maxLen = relatedResults.maxOfOrNull { it.size } ?: 0
+                val recommendedTracks = mutableListOf<Track>()
+                val seenVideoIds = mutableSetOf<String>()
+
+                for (i in 0 until maxLen) {
+                    for (list in relatedResults) {
+                        if (i < list.size) {
+                            val track = list[i]
+                            if (!recentVideoIds.contains(track.videoId) && seenVideoIds.add(track.videoId)) {
+                                recommendedTracks.add(track)
+                            }
+                        }
                     }
                 }
+
+                val recommendedContents = recommendedTracks.map { it.toHomeContent() }
+
+                val seedArtists = seedSongs.mapNotNull { it.artistName?.firstOrNull() }.distinct().take(3)
+                val subtitleText = when {
+                    seedArtists.size >= 2 -> "Inspired by ${seedArtists.joinToString(", ")}"
+                    seedArtists.size == 1 -> "Similar to \"${seedSongs.first().title}\""
+                    else -> "Based on your recent listening"
+                }
+
+                val updatedList = buildList {
+                    if (!hasQuickPicks) {
+                        if (recommendedContents.isNotEmpty()) {
+                            add(
+                                HomeItem(
+                                    title = quickPicksTitle,
+                                    subtitle = subtitleText,
+                                    contents = recommendedContents,
+                                ),
+                            )
+                        } else {
+                            add(
+                                HomeItem(
+                                    title = quickPicksTitle,
+                                    subtitle = "Based on your listening",
+                                    contents = jumpBackInContents,
+                                ),
+                            )
+                        }
+                    }
+                    add(jumpBackInShelf)
+                    addAll(rawHomeItems.filter { it.title != "Jump back in" && (hasQuickPicks || it.title != quickPicksTitle) })
+                }
+                _homeItemList.value = updatedList
             } catch (e: Exception) {
                 Logger.e(tag, "Failed to inject personalized recommendations: ${e.message}")
             }
