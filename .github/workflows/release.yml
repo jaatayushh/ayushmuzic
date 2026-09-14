@@ -1,4 +1,4 @@
-name: Build and Release (Android APK & Windows MSI)
+name: Build and Release (Android, Windows, macOS, Linux)
 
 on:
   push:
@@ -98,9 +98,121 @@ jobs:
           name: windows-msi
           path: msi-output/*.msi
 
+  build-mac:
+    name: Build macOS DMG
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'microsoft'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(grep '^version-name' gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "App version: $VERSION"
+
+      - name: Fetch MPV Natives
+        run: ./gradlew :composeApp:mpvSetupAll --no-daemon --stacktrace
+
+      - name: Build macOS DMG
+        run: ./gradlew :desktopApp:packageReleaseDmg --no-daemon --stacktrace
+
+      - name: Stage DMG for upload
+        run: |
+          mkdir -p mac-output
+          VERSION="${{ steps.version.outputs.version }}"
+          DMG_FILE=$(find desktopApp/build/compose/binaries -name "*.dmg" | head -1)
+          echo "Found DMG: $DMG_FILE"
+          cp "$DMG_FILE" "mac-output/AyushMuzic-v${VERSION}-macOS.dmg"
+          ls -lh mac-output/
+
+      - name: Upload macOS DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-dmg
+          path: mac-output/*.dmg
+
+  build-linux:
+    name: Build Linux Packages (.deb & portable tar.gz)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install packaging dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot dpkg-dev
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'microsoft'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(grep '^version-name' gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "App version: $VERSION"
+
+      - name: Fetch MPV Natives
+        run: ./gradlew :composeApp:mpvSetupAll --no-daemon --stacktrace
+
+      - name: Build Linux Deb and AppImage
+        run: ./gradlew :desktopApp:packageReleaseDeb :desktopApp:packageReleaseAppImage --no-daemon --stacktrace
+
+      - name: Stage Linux packages for upload
+        run: |
+          mkdir -p linux-output
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          # Find and stage the .deb package
+          DEB_FILE=$(find desktopApp/build/compose/binaries -name "*.deb" | head -1)
+          if [ -n "$DEB_FILE" ]; then
+            echo "Found DEB: $DEB_FILE"
+            cp "$DEB_FILE" "linux-output/AyushMuzic-v${VERSION}-linux.deb"
+          fi
+          
+          # Find the app image directory and compress into tar.gz
+          APP_DIR=$(find desktopApp/build/compose/binaries -type d -path "*/app-image/*" | head -1)
+          if [ -z "$APP_DIR" ]; then
+            APP_DIR=$(find desktopApp/build/compose/binaries -type d -name "AyushMuzic" | head -1)
+          fi
+          if [ -n "$APP_DIR" ]; then
+            echo "Found App Directory: $APP_DIR"
+            PARENT_DIR=$(dirname "$APP_DIR")
+            DIR_NAME=$(basename "$APP_DIR")
+            tar -czf "linux-output/AyushMuzic-v${VERSION}-linux-x64.tar.gz" -C "$PARENT_DIR" "$DIR_NAME"
+          fi
+          
+          ls -lh linux-output/
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: linux-output/*
+
   publish-release:
     name: Publish GitHub Release
-    needs: [build-android, build-windows]
+    needs: [build-android, build-windows, build-mac, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -123,7 +235,7 @@ jobs:
       - name: Organize release assets
         run: |
           mkdir -p dist
-          find release-assets -type f \( -name "*.apk" -o -name "*.msi" \) -exec cp {} dist/ \;
+          find release-assets -type f \( -name "*.apk" -o -name "*.msi" -o -name "*.dmg" -o -name "*.deb" -o -name "*.tar.gz" \) -exec cp {} dist/ \;
           ls -lh dist/
 
       - name: Create or Update GitHub Release
@@ -135,14 +247,20 @@ jobs:
             ## AyushMuzic v${{ steps.version.outputs.version }}
             
             ### What's Changed
+            - **Cross-Platform Release**: Now available on **Android**, **Windows**, **macOS**, and **Linux**!
+            - **macOS DMG**: Native Apple Silicon & Intel standalone installer with MPV hardware acceleration.
+            - **Linux Packages**: Standard Debian/Ubuntu `.deb` installer and universal portable `.tar.gz` distribution.
             - **Fixed Startup "Can't Connect" Issue**: Resolved HTTP client race condition on launch by guarding proxy state mutations in `Ytmusic`, `SpotifyClient`, and `SimpMusicLyrics`.
             - **Startup Auto-Retry**: Added automatic transient failure retry for initial home data queries.
             - **Stabilized Flow Watchers**: Prevented delayed cookie events from canceling in-flight startup requests.
-            - **Automated Cloud CI/CD**: Seamless automated builds for Android APKs (`arm64`, `universal`) and Windows MSI setup via GitHub Actions.
+            - **Automated Cloud CI/CD**: Full 4-platform matrix build and release pipeline via GitHub Actions.
             
             ### Assets
             - `AyushMuzic-v${{ steps.version.outputs.version }}-arm64.apk` — Optimized build for modern 64-bit Android devices.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-universal.apk` — Compatible with all supported Android architectures.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-Setup.msi` — Standalone Windows 10/11 installer.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-macOS.dmg` — Standalone macOS DMG installer.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-linux.deb` — Debian / Ubuntu / Mint installer package.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-linux-x64.tar.gz` — Universal portable Linux distribution.
           files: dist/*
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -158,11 +158,18 @@ compose.desktop {
                     .isMacOsX
             ) {
                 listTarget.addAll(
-                    listOf(TargetFormat.Dmg, TargetFormat.Msi),
+                    listOf(TargetFormat.Dmg),
+                )
+            } else if (org.gradle.internal.os.OperatingSystem
+                    .current()
+                    .isWindows
+            ) {
+                listTarget.addAll(
+                    listOf(TargetFormat.Msi),
                 )
             } else {
                 listTarget.addAll(
-                    listOf(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.AppImage),
+                    listOf(TargetFormat.Deb, TargetFormat.AppImage),
                 )
             }
             targetFormats(*listTarget.toTypedArray())
@@ -199,6 +206,7 @@ compose.desktop {
                             <key>CFBundleURLSchemes</key>
                             <array>
                                 <string>simpmusic</string>
+                                <string>ayushmuzic</string>
                             </array>
                         </dict>
                     </array>
@@ -223,6 +231,10 @@ compose.desktop {
                         .get()
                         .removeSuffix("-hf")
                 iconFile.set(rootDir.resolve("composeApp/icon/circle_app_icon.png"))
+                debMaintainer = "jaatayushh@users.noreply.github.com"
+                menuGroup = "AyushMuzic"
+                appCategory = "AudioVideo"
+                shortcut = true
             }
         }
 
