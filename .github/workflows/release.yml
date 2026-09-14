@@ -1,0 +1,148 @@
+name: Build and Release (Android APK & Windows MSI)
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - 'main'
+    paths-ignore:
+      - 'README.md'
+      - '.github/workflows/android.yml'
+      - '.github/workflows/pr-triage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build Android APKs (arm64 & universal)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'microsoft'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(grep '^version-name' gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "App version: $VERSION"
+
+      - name: Build Android Debug APKs
+        run: ./gradlew :androidApp:assembleDebug --no-daemon --stacktrace
+
+      - name: Stage APKs for upload
+        run: |
+          mkdir -p apk-output
+          VERSION="${{ steps.version.outputs.version }}"
+          cp androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk apk-output/AyushMuzic-v${VERSION}-arm64.apk
+          cp androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
+          ls -lh apk-output/
+
+      - name: Upload Android APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: apk-output/*.apk
+
+  build-windows:
+    name: Build Windows MSI Installer
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'microsoft'
+          cache: 'gradle'
+
+      - name: Read app version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(grep '^version-name' gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "App version: $VERSION"
+
+      - name: Build Windows MSI
+        run: .\gradlew.bat :desktopApp:packageReleaseMsi --no-daemon --stacktrace
+
+      - name: Stage MSI for upload
+        shell: bash
+        run: |
+          mkdir -p msi-output
+          VERSION="${{ steps.version.outputs.version }}"
+          MSI_FILE=$(find desktopApp/build/compose/binaries -name "*.msi" | head -1)
+          echo "Found MSI: $MSI_FILE"
+          cp "$MSI_FILE" "msi-output/AyushMuzic-v${VERSION}-Setup.msi"
+          ls -lh msi-output/
+
+      - name: Upload Windows MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: msi-output/*.msi
+
+  publish-release:
+    name: Publish GitHub Release
+    needs: [build-android, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(grep '^version-name' gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "App version: $VERSION"
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Organize release assets
+        run: |
+          mkdir -p dist
+          find release-assets -type f \( -name "*.apk" -o -name "*.msi" \) -exec cp {} dist/ \;
+          ls -lh dist/
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: AyushMuzic v${{ steps.version.outputs.version }}
+          body: |
+            ## AyushMuzic v${{ steps.version.outputs.version }}
+            
+            ### What's Changed
+            - **Fixed Startup "Can't Connect" Issue**: Resolved HTTP client race condition on launch by guarding proxy state mutations in `Ytmusic`, `SpotifyClient`, and `SimpMusicLyrics`.
+            - **Startup Auto-Retry**: Added automatic transient failure retry for initial home data queries.
+            - **Stabilized Flow Watchers**: Prevented delayed cookie events from canceling in-flight startup requests.
+            - **Automated Cloud CI/CD**: Seamless automated builds for Android APKs (`arm64`, `universal`) and Windows MSI setup via GitHub Actions.
+            
+            ### Assets
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-arm64.apk` — Optimized build for modern 64-bit Android devices.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-universal.apk` — Compatible with all supported Android architectures.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-Setup.msi` — Standalone Windows 10/11 installer.
+          files: dist/*
+          token: ${{ secrets.GITHUB_TOKEN }}

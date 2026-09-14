@@ -20,6 +20,7 @@ import com.maxrave.logger.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
@@ -68,8 +69,13 @@ internal class HomeRepositoryImpl(
         flow {
             try {
                 val limit = dataStoreManager.homeLimit.first()
-                youTube
-                    .customQuery(browseId = "FEmusic_home", params = params)
+                var customQueryResult = youTube.customQuery(browseId = "FEmusic_home", params = params)
+                if (customQueryResult.isFailure) {
+                    Logger.w("HomeRepository", "Initial customQuery failed (${customQueryResult.exceptionOrNull()?.message}), retrying in 1s...")
+                    delay(1000)
+                    customQueryResult = youTube.customQuery(browseId = "FEmusic_home", params = params)
+                }
+                customQueryResult
                     .onSuccess { result ->
                         val list: ArrayList<HomeItem> = arrayListOf()
                         val carousel = result.contents
@@ -184,18 +190,25 @@ internal class HomeRepositoryImpl(
         musicVideoString: String,
     ): Flow<Resource<List<HomeItem>>> =
         flow {
-            youTube
-                .newRelease()
-                .onSuccess { result ->
-                    emit(Resource.Success<List<HomeItem>>(parseNewRelease(result, newReleaseString, musicVideoString)))
-                }.onFailure { error ->
-                    emit(Resource.Error<List<HomeItem>>(error.message.toString()))
-                }
+            try {
+                youTube
+                    .newRelease()
+                    .onSuccess { result ->
+                        emit(Resource.Success<List<HomeItem>>(parseNewRelease(result, newReleaseString, musicVideoString)))
+                    }.onFailure { error ->
+                        emit(Resource.Error<List<HomeItem>>(error.message.toString()))
+                    }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logger.e("HomeRepository", "getNewRelease error: ${e.message}")
+                emit(Resource.Error<List<HomeItem>>(e.message ?: "Unknown error"))
+            }
         }.flowOn(Dispatchers.IO)
 
     override fun getChartData(countryCode: String): Flow<Resource<Chart>> =
         flow {
-            runCatching {
+            try {
                 youTube
                     .customQuery("FEmusic_charts", country = countryCode)
                     .onSuccess { result ->
@@ -203,9 +216,8 @@ internal class HomeRepositoryImpl(
                             result.contents
                                 ?.singleColumnBrowseResultsRenderer
                                 ?.tabs
-                                ?.get(
-                                    0,
-                                )?.tabRenderer
+                                ?.getOrNull(0)
+                                ?.tabRenderer
                                 ?.content
                                 ?.sectionListRenderer
                         val chart = parseChart(data)
@@ -217,6 +229,11 @@ internal class HomeRepositoryImpl(
                     }.onFailure { error ->
                         emit(Resource.Error<Chart>(error.message.toString()))
                     }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logger.e("HomeRepository", "getChartData error: ${e.message}")
+                emit(Resource.Error<Chart>(e.message ?: "Unknown error"))
             }
         }.flowOn(Dispatchers.IO)
 
@@ -232,7 +249,7 @@ internal class HomeRepositoryImpl(
             if (cached != null) {
                 emit(Resource.Success<Mood>(cached))
             }
-            runCatching {
+            try {
                 youTube
                     .moodAndGenres()
                     .onSuccess { result ->
@@ -263,6 +280,13 @@ internal class HomeRepositoryImpl(
                             emit(Resource.Error<Mood>(e.message.toString()))
                         }
                     }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logger.e("HomeRepository", "getMoodAndMomentsData error: ${e.message}")
+                if (cached == null) {
+                    emit(Resource.Error<Mood>(e.message ?: "Unknown error"))
+                }
             }
         }.flowOn(Dispatchers.IO)
 

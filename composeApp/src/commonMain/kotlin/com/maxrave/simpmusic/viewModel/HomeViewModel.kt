@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -89,7 +90,7 @@ class HomeViewModel(
     // all request a refresh by emitting to this shared flow. A single debounced
     // collector then calls getHomeItemList() once, preventing the startup stampede
     // where each collector's call would cancel the previous one.
-    private val _refreshTrigger = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1, extraBufferCapacity = 16)
 
     // For showing alert that should log in to YouTube
     private val _showLogInAlert: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -173,6 +174,7 @@ class HomeViewModel(
                     dataStoreManager
                         .cookie
                         .distinctUntilChanged()
+                        .drop(1)
                         .collectLatest {
                             if (it.isNotEmpty()) {
                                 Logger.w(tag, "Cookie changed, refreshing home")

@@ -33,6 +33,7 @@ class SimpMusicLyrics {
     private var httpClient = createClient()
     var proxy: ProxyConfig? = null
         set(value) {
+            if (field == value) return
             field = value
             httpClient.close()
             httpClient = createClient()
