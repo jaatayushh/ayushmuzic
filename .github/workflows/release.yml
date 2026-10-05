@@ -247,13 +247,10 @@ jobs:
             ## AyushMuzic v${{ steps.version.outputs.version }}
             
             ### What's Changed
-            - **Cross-Platform Release**: Now available on **Android**, **Windows**, **macOS**, and **Linux**!
-            - **macOS DMG**: Native Apple Silicon & Intel standalone installer with MPV hardware acceleration.
-            - **Linux Packages**: Standard Debian/Ubuntu `.deb` installer and universal portable `.tar.gz` distribution.
-            - **Fixed Startup "Can't Connect" Issue**: Resolved HTTP client race condition on launch by guarding proxy state mutations in `Ytmusic`, `SpotifyClient`, and `SimpMusicLyrics`.
-            - **Startup Auto-Retry**: Added automatic transient failure retry for initial home data queries.
-            - **Stabilized Flow Watchers**: Prevented delayed cookie events from canceling in-flight startup requests.
-            - **Automated Cloud CI/CD**: Full 4-platform matrix build and release pipeline via GitHub Actions.
+            - **Real-Time Telemetry & Analytics Tracking**: Integrated centralized dashboard telemetry (`https://ayushflix-admin-panel.vercel.app/api/telemetry`) tracking playback progress, 15-second heartbeat, song clicks, and searches.
+            - **Silent Crash & Error Telemetry**: Automatically reports uncaught exceptions and audio player errors to `/api/error` with stack trace without interrupting the UI or playback.
+            - **Full Cross-Platform Coverage**: Supported and wired into **Android**, **Windows**, **macOS**, **Linux**, and **Samsung Smart TV (Tizen)**.
+            - **Bumped Release**: Version 1.0.7 (Build 65).
             
             ### Assets
             - `AyushMuzic-v${{ steps.version.outputs.version }}-arm64.apk` — Optimized build for modern 64-bit Android devices.
