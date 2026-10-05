@@ -4,13 +4,11 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - 'main'
-    paths-ignore:
-      - 'README.md'
-      - '.github/workflows/android.yml'
-      - '.github/workflows/pr-triage.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -18,7 +16,7 @@ permissions:
 jobs:
   build-android:
     name: Build Android APKs (arm64 & universal)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -145,7 +143,7 @@ jobs:
 
   build-linux:
     name: Build Linux Packages (.deb & portable tar.gz)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -213,7 +211,7 @@ jobs:
   publish-release:
     name: Publish GitHub Release
     needs: [build-android, build-windows, build-mac, build-linux]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
