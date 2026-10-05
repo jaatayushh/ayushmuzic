@@ -27,6 +27,13 @@ object CrashDialog {
     fun install() {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             try {
+                com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.reportError(
+                    throwable = throwable,
+                    sourceFile = "DesktopApp.kt",
+                )
+            } catch (_: Exception) {}
+
+            try {
                 // Report to Sentry if available
                 if (BuildKonfig.sentryDsn.isNotEmpty()) {
                     Sentry.captureException(throwable)

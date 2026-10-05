@@ -226,6 +226,11 @@ fun runDesktopApp(args: Array<String> = emptyArray()) {
         Sentry.withScope { scope ->
             Sentry.captureMessage("Player Error: ${error.message}, code: ${error.errorCode}, code name: ${error.errorCodeName}")
         }
+        com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.reportPlayerError(
+            errorMessage = "Player Error: ${error.message}, code: ${error.errorCode}, code name: ${error.errorCodeName}",
+            stackTrace = "PlayerErrorCode: ${error.errorCode}",
+            sourceFile = "DesktopMpvPlayer.kt",
+        )
     }
 
     // Register simpmusic:// protocol handler on Windows (HKCU, no admin needed)

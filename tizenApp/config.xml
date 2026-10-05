@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" 
+        xmlns:tizen="http://tizen.org/ns/widgets" 
+        id="http://ayushmuzic.com/tizen/AyushMuzic" 
+        version="1.0.0" 
+        viewmodes="maximized">
+    <tizen:application id="AyushMuzic.AyushMuzic" package="AyushMuzic" exec="index.html" screen-orientation="landscape" context-menu="enable" background-support="enable"/>
+    <name>AyushMuzic</name>
+    <tizen:profile name="tv-samsung"/>
+    <icon src="icon.png"/>
+    <author email="jaatayushh@users.noreply.github.com" href="https://github.com/jaatayushh">Ayush</author>
+    <description>AyushMuzic - Cross-Platform YouTube Music Client for Samsung Smart TV (Tizen OS)</description>
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.audio"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/avplay"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+    <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="enable" encryption="disable" install-location="auto"/>
+    <access origin="*" subdomains="true"/>
+    <tizen:metadata key="http://samsung.com/tv/metadata/use.multiscreen" value="false"/>
+</widget>

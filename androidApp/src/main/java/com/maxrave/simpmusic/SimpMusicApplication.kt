@@ -52,6 +52,18 @@ class SimpMusicApplication :
 
     override fun onCreate() {
         super.onCreate()
+        runCatching {
+            val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
+            Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+                try {
+                    com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.reportError(
+                        throwable = throwable,
+                        sourceFile = "AudioPlayerService.kt",
+                    )
+                } catch (_: Throwable) {}
+                previousHandler?.uncaughtException(thread, throwable)
+            }
+        }
         runCatching { configCrashlytics(this, BuildKonfig.sentryDsn) }
         runCatching { configLastfm(BuildKonfig.lastfmApiKey, BuildKonfig.lastfmSecret) }
         startKoin {

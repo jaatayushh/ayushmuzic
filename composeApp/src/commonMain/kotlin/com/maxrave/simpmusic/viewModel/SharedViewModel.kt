@@ -240,6 +240,53 @@ class SharedViewModel(
     val shareSavedLyrics: StateFlow<Boolean> get() = _shareSavedLyrics
 
     init {
+        com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.init(
+            dataStoreManager = dataStoreManager,
+            accountRepository = org.koin.mp.KoinPlatformTools.defaultContext().get().getOrNull(),
+            appIdentity = org.koin.mp.KoinPlatformTools.defaultContext().get().getOrNull(),
+        )
+
+        viewModelScope.launch {
+            var lastReportedState: String? = null
+            var heartbeatCounter = 0
+            while (isActive) {
+                delay(1000L)
+                val currentPlaying = controllerState.value.isPlaying
+                val currentTrack = nowPlayingState.value?.songEntity
+                val curTime = timeline.value.current / 1000L
+                val totalTime = timeline.value.total / 1000L
+
+                if (currentTrack != null && totalTime > 0) {
+                    if (currentPlaying) {
+                        heartbeatCounter++
+                        // Send immediately when status changes to playing or every 15 seconds
+                        if (lastReportedState != "playing" || heartbeatCounter >= 15) {
+                            heartbeatCounter = 0
+                            lastReportedState = "playing"
+                            com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.trackProgress(
+                                title = currentTrack.title,
+                                artist = currentTrack.artistName?.joinToString(", "),
+                                progressSec = curTime,
+                                durationSec = totalTime,
+                                status = "playing",
+                            )
+                        }
+                    } else if (lastReportedState == "playing") {
+                        // User just paused
+                        lastReportedState = "paused"
+                        heartbeatCounter = 0
+                        com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.trackProgress(
+                            title = currentTrack.title,
+                            artist = currentTrack.artistName?.joinToString(", "),
+                            progressSec = curTime,
+                            durationSec = totalTime,
+                            status = "paused",
+                        )
+                    }
+                }
+            }
+        }
+
         viewModelScope.launch {
             log("SharedViewModel init")
             if (dataStoreManager.appVersion.first() != VersionManager.getVersionName()) {
@@ -418,13 +465,17 @@ class SharedViewModel(
                             }
 
                             SimpleMediaState.Ended -> {
-                                // Park at the end of the track rather than at -1. The only formatter
-                                // for these fields renders any negative as "NA:NA", and nothing here
-                                // is guaranteed to follow: at the end of the queue the player simply
-                                // stays ended, so a -1 written here stays on screen. Worse, the
-                                // Progress branch below ignores negative values and the Loading
-                                // branch restores `total` without touching `current`, which is how
-                                // the player ends up showing a correct duration next to "NA:NA".
+                                val currentTrack = nowPlayingState.value?.songEntity
+                                val totalTime = _timeline.value.total / 1000L
+                                if (currentTrack != null && totalTime > 0) {
+                                    com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.trackProgress(
+                                        title = currentTrack.title,
+                                        artist = currentTrack.artistName?.joinToString(", "),
+                                        progressSec = totalTime,
+                                        durationSec = totalTime,
+                                        status = "completed",
+                                    )
+                                }
                                 _timeline.update {
                                     it.copy(
                                         current = it.total.coerceAtLeast(0L),

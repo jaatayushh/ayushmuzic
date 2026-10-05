@@ -119,6 +119,7 @@ abstract class BaseViewModel :
         type: String,
         index: Int? = null,
     ) {
+        com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.trackClick(anyTrack)
         viewModelScope.launch {
             mediaPlayerHandler.loadMediaItem(
                 anyTrack = anyTrack,

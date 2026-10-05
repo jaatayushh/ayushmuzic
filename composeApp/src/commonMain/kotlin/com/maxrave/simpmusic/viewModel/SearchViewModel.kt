@@ -184,6 +184,7 @@ class SearchViewModel(
     }
 
     fun insertSearchHistory(query: String) {
+        com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.trackSearch(query)
         viewModelScope.launch {
             searchRepository.insertSearchHistory(SearchHistory(query = query)).collectLatest {
                 Logger.d(tag, "Inserted search history: $query, $it")
@@ -199,6 +200,7 @@ class SearchViewModel(
     }
 
     fun searchSongs(query: String) {
+        com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.trackSearch(query)
         _searchScreenUIState.value = SearchScreenUIState.Loading
         viewModelScope.launch {
             searchRepository.getSearchDataSong(query).collect { values ->
@@ -221,6 +223,7 @@ class SearchViewModel(
     }
 
     fun searchAll(query: String) {
+        com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.trackSearch(query)
         _searchScreenUIState.value = SearchScreenUIState.Loading
         viewModelScope.launch {
             var song = ArrayList<SongsResult>()

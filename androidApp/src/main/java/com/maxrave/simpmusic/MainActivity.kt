@@ -280,6 +280,11 @@ class MainActivity : AppCompatActivity() {
             .startService(this@MainActivity, serviceConnection)
         mediaPlayerHandler.pushPlayerError = { it ->
             pushPlayerError(it)
+            com.maxrave.simpmusic.telemetry.AyushMuzicTelemetry.reportPlayerError(
+                errorMessage = "Player Error: ${it.message}, code: ${it.errorCode}, code name: ${it.errorCodeName}",
+                stackTrace = "PlayerErrorCode: ${it.errorCode}",
+                sourceFile = "AudioPlayerService.kt",
+            )
         }
         mediaPlayerHandler.showToast = { type ->
             viewModel.makeToast(
