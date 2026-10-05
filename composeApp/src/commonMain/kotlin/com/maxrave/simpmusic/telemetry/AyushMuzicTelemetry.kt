@@ -172,12 +172,12 @@ object AyushMuzicTelemetry {
     fun <T> trackClick(item: T) {
         val (title, artist) = when (item) {
             is SongEntity -> item.title to (item.artistName?.joinToString(", ") ?: "")
-            is Track -> item.title to (item.artists.joinToString(", ") { it.name })
-            is SongsResult -> item.title to (item.artists.joinToString(", ") { it.name })
+            is Track -> item.title to (item.artists?.joinToString(", ") { it.name } ?: "")
+            is SongsResult -> item.title to (item.artists?.joinToString(", ") { it.name } ?: "")
             else -> return
         }
 
-        if (title.isBlank()) return
+        if (title.isNullOrBlank()) return
 
         scope.launch {
             runCatching {
