@@ -58,7 +58,6 @@ import com.maxrave.domain.mediaservice.handler.QueueData
 import com.maxrave.domain.mediaservice.handler.RepeatState
 import com.maxrave.simpmusic.expect.ui.DeviceVolumeController
 import com.maxrave.simpmusic.ui.component.DraggableItem
-import com.maxrave.simpmusic.ui.component.QueueItemBottomSheet
 import com.maxrave.simpmusic.ui.component.SongFullWidthItems
 import com.maxrave.simpmusic.ui.component.rememberDragDropState
 import com.maxrave.simpmusic.ui.icon.Info
@@ -84,7 +83,7 @@ import simpmusic.composeapp.generated.resources.now_playing
  * The QUEUE body: compact header, [Info][PlaylistAdd][Shuffle][Repeat] pills, a "Continue
  * Playing" section (with the endless-queue switch) and the upcoming tracks — the OLD queue
  * sheet's own [SongFullWidthItems] rows with its long-press-drag reorder and its per-item ⋯
- * sheet ([QueueItemBottomSheet]: move up/down/delete), matching
+ * sheet (the full song sheet plus move up/down/to play next and delete), matching
  * [com.maxrave.simpmusic.ui.component.QueueBottomSheet] exactly.
  * Ends in the same fixed bottom cluster as MAIN/LYRICS.
  */
@@ -98,6 +97,8 @@ internal fun AppleMusicQueueView(
     activePillContainer: Color,
     activePillContent: Color,
     deviceVolumeController: DeviceVolumeController?,
+    outputName: String?,
+    onOpenOutput: () -> Unit,
     modifier: Modifier = Modifier,
     dataStoreManager: DataStoreManager = koinInject(),
     musicServiceHandler: MediaPlayerHandler = koinInject(),
@@ -126,6 +127,19 @@ internal fun AppleMusicQueueView(
     val upcoming =
         remember(state.artworkQueue, state.currentOrderIndex) {
             if (state.currentOrderIndex < 0) emptyList() else state.artworkQueue.withIndex().drop(offset)
+        }
+    // Row keys by track, NOT by position: a radio queue drops played tracks off the front, and a
+    // position-based key changes for every row when that happens, so the list loses its scroll
+    // anchor and jumps under the user. The occurrence number keeps it unique when a radio repeats
+    // a song. Indexed by the ABSOLUTE queue position each row carries.
+    val rowKeys =
+        remember(state.artworkQueue) {
+            val seen = HashMap<String, Int>(state.artworkQueue.size)
+            state.artworkQueue.map { track ->
+                val occurrence = seen.getOrElse(track.videoId) { 0 }
+                seen[track.videoId] = occurrence + 1
+                "${track.videoId}#$occurrence"
+            }
         }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -193,15 +207,6 @@ internal fun AppleMusicQueueView(
         }
         var overscrollJob by remember { mutableStateOf<Job?>(null) }
 
-        // Same per-item sheet the old queue sheet opens from a row's ⋯ (move up/down/delete).
-        var queueItemSheetIndex by remember { mutableStateOf(-1) }
-        if (queueItemSheetIndex >= 0) {
-            QueueItemBottomSheet(
-                onDismiss = { queueItemSheetIndex = -1 },
-                index = queueItemSheetIndex,
-            )
-        }
-
         Box(
             modifier =
                 Modifier
@@ -254,7 +259,7 @@ internal fun AppleMusicQueueView(
                     upcoming,
                     // Absolute index in the key: `upcoming` is a sublist, so a bare local index
                     // shifts on every track change and invalidates every row.
-                    key = { _, item -> item.index.toString() + item.value.videoId },
+                    key = { _, item -> rowKeys.getOrElse(item.index) { item.value.videoId } },
                 ) { localIndex, item ->
                     val track = item.value
                     // The queue-wide index this row actually has. Everything the PLAYER is told
@@ -268,7 +273,7 @@ internal fun AppleMusicQueueView(
                     ) { _ ->
                         // Owner's call: the OLD queue sheet's row component, verbatim — no bespoke
                         // row. Long-press-drag reorders (list-level gesture above); ⋯ opens the
-                        // same per-item sheet the queue sheet uses.
+                        // full song sheet with the queue's own rows, hosted by the player screen.
                         SongFullWidthItems(
                             track = track,
                             isPlaying = false,
@@ -276,7 +281,9 @@ internal fun AppleMusicQueueView(
                             onClickListener = { videoId ->
                                 if (videoId == track.videoId) actions.onSeekToQueueIndex(queueIndex)
                             },
-                            onMoreClickListener = { queueItemSheetIndex = queueIndex },
+                            onMoreClickListener = {
+                                actions.onQueueItemMore(queueIndex, track)
+                            },
                         )
                     }
                 }
@@ -292,6 +299,8 @@ internal fun AppleMusicQueueView(
             activePillContainer = activePillContainer,
             activePillContent = activePillContent,
             deviceVolumeController = deviceVolumeController,
+            outputName = outputName,
+            onOpenOutput = onOpenOutput,
         )
     }
 }

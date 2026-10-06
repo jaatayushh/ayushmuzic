@@ -18,11 +18,15 @@ import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.domain.utils.LocalResource
 import com.maxrave.domain.utils.Resource
 import com.maxrave.simpmusic.viewModel.base.BaseViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
@@ -46,6 +50,29 @@ class AnalyticsViewModel(
     private val _analyticsUIState: MutableStateFlow<AnalyticsUiState> =
         MutableStateFlow(AnalyticsUiState())
     val analyticsUIState: StateFlow<AnalyticsUiState> get() = _analyticsUIState.asStateFlow()
+
+    /**
+     * The signed-in YouTube account's name, printed on the listening receipt; null when signed out.
+     * The same key Home reads its account name from — sign-in, account switch and sign-out keep it.
+     */
+    val accountName: StateFlow<String?> =
+        dataStoreManager
+            .getString("AccountName")
+            .map { name -> name?.takeIf { it.isNotBlank() } }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    // One job per top list, cancelled before its replacement starts. Each loader collects a flow
+    // inside its own launch, and nothing used to stop the previous one: step back two periods
+    // quickly and the first load could land after the second and overwrite it, putting the wrong
+    // period's list on screen. Replacing the job makes the latest request the only one that writes.
+    private var topTracksJob: Job? = null
+    private var topArtistsJob: Job? = null
+    private var topAlbumsJob: Job? = null
+
+    // Set by [showRange]. A view model opened for one fixed range must not have its lists replaced
+    // by the navigator's own "latest period" load, which [init] starts asynchronously and which can
+    // therefore arrive after the range was set.
+    private var rangePinned = false
 
     init {
         getScrobblesCount()
@@ -98,12 +125,16 @@ class AnalyticsViewModel(
     private fun loadPeriod() {
         val state = _analyticsUIState.value
         val (start, end) = rangeFor(state.dayRange, state.periodOffset)
-        _analyticsUIState.update {
-            it.copy(periodStart = start.date, periodEnd = end.date)
+        // Pinned means the span was chosen by whoever opened this screen; the navigator's own
+        // latest period must not replace it, neither the lists nor the dates that describe them.
+        if (!rangePinned) {
+            _analyticsUIState.update {
+                it.copy(periodStart = start.date, periodEnd = end.date)
+            }
+            getTopTracks(start, end)
+            getTopArtists(start, end)
+            getTopAlbums(start, end)
         }
-        getTopTracks(start, end)
-        getTopArtists(start, end)
-        getTopAlbums(start, end)
         getScrobblesLineChart(state.dayRange, end.date)
         getPeriodStats(state.dayRange, state.periodOffset)
     }
@@ -132,6 +163,26 @@ class AnalyticsViewModel(
                 )
             }
         }
+    }
+
+    /**
+     * Shows the top lists for one fixed span, for a screen opened on a period the user picked
+     * elsewhere — the Analytics screen hands its visible period to the playlist it opens.
+     *
+     * Days are inclusive at both ends, the same rule [rangeFor] uses, so a play at 23:59 on the last
+     * day is counted in this span and not dropped.
+     */
+    fun showRange(
+        start: LocalDate,
+        end: LocalDate,
+    ) {
+        rangePinned = true
+        _analyticsUIState.update { it.copy(periodStart = start, periodEnd = end) }
+        val startTime = start.atTime(0, 0)
+        val endTime = end.atTime(23, 59, 59)
+        getTopTracks(startTime, endTime)
+        getTopArtists(startTime, endTime)
+        getTopAlbums(startTime, endTime)
     }
 
     /** Step the window back ([delta] = -1) or forward ([delta] = +1). Never past the present. */
@@ -197,7 +248,8 @@ class AnalyticsViewModel(
         start: LocalDateTime,
         end: LocalDateTime,
     ) {
-        viewModelScope.launch {
+        topTracksJob?.cancel()
+        topTracksJob = viewModelScope.launch {
             _analyticsUIState.update { it.copy(topTracks = LocalResource.Loading()) }
             analyticsRepository
                 .queryTopPlayedSongsInRange(startTimestamp = start, endTimestamp = end)
@@ -217,7 +269,8 @@ class AnalyticsViewModel(
         start: LocalDateTime,
         end: LocalDateTime,
     ) {
-        viewModelScope.launch {
+        topArtistsJob?.cancel()
+        topArtistsJob = viewModelScope.launch {
             _analyticsUIState.update { it.copy(topArtists = LocalResource.Loading()) }
             analyticsRepository
                 .queryTopArtistsInRange(startTimestamp = start, endTimestamp = end)
@@ -261,7 +314,8 @@ class AnalyticsViewModel(
         start: LocalDateTime,
         end: LocalDateTime,
     ) {
-        viewModelScope.launch {
+        topAlbumsJob?.cancel()
+        topAlbumsJob = viewModelScope.launch {
             _analyticsUIState.update { it.copy(topAlbums = LocalResource.Loading()) }
             analyticsRepository
                 .queryTopAlbumsInRange(startTimestamp = start, endTimestamp = end)

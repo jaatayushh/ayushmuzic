@@ -11,7 +11,6 @@ import com.maxrave.simpmusic.viewModel.base.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -36,16 +35,8 @@ class MoodViewModel(
     private var loadedParams: String? = null
 
     init {
-        viewModelScope.launch {
-            dataStoreManager.location.distinctUntilChanged().collect {
-                regionCode = it
-            }
-        }
-        viewModelScope.launch {
-            dataStoreManager.getString(SELECTED_LANGUAGE).distinctUntilChanged().collect {
-                language = it
-            }
-        }
+        regionCode = runBlocking { dataStoreManager.location.first() }
+        language = runBlocking { dataStoreManager.getString(SELECTED_LANGUAGE).first() }
     }
 
     fun getMood(params: String) {

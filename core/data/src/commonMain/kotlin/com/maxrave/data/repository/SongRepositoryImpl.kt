@@ -131,11 +131,12 @@ internal class SongRepositoryImpl(
      */
     override suspend fun clearHistoryAndOrphanedSongs(): Int =
         withContext(Dispatchers.IO) {
-            val pinnedQueue = persistLiveQueueBeforeSweep()
+            persistLiveQueueBeforeSweep()
             localDataSource.deleteAllPlaybackEvents()
             val artists = localDataSource.deleteUnfollowedArtists()
             val notifications = localDataSource.deleteNotificationsOfUnfollowedArtists()
             val artistReleases = localDataSource.deleteFollowedArtistReleasesOfUnfollowedArtists()
+            val artistMotion = localDataSource.deleteOrphanedArtistMotion()
             val podcasts = localDataSource.deleteUnfavoritedPodcasts()
             val albums = localDataSource.deleteUnreferencedAlbums()
             val playlists = localDataSource.deleteUnreferencedPlaylists()
@@ -146,6 +147,7 @@ internal class SongRepositoryImpl(
                 TAG,
                 "Clear history: removed $removed of ${orphans.size} candidate songs, " +
                     "$artists artists, $notifications notifications, $artistReleases artist releases, " +
+                    "$artistMotion artist motion rows, " +
                     "$podcasts podcasts, $albums albums, $playlists playlists, $satellites stale rows",
             )
             // Last, and outside every statement above: SQLite refuses VACUUM inside a transaction.
@@ -160,7 +162,6 @@ internal class SongRepositoryImpl(
                 localDataSource.checkpoint()
                 localDataSource.vacuum()
             }.onFailure { Logger.e(TAG, "VACUUM after clearing history failed: ${it.message}") }
-            unpinLiveQueueAfterSweep(pinnedQueue)
             removed
         }
 
@@ -177,35 +178,12 @@ internal class SongRepositoryImpl(
      * "do not delete what is on screen". Writing nothing when the queue is empty matters too —
      * overwriting a previously saved queue with an empty one would strip the protection instead of
      * adding it.
-     *
-     * @return whether a row was actually written, which is what [unpinLiveQueueAfterSweep] needs in
-     * order to know the `queue` table is this function's doing and not the user's own saved queue.
      */
-    private suspend fun persistLiveQueueBeforeSweep(): Boolean {
+    private suspend fun persistLiveQueueBeforeSweep() {
         val liveQueue = mediaPlayerHandler.queueData.value?.data?.listTracks.orEmpty()
-        if (liveQueue.isEmpty()) return false
+        if (liveQueue.isEmpty()) return
         Logger.d(TAG, "Clear history: pinning ${liveQueue.size} queued tracks before the sweep")
         localDataSource.recoverQueue(QueueEntity(listTrack = liveQueue))
-        return true
-    }
-
-    /**
-     * Take the pin back out once the sweep no longer needs it.
-     *
-     * [persistLiveQueueBeforeSweep] writes the queue whether or not the user asked for their queue
-     * to be saved, so leaving it there does two unwanted things: a user who deliberately turned that
-     * setting off ends up with their queue on disk anyway, and the row goes on protecting those
-     * songs from every future sweep — the next one would find them still referenced and spare them
-     * again, however long ago they stopped playing.
-     *
-     * Only when the setting is off, and only when this run is what created the row: with the setting
-     * on, the row is the user's queue being saved as normal and is none of the sweep's business.
-     */
-    private suspend fun unpinLiveQueueAfterSweep(pinned: Boolean) {
-        if (!pinned) return
-        if (dataStoreManager.saveRecentSongAndQueue.first() == TRUE) return
-        Logger.d(TAG, "Clear history: removing the pinned queue, saving the queue is turned off")
-        localDataSource.deleteQueue()
     }
 
     override fun getCanvasSong(max: Int): Flow<List<SongEntity>> =
@@ -219,6 +197,8 @@ internal class SongRepositoryImpl(
         }.flowOn(Dispatchers.IO)
 
     override fun getSongAsFlow(id: String) = localDataSource.getSongAsFlow(id)
+
+    override fun getLikedSongsByArtist(channelId: String): Flow<List<SongEntity>> = localDataSource.getLikedSongsByArtist(channelId)
 
     override fun insertSong(songEntity: SongEntity): Flow<Long> = flow<Long> { emit(localDataSource.insertSong(songEntity)) }.flowOn(Dispatchers.IO)
 
@@ -342,25 +322,37 @@ internal class SongRepositoryImpl(
         }.flowOn(Dispatchers.IO)
 
     /**
-     * Drops the video entries YouTube mixes into a radio queue, when the user asked radios to stay
-     * audio-only. [isRadio] gates it because the setting is deliberately radio-scoped: a playlist
-     * or album the user picked themselves must still play exactly what it contains.
+     * With "Play audio version instead of MV in radio" on, a radio plays each recording as a song:
+     * a video row YouTube also shipped as a song ([SongItem.counterpart], sent to a logged-in
+     * client only) is swapped for that song, and a video with no song version — a fan remix or
+     * mashup — is skipped. [isRadio] gates it because the setting is deliberately radio-scoped: a
+     * playlist or album the user picked themselves must still play exactly what it contains.
      *
-     * Only entries YouTube *named* as a video are dropped. A null `musicVideoType` means the
+     * Only entries YouTube *named* as a video count as one. A null `musicVideoType` means the
      * response never said, which is not a claim of "audio" — those are kept rather than guessed at
      * (see [MusicVideoType]).
      *
-     * Dropping is the only option here; substituting the audio version is not available. Measured
-     * against a live logged-in radio (197 entries over four pages), every video that reached the
-     * queue was `MUSIC_VIDEO_TYPE_UGC` — a fan remix or mashup that exists only as a video and
-     * ships no `counterpart` to swap in. Official music videos never arrive as the primary
-     * rendition at all: YouTube already demotes those to the counterpart of the audio track, which
-     * is what [com.maxrave.kotlinytmusicscraper.models.PlaylistPanelRenderer.Content.track] reads.
+     * This used to drop every video, which was harmless in a radio started from a song — measured
+     * logged in (197 entries over four pages), the only videos in one were UGC. A radio started
+     * from a VIDEO is nothing but videos (measured on a UGC seed: 38 OMV, 11 UGC, 1 podcast
+     * episode, no song), so dropping emptied the queue outright. A page that still ends up empty —
+     * no counterparts, as for a client that is not logged in — is kept as it came: a radio that
+     * plays videos beats one that plays nothing.
      */
-    private suspend fun List<SongItem>.dropVideosWhenRadioAudioOnly(isRadio: Boolean): List<SongItem> {
+    private suspend fun List<SongItem>.preferAudioWhenRadioAudioOnly(isRadio: Boolean): List<SongItem> {
         if (!isRadio) return this
         if (dataStoreManager.radioAudioOnly.first() != TRUE) return this
-        return filterNot { MusicVideoType.isVideoSong(it.musicVideoType) }
+        val songs =
+            mapNotNull { item ->
+                if (MusicVideoType.isVideoSong(item.musicVideoType)) {
+                    item.counterpart?.takeIf { MusicVideoType.isAudio(it.musicVideoType) }
+                } else {
+                    item
+                }
+            }.distinctBy { it.id }
+        val swapped = count { MusicVideoType.isVideoSong(it.musicVideoType) && MusicVideoType.isAudio(it.counterpart?.musicVideoType) }
+        Logger.d(TAG, "Radio audio version: $size rows, $swapped swapped to the song, ${songs.size} kept")
+        return songs.ifEmpty { this }
     }
 
     override fun getContinueTrack(
@@ -391,7 +383,7 @@ internal class SongRepositoryImpl(
                             // own playlistId.
                             val isRadio =
                                 playlistId.startsWith("RRDAMVM") || playlistId.isRadioQueueId()
-                            data.addAll(next.items.dropVideosWhenRadioAudioOnly(isRadio))
+                            data.addAll(next.items.preferAudioWhenRadioAudioOnly(isRadio))
                             newContinuation = next.continuation
                             emit(Pair(data.toListTrack(), newContinuation))
                         }.onFailure { exception ->
@@ -560,7 +552,7 @@ internal class SongRepositoryImpl(
                                 .filter { it.id != videoId }
                                 .toSet()
                                 .toList()
-                                .dropVideosWhenRadioAudioOnly(isRadio = true),
+                                .preferAudioWhenRadioAudioOnly(isRadio = true),
                         )
                         val nextContinuation = next.continuation
                         emit(Resource.Success<Pair<List<Track>, String?>>(Pair(data.toListTrack().toList(), nextContinuation)))
@@ -578,7 +570,7 @@ internal class SongRepositoryImpl(
                     .next(endpoint.toWatchEndpoint())
                     .onSuccess { next ->
                         val items =
-                            next.items.dropVideosWhenRadioAudioOnly(
+                            next.items.preferAudioWhenRadioAudioOnly(
                                 isRadio = endpoint.playlistId?.isRadioQueueId() == true,
                             )
                         emit(Resource.Success(Pair(items.toListTrack(), next.continuation)))

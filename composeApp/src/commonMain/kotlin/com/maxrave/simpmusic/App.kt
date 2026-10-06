@@ -58,7 +58,6 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
-import coil3.toUri
 import com.maxrave.domain.data.player.GenericMediaItem
 import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.domain.manager.DataStoreManager.Values.TRUE
@@ -87,6 +86,7 @@ import com.maxrave.simpmusic.ui.navigation.destination.list.PlaylistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.player.FullscreenDestination
 import com.maxrave.simpmusic.ui.navigation.graph.AppNavigationGraph
 import com.maxrave.simpmusic.ui.screen.MiniPlayer
+import com.maxrave.simpmusic.ui.screen.other.UnofficialBuildScreen
 import com.maxrave.simpmusic.ui.screen.player.NowPlayingScreen
 import com.maxrave.simpmusic.ui.screen.player.NowPlayingScreenContent
 import com.maxrave.simpmusic.ui.theme.AppTheme
@@ -101,9 +101,7 @@ import com.maxrave.simpmusic.utils.VersionManager
 import com.maxrave.simpmusic.viewModel.SharedViewModel
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownTypography
-import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
@@ -150,7 +148,6 @@ fun App(
     val intent by viewModel.intent.collectAsStateWithLifecycle()
     val showNotificationPermissionDialog by viewModel.showNotificationPermissionDialog.collectAsStateWithLifecycle()
 
-    val isTranslucentBottomBar by viewModel.getTranslucentBottomBar().collectAsStateWithLifecycle(DataStoreManager.FALSE)
     val isLiquidGlassEnabled by viewModel.getEnableLiquidGlass().collectAsStateWithLifecycle(DataStoreManager.FALSE)
     // Analytics only makes sense with local tracking on, so its tab follows that setting.
     val isLocalTrackingEnabled by viewModel.getLocalTrackingEnabled().collectAsStateWithLifecycle(DataStoreManager.FALSE)
@@ -163,6 +160,7 @@ fun App(
     val themeMode by viewModel.getThemeMode().collectAsStateWithLifecycle(DataStoreManager.THEME_MODE_DARK)
     val themeColorSource by viewModel.getThemeColorSource().collectAsStateWithLifecycle(DataStoreManager.THEME_COLOR_DEFAULT)
     val customThemeColorHex by viewModel.getCustomThemeColor().collectAsStateWithLifecycle(DataStoreManager.DEFAULT_THEME_COLOR_HEX)
+    val isOfficialBuild by viewModel.isOfficialBuild.collectAsStateWithLifecycle()
     // MiniPlayer visibility: derived, never stored.
     //
     // This used to be a rememberSaveable Boolean written by a LaunchedEffect. Two things went
@@ -199,16 +197,14 @@ fun App(
     }
 
     val hazeState =
-        rememberHazeState(
-            blurEnabled = true,
-        )
+        rememberHazeState()
 
     LaunchedEffect(intent) {
         val intent = intent ?: return@LaunchedEffect
         val data = intent.data
         Logger.d("MainActivity", "onCreate: $data")
         if (data != null) {
-            if (data == "ayushmuzic://notification".toUri()) {
+            if ((data.scheme == "simpmusic" || data.scheme == "ayushmuzic") && data.host == "notification") {
                 viewModel.setIntent(null)
                 navController.navigate(
                     NotificationDestination,
@@ -216,7 +212,7 @@ fun App(
             } else if (data.scheme == "wordbyword" && data.host == "lastfm-auth") {
                 // Last.fm sends the user back here after they approve access, carrying the request
                 // token: wordbyword://lastfm-auth?token=xxx. The callback is fixed on the API
-                // account, which is why the scheme is not "ayushmuzic".
+                // account, which is why the scheme is not "simpmusic".
                 val token = data.getQueryParameter("token")
                 Logger.d("MainActivity", "Last.fm callback, token present: ${!token.isNullOrEmpty()}")
                 viewModel.setIntent(null)
@@ -225,23 +221,23 @@ fun App(
                 // of it. The token is handed straight to the shared view model, and the screen
                 // closes itself when it sees a session key appear.
                 token?.let { viewModel.completeLastfmLogin(it) }
-            } else if (data.host == "ayushmuzic.org" || data.scheme == "ayushmuzic") {
-                // https://ayushmuzic.org/app/watch?v=VIDEO_ID
-                // https://ayushmuzic.org/app/playlist?list=PLAYLIST_ID
-                // https://ayushmuzic.org/app/channel/CHANNEL_ID
-                // ayushmuzic://watch?v=VIDEO_ID  (host="watch", no path)
-                // ayushmuzic://playlist?list=PLAYLIST_ID
-                // ayushmuzic://channel/CHANNEL_ID
+            } else if (data.host == "simpmusic.org" || data.host == "ayushmuzic.org" || data.scheme == "simpmusic" || data.scheme == "ayushmuzic") {
+                // https://simpmusic.org/app/watch?v=VIDEO_ID
+                // https://simpmusic.org/app/playlist?list=PLAYLIST_ID
+                // https://simpmusic.org/app/channel/CHANNEL_ID
+                // simpmusic://watch?v=VIDEO_ID  (host="watch", no path)
+                // simpmusic://playlist?list=PLAYLIST_ID
+                // simpmusic://channel/CHANNEL_ID
                 val segments = data.pathSegments
-                // For ayushmuzic.org: segments = ["app", "watch"] → appPath = segments[1]
+                // For simpmusic.org: segments = ["app", "watch"] → appPath = segments[1]
                 // For simpmusic://: host IS the appPath (e.g. host="watch"), segments = []
                 val appPath =
-                    if (data.scheme == "ayushmuzic") {
+                    if (data.scheme == "simpmusic") {
                         data.host
                     } else {
                         segments.getOrNull(1)
                     }
-                Logger.d("MainActivity", "ayushmuzic.org deep link, appPath: $appPath")
+                Logger.d("MainActivity", "simpmusic.org deep link, appPath: $appPath")
                 viewModel.setIntent(null)
                 when (appPath) {
                     "watch" -> {
@@ -263,10 +259,10 @@ fun App(
                     }
 
                     "channel", "c" -> {
-                        // ayushmuzic://channel/UCxxx → segments = ["UCxxx"]
-                        // ayushmuzic.org/app/channel/UCxxx → segments = ["app", "channel", "UCxxx"]
+                        // simpmusic://channel/UCxxx → segments = ["UCxxx"]
+                        // simpmusic.org/app/channel/UCxxx → segments = ["app", "channel", "UCxxx"]
                         val artistId =
-                            if (data.scheme == "ayushmuzic") {
+                            if (data.scheme == "simpmusic") {
                                 segments.firstOrNull()
                             } else {
                                 segments.getOrNull(2)
@@ -286,8 +282,8 @@ fun App(
                         }
                     }
 
-                    // ayushmuzic://library                     → the Library tab
-                    // ayushmuzic://library?type=favorite       → one of its collections
+                    // simpmusic://library                     → the Library tab
+                    // simpmusic://library?type=favorite       → one of its collections
                     // Added for the Playlists widget, whose shortcuts have to reach these
                     // screens from the home screen without the app already running.
                     "library" -> {
@@ -366,15 +362,11 @@ fun App(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.checkForUpdate()
-    }
-
     LaunchedEffect(updateData) {
         val response = updateData ?: return@LaunchedEffect
-        val currentVersion = VersionManager.getVersionName().removePrefix("v").trim()
-        val remoteVersion = response.tagName.removePrefix("v").trim()
-        if (remoteVersion.isNotEmpty() && remoteVersion != currentVersion && !viewModel.showedUpdateDialog) {
+        if (viewModel.showedUpdateDialog &&
+            response.tagName != getString(Res.string.version_format, VersionManager.getVersionName())
+        ) {
             shouldShowUpdateDialog = true
         }
     }
@@ -436,10 +428,12 @@ fun App(
         themeMode = themeMode,
         themeColorSource = themeColorSource,
         customThemeColor = parseThemeColorHex(customThemeColorHex),
-        // Desktop is unconditionally true — the liquid-glass setting row is Android-only, and the
-        // Desktop capsule player is glass by design. Same rule as MiniPlayer's useGlassSurface.
-        liquidGlassEnabled = isLiquidGlassEnabled == TRUE || getPlatform() == Platform.Desktop,
+        liquidGlassEnabled = isLiquidGlassEnabled == TRUE,
     ) {
+        // AyushMuzic is the official custom release — never block
+        if (!isOfficialBuild) {
+            // No-op
+        }
         // Backdrop base must match the theme: white page → white glass, dark/AMOLED → black glass.
         // Read inside AppTheme so MaterialTheme reflects the resolved scheme (light background is #FFFFFF).
         val isLightScheme = MaterialTheme.colorScheme.background.luminance() > 0.5f
@@ -461,22 +455,28 @@ fun App(
                         enter = fadeIn() + slideInHorizontally(),
                         exit = fadeOut(),
                     ) {
+                        // On Android both materials go through the folding bar, which draws the mini
+                        // player itself. Desktop keeps the always-open flat bar under its own one.
+                        val useFoldingBar = getPlatform() == Platform.Android || isLiquidGlassEnabled == TRUE
                         Column {
                             AnimatedVisibility(
-                                isShowMiniPlayer && isLiquidGlassEnabled == DataStoreManager.FALSE,
+                                isShowMiniPlayer && !useFoldingBar && isLiquidGlassEnabled == DataStoreManager.FALSE,
                                 enter = fadeIn() + slideInHorizontally(),
                                 exit = fadeOut(),
                             ) {
                                 MiniPlayer(
                                     Modifier
-                                        .height(56.dp)
+                                        // 56dp card + the 4dp gap below.
+                                        .height(60.dp)
                                         .fillMaxWidth()
                                         .padding(
-                                            horizontal = 12.dp,
+                                            // The bottom bar's own 16dp, so both edges line up.
+                                            horizontal = 16.dp,
                                         ).padding(
                                             bottom = 4.dp,
                                         ),
                                     backdrop = backdrop,
+                                    navController = navController,
                                     onClick = {
                                         isShowNowPlaylistScreen = true
                                     },
@@ -486,7 +486,7 @@ fun App(
                                     },
                                 )
                             }
-                            if (isLiquidGlassEnabled == TRUE) {
+                            if (useFoldingBar) {
                                 LiquidGlassAppBottomNavigationBar(
                                     navController = navController,
                                     backdrop = backdrop,
@@ -495,13 +495,13 @@ fun App(
                                     isScrolledToTop = isScrolledToTop,
                                     showAnalyticsTab = showAnalyticsTab,
                                     showMixForYouTab = showMixForYouTab,
+                                    liquidGlass = isLiquidGlassEnabled == TRUE,
                                 ) { klass ->
                                     viewModel.reloadDestination(klass)
                                 }
                             } else {
                                 AppBottomNavigationBar(
                                     navController = navController,
-                                    isTranslucentBackground = isTranslucentBottomBar == TRUE,
                                     showAnalyticsTab = showAnalyticsTab,
                                     showMixForYouTab = showMixForYouTab,
                                 ) { klass ->
@@ -603,7 +603,8 @@ fun App(
                                 MiniPlayer(
                                     if (getPlatform() == Platform.Android) {
                                         Modifier
-                                            .height(56.dp)
+                                            // Glass keeps its 52dp card; the flat one is 56dp.
+                                            .height(if (isLiquidGlassEnabled == TRUE) 56.dp else 60.dp)
                                             .fillMaxWidth(0.8f)
                                             .padding(
                                                 horizontal = 12.dp,
@@ -628,12 +629,18 @@ fun App(
                                             .height(60.dp)
                                     },
                                     backdrop = backdrop,
+                                    navController = navController,
                                     onClick = {
                                         isShowNowPlaylistScreen = true
                                     },
                                     onClose = {
                                         viewModel.stopPlayer()
                                         viewModel.isServiceRunning = false
+                                    },
+                                    // The page lives in the Now Playing panel, so the panel opens with it.
+                                    onOpenFullscreenLyrics = {
+                                        viewModel.requestFullscreenLyrics()
+                                        isShowNowPlaylistScreen = true
                                     },
                                 )
                             }
@@ -750,14 +757,14 @@ fun App(
                             ),
                         onDismissRequest = {
                             shouldShowUpdateDialog = false
-                            viewModel.showedUpdateDialog = true
+                            viewModel.showedUpdateDialog = false
                         },
                         confirmButton = {
                             TextButton(
                                 onClick = {
                                     shouldShowUpdateDialog = false
-                                    viewModel.showedUpdateDialog = true
-                                    openUrl("https://github.com/jaatayushh/ayushmuzic/releases")
+                                    viewModel.showedUpdateDialog = false
+                                    openUrl("https://simpmusic.org/download")
                                 },
                             ) {
                                 Text(
@@ -770,7 +777,7 @@ fun App(
                             TextButton(
                                 onClick = {
                                     shouldShowUpdateDialog = false
-                                    viewModel.showedUpdateDialog = true
+                                    viewModel.showedUpdateDialog = false
                                 },
                             ) {
                                 Text(
@@ -812,11 +819,16 @@ fun App(
                                 } ?: stringResource(Res.string.unknown)
 
                             val updateMessage =
-                                stringResource(
-                                    Res.string.update_message,
-                                    response.tagName,
-                                    formatted,
-                                )
+                                runBlocking {
+                                    getString(
+                                        Res.string.update_message,
+                                        response.tagName,
+                                        formatted,
+                                        // values-iw/values-in still carry an old %3$s; Compose Resources indexes
+                                        // args without a bounds check, so omitting it crashes the dialog
+                                        "",
+                                    )
+                                }
                             Column(
                                 Modifier
                                     .heightIn(

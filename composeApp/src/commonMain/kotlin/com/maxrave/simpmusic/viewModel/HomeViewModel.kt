@@ -22,24 +22,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import simpmusic.composeapp.generated.resources.Res
-import com.maxrave.domain.data.model.browse.album.Track
-import com.maxrave.domain.data.model.home.Content
-import com.maxrave.domain.repository.SongRepository
-import com.maxrave.domain.utils.toTrack
-import simpmusic.composeapp.generated.resources.quick_picks
 import simpmusic.composeapp.generated.resources.music_video
 import simpmusic.composeapp.generated.resources.new_release
 import simpmusic.composeapp.generated.resources.song
@@ -48,7 +37,6 @@ import simpmusic.composeapp.generated.resources.view_count
 class HomeViewModel(
     private val dataStoreManager: DataStoreManager,
     private val homeRepository: HomeRepository,
-    private val songRepository: SongRepository,
 ) : BaseViewModel() {
     private val _homeItemList: MutableStateFlow<List<HomeItem>> =
         MutableStateFlow(arrayListOf())
@@ -86,12 +74,6 @@ class HomeViewModel(
     private var _params: MutableStateFlow<String?> = MutableStateFlow(null)
     val params: StateFlow<String?> = _params
 
-    // Debounced trigger: multiple flow collectors (location, language, cookie, params)
-    // all request a refresh by emitting to this shared flow. A single debounced
-    // collector then calls getHomeItemList() once, preventing the startup stampede
-    // where each collector's call would cancel the previous one.
-    private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1, extraBufferCapacity = 16)
-
     // For showing alert that should log in to YouTube
     private val _showLogInAlert: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val showLogInAlert: StateFlow<Boolean> = _showLogInAlert
@@ -118,43 +100,26 @@ class HomeViewModel(
             exploreChart(regionCodeChart.value ?: "ZZ")
             language = dataStoreManager.getString(SELECTED_LANGUAGE).first()
                 ?: SUPPORTED_LANGUAGE.codes.first()
-
-            // Single debounced collector: all the flow watchers below emit to
-            // _refreshTrigger instead of calling getHomeItemList() directly.
-            // The 300ms debounce coalesces the burst of initial emissions
-            // (location, language, cookie, params all fire within milliseconds)
-            // into a single network request, preventing the stampede where each
-            // call would cancel the previous one and leave the UI in an error state.
-            val refreshJob =
-                launch {
-                    @OptIn(kotlinx.coroutines.FlowPreview::class)
-                    _refreshTrigger
-                        .debounce(300)
-                        .collectLatest {
-                            getHomeItemList(params.value)
-                        }
-                }
-
-            //  refresh when region changes
+            //  refresh when region change
             val job1 =
                 launch {
                     dataStoreManager.location.distinctUntilChanged().collect {
                         regionCode = it
-                        _refreshTrigger.tryEmit(Unit)
+                        getHomeItemList(params.value)
                     }
                 }
-            //  refresh when language changes
+            //  refresh when language change
             val job2 =
                 launch {
                     dataStoreManager.language.distinctUntilChanged().collect {
                         language = it
-                        _refreshTrigger.tryEmit(Unit)
+                        getHomeItemList(params.value)
                     }
                 }
             val job3 =
                 launch {
                     dataStoreManager.cookie.distinctUntilChanged().collect {
-                        _refreshTrigger.tryEmit(Unit)
+                        getHomeItemList(params.value)
                         _accountInfo.emit(
                             Pair(
                                 dataStoreManager.getString("AccountName").first(),
@@ -166,7 +131,7 @@ class HomeViewModel(
             val job4 =
                 launch {
                     params.collectLatest {
-                        _refreshTrigger.tryEmit(Unit)
+                        getHomeItemList(it)
                     }
                 }
             val job5 =
@@ -174,13 +139,12 @@ class HomeViewModel(
                     dataStoreManager
                         .cookie
                         .distinctUntilChanged()
-                        .drop(1)
                         .collectLatest {
                             if (it.isNotEmpty()) {
                                 Logger.w(tag, "Cookie changed, refreshing home")
                                 loading.value = true
                                 delay(1000) // To wait for the cookie to be saved properly
-                                _refreshTrigger.tryEmit(Unit)
+                                getHomeItemList(params.value)
                             }
                         }
                 }
@@ -197,7 +161,6 @@ class HomeViewModel(
                                 ?.url
                     }
                 }
-            refreshJob.join()
             job1.join()
             job2.join()
             job3.join()
@@ -251,9 +214,7 @@ class HomeViewModel(
                     when (home) {
                         is Resource.Success -> {
                             _continuation.value = home.data?.first
-                            val rawList = home.data?.second ?: listOf()
-                            _homeItemList.value = rawList
-                            injectListeningRecommendations(rawList, params)
+                            _homeItemList.value = home.data?.second ?: listOf()
                         }
 
                         else -> {
@@ -386,126 +347,9 @@ class HomeViewModel(
         _params.value = params
     }
 
-    private var listeningRecommendationJob: Job? = null
-
-    private fun Track.toHomeContent(): Content =
-        Content(
-            album = album,
-            artists = artists,
-            description = null,
-            isExplicit = isExplicit,
-            playlistId = "RDAMVM$videoId",
-            browseId = null,
-            thumbnails = thumbnails ?: emptyList(),
-            title = title,
-            videoId = videoId,
-            views = null,
-            durationSeconds = durationSeconds,
-            videoType = videoType,
-        )
-
-    private fun injectListeningRecommendations(rawHomeItems: List<HomeItem>, params: String?) {
-        if (params != null) return // Keep YouTube's mood-filtered shelves when filtering
-        listeningRecommendationJob?.cancel()
-        listeningRecommendationJob = viewModelScope.launch {
-            try {
-                val recentSongs = songRepository.getRecentSong(20, 0)
-                if (recentSongs.isEmpty()) return@launch
-
-                val quickPicksTitle = runCatching { getString(Res.string.quick_picks) }.getOrDefault("Quick picks")
-                val hasQuickPicks = rawHomeItems.any {
-                    it.title == quickPicksTitle || it.title.equals("Quick picks", ignoreCase = true)
-                }
-
-                val jumpBackInContents = recentSongs.map { song ->
-                    song.toTrack().toHomeContent()
-                }
-
-                val jumpBackInShelf = HomeItem(
-                    title = "Jump back in",
-                    subtitle = "Recently played",
-                    contents = jumpBackInContents,
-                )
-
-                // Pick up to 5 distinct recent songs/artists as seeds
-                val seedSongs = recentSongs.distinctBy { it.artistName?.firstOrNull() ?: it.videoId }.take(5)
-                val recentVideoIds = recentSongs.map { it.videoId }.toSet()
-
-                // Fetch related tracks for all seed songs concurrently
-                val relatedResults: List<List<Track>> = coroutineScope {
-                    seedSongs.map { seed ->
-                        async {
-                            val res = songRepository.getRelatedData(seed.videoId).firstOrNull {
-                                it is Resource.Success || it is Resource.Error
-                            }
-                            if (res is Resource.Success) {
-                                res.data?.first ?: emptyList()
-                            } else {
-                                emptyList()
-                            }
-                        }
-                    }.awaitAll()
-                }
-
-                // Interleave tracks from different seeds so the shelf is a diverse mix
-                val maxLen = relatedResults.maxOfOrNull { it.size } ?: 0
-                val recommendedTracks = mutableListOf<Track>()
-                val seenVideoIds = mutableSetOf<String>()
-
-                for (i in 0 until maxLen) {
-                    for (list in relatedResults) {
-                        if (i < list.size) {
-                            val track = list[i]
-                            if (!recentVideoIds.contains(track.videoId) && seenVideoIds.add(track.videoId)) {
-                                recommendedTracks.add(track)
-                            }
-                        }
-                    }
-                }
-
-                val recommendedContents = recommendedTracks.map { it.toHomeContent() }
-
-                val seedArtists = seedSongs.mapNotNull { it.artistName?.firstOrNull() }.distinct().take(3)
-                val subtitleText = when {
-                    seedArtists.size >= 2 -> "Inspired by ${seedArtists.joinToString(", ")}"
-                    seedArtists.size == 1 -> "Similar to \"${seedSongs.first().title}\""
-                    else -> "Based on your recent listening"
-                }
-
-                val updatedList = buildList {
-                    if (!hasQuickPicks) {
-                        if (recommendedContents.isNotEmpty()) {
-                            add(
-                                HomeItem(
-                                    title = quickPicksTitle,
-                                    subtitle = subtitleText,
-                                    contents = recommendedContents,
-                                ),
-                            )
-                        } else {
-                            add(
-                                HomeItem(
-                                    title = quickPicksTitle,
-                                    subtitle = "Based on your listening",
-                                    contents = jumpBackInContents,
-                                ),
-                            )
-                        }
-                    }
-                    add(jumpBackInShelf)
-                    addAll(rawHomeItems.filter { it.title != "Jump back in" && (hasQuickPicks || it.title != quickPicksTitle) })
-                }
-                _homeItemList.value = updatedList
-            } catch (e: Exception) {
-                Logger.e(tag, "Failed to inject personalized recommendations: ${e.message}")
-            }
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
         homeJob?.cancel()
-        listeningRecommendationJob?.cancel()
     }
 
     companion object {

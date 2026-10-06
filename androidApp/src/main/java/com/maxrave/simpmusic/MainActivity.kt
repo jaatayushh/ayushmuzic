@@ -115,6 +115,7 @@ class MainActivity : AppCompatActivity() {
         unloadKoinModules(viewModelModule)
         loadKoinModules(viewModelModule)
         VersionManager.initialize()
+        checkForUpdate()
         if (viewModel.recreateActivity.value || viewModel.isServiceRunning) {
             viewModel.activityRecreateDone()
         } else {
@@ -251,6 +252,7 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.getLocation()
 
+        if (!BuildConfig.DEBUG) viewModel.checkOfficialBuild(packageName, signingCertSha256())
         setContent {
             App(viewModel)
         }
@@ -296,6 +298,10 @@ class MainActivity : AppCompatActivity() {
                     is ToastType.PlayerError -> {
                         runBlocking { ComposeResUtils.getResString(ComposeResUtils.StringType.TIME_OUT_ERROR, type.error) }
                     }
+
+                    is ToastType.SponsorBlockSkip -> {
+                        runBlocking { ComposeResUtils.getResString(ComposeResUtils.StringType.SPONSOR_BLOCK_SKIP, type.category) }
+                    }
                 },
             )
         }
@@ -304,6 +310,11 @@ class MainActivity : AppCompatActivity() {
         Logger.d("Service", "Service started")
     }
 
+    private fun checkForUpdate() {
+        if (viewModel.shouldCheckForUpdate()) {
+            viewModel.checkForUpdate()
+        }
+    }
 
     private fun putString(
         key: String,

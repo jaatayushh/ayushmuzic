@@ -4,6 +4,7 @@ import DatabaseDao
 import com.maxrave.data.db.MusicDatabase
 import com.maxrave.domain.data.entities.AlbumEntity
 import com.maxrave.domain.data.entities.ArtistEntity
+import com.maxrave.domain.data.entities.ArtistMotionEntity
 import com.maxrave.domain.data.entities.AutoEqCurveEntity
 import com.maxrave.domain.data.entities.AutoEqEntryEntity
 import com.maxrave.domain.data.entities.AutoEqIndexMetaEntity
@@ -102,6 +103,8 @@ internal class LocalDataSource(
 
     suspend fun deleteUnfollowedArtists() = databaseDao.deleteUnfollowedArtists()
 
+    suspend fun deleteOrphanedArtistMotion() = databaseDao.deleteOrphanedArtistMotion()
+
     suspend fun deleteNotificationsOfUnfollowedArtists() = databaseDao.deleteNotificationsOfUnfollowedArtists()
 
     suspend fun deleteFollowedArtistReleasesOfUnfollowedArtists() = databaseDao.deleteFollowedArtistReleasesOfUnfollowedArtists()
@@ -155,6 +158,8 @@ internal class LocalDataSource(
         limit,
         offset,
     )
+
+    fun getLikedSongsByArtist(channelId: String) = databaseDao.getLikedSongsByArtist(channelId)
 
     suspend fun getSong(videoId: String) = databaseDao.getSong(videoId)
 
@@ -269,6 +274,10 @@ internal class LocalDataSource(
         nameLogoUrl: String?,
         nameLogoColor: String?,
     ) = databaseDao.updateArtistNameLogo(channelId, nameLogoUrl, nameLogoColor)
+
+    suspend fun getArtistMotion(channelId: String) = databaseDao.getArtistMotion(channelId)
+
+    suspend fun upsertArtistMotion(motion: ArtistMotionEntity) = databaseDao.upsertArtistMotion(motion)
 
     suspend fun updateFollowed(
         followed: Int,
@@ -543,6 +552,12 @@ internal class LocalDataSource(
     }
 
     suspend fun getNewestPlaylistPairSong(playlistId: Long) = databaseDao.getNewestPlaylistPairSong(playlistId)
+
+    suspend fun moveSongInPlaylist(
+        playlistId: Long,
+        fromIndex: Int,
+        toIndex: Int,
+    ) = databaseDao.moveSongInPlaylist(playlistId, fromIndex, toIndex)
 
     suspend fun editPositionOfSongInPlaylist(
         playlistId: Long,

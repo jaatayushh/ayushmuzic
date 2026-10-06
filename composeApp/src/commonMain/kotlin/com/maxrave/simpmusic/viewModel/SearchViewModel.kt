@@ -120,16 +120,8 @@ class SearchViewModel(
     private var searchHistoryJob: Job? = null
 
     init {
-        viewModelScope.launch {
-            dataStoreManager.location.distinctUntilChanged().collect {
-                regionCode = it
-            }
-        }
-        viewModelScope.launch {
-            dataStoreManager.getString(SELECTED_LANGUAGE).distinctUntilChanged().collect {
-                language = it
-            }
-        }
+        regionCode = runBlocking { dataStoreManager.location.first() }
+        language = runBlocking { dataStoreManager.getString(SELECTED_LANGUAGE).first() }
         getSearchHistory()
         getMoodAndGenres()
     }
@@ -188,6 +180,7 @@ class SearchViewModel(
         viewModelScope.launch {
             searchRepository.insertSearchHistory(SearchHistory(query = query)).collectLatest {
                 Logger.d(tag, "Inserted search history: $query, $it")
+                getSearchHistory()
             }
         }
     }
@@ -195,7 +188,8 @@ class SearchViewModel(
     fun deleteSearchHistory() {
         viewModelScope.launch {
             searchRepository.deleteSearchHistory()
-            _searchHistory.value = emptyList()
+            delay(1000)
+            getSearchHistory()
         }
     }
 

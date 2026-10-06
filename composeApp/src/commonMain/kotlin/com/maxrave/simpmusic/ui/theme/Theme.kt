@@ -64,7 +64,7 @@ val LocalIsDarkTheme = staticCompositionLocalOf { true }
  * composed outside [AppTheme] keep today's look. The setting row is Android-only, so Desktop always
  * provides true — its capsule player and detail-screen buttons are glass by design, with no switch.
  */
-val LocalLiquidGlassEnabled = staticCompositionLocalOf { true }
+val LocalLiquidGlassEnabled = staticCompositionLocalOf { false }
 
 /**
  * The dark scheme to use for immersive screens while the app itself is on the light theme.
@@ -121,7 +121,7 @@ fun AppTheme(
     themeMode: String = DataStoreManager.THEME_MODE_DARK,
     themeColorSource: String = DataStoreManager.THEME_COLOR_DEFAULT,
     customThemeColor: Color? = null,
-    liquidGlassEnabled: Boolean = true,
+    liquidGlassEnabled: Boolean = false,
     content:
         @Composable()
         () -> Unit,

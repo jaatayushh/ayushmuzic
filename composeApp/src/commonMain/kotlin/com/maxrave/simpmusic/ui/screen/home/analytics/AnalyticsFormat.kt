@@ -1,12 +1,18 @@
 package com.maxrave.simpmusic.ui.screen.home.analytics
 
 import androidx.compose.runtime.Composable
+import com.maxrave.simpmusic.viewModel.AnalyticsUiState
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
+import kotlinx.datetime.number
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import simpmusic.composeapp.generated.resources.Res
+import simpmusic.composeapp.generated.resources.last_30_days
+import simpmusic.composeapp.generated.resources.last_7_days
+import simpmusic.composeapp.generated.resources.last_90_days
 import simpmusic.composeapp.generated.resources.listening_time_hours_minutes
 import simpmusic.composeapp.generated.resources.listening_time_minutes
 import simpmusic.composeapp.generated.resources.listening_time_seconds
@@ -34,6 +40,14 @@ import simpmusic.composeapp.generated.resources.month_short_may
 import simpmusic.composeapp.generated.resources.month_short_nov
 import simpmusic.composeapp.generated.resources.month_short_oct
 import simpmusic.composeapp.generated.resources.month_short_sep
+import simpmusic.composeapp.generated.resources.this_year
+import simpmusic.composeapp.generated.resources.weekday_friday
+import simpmusic.composeapp.generated.resources.weekday_monday
+import simpmusic.composeapp.generated.resources.weekday_saturday
+import simpmusic.composeapp.generated.resources.weekday_sunday
+import simpmusic.composeapp.generated.resources.weekday_thursday
+import simpmusic.composeapp.generated.resources.weekday_tuesday
+import simpmusic.composeapp.generated.resources.weekday_wednesday
 
 /**
  * A listening total in units a person reads, rather than the raw second count.
@@ -118,6 +132,22 @@ fun monthFullNameResource(month: Month): StringResource =
 @Composable
 fun monthFullName(month: Month): String = stringResource(monthFullNameResource(month))
 
+/** `Sunday` — the listening receipt spells its date out the way a till prints one. */
+@Composable
+fun weekdayFullName(day: DayOfWeek): String =
+    stringResource(
+        when (day) {
+            DayOfWeek.MONDAY -> Res.string.weekday_monday
+            DayOfWeek.TUESDAY -> Res.string.weekday_tuesday
+            DayOfWeek.WEDNESDAY -> Res.string.weekday_wednesday
+            DayOfWeek.THURSDAY -> Res.string.weekday_thursday
+            DayOfWeek.FRIDAY -> Res.string.weekday_friday
+            DayOfWeek.SATURDAY -> Res.string.weekday_saturday
+            DayOfWeek.SUNDAY -> Res.string.weekday_sunday
+            else -> Res.string.weekday_monday
+        },
+    )
+
 /** `22 Aug 2026` — the chart's day bucket. */
 @Composable
 fun formatChartDay(day: LocalDate): String = "${day.day} ${monthShortName(day.month)} ${day.year}"
@@ -164,6 +194,33 @@ fun formatPeriodSpan(
         else ->
             "${start.day} ${monthShortName(start.month)} ${start.year} – ${end.day} ${monthShortName(end.month)} ${end.year}"
     }
+
+/**
+ * The name the range dropdown shows for [this] — "Last 30 days", "This year" — so any other screen
+ * describing a period uses the dropdown's own words, and its translations, rather than a copy.
+ */
+fun AnalyticsUiState.DayRange.labelRes(): StringResource =
+    when (this) {
+        AnalyticsUiState.DayRange.LAST_7_DAYS -> Res.string.last_7_days
+        AnalyticsUiState.DayRange.LAST_30_DAYS -> Res.string.last_30_days
+        AnalyticsUiState.DayRange.LAST_90_DAYS -> Res.string.last_90_days
+        AnalyticsUiState.DayRange.THIS_YEAR -> Res.string.this_year
+    }
+
+/**
+ * A span written in numbers, day first: `1/9-1/10/2026`.
+ *
+ * The year is written once, at the end, when both days share it. A span that crosses New Year
+ * carries it on both sides — `15/12/2025-13/1/2026` — because `15/12-13/1/2026` reads as December
+ * of the later year.
+ */
+fun formatNumericSpan(
+    start: LocalDate,
+    end: LocalDate,
+): String {
+    val from = if (start.year == end.year) "${start.day}/${start.month.number}" else "${start.day}/${start.month.number}/${start.year}"
+    return "$from-${end.day}/${end.month.number}/${end.year}"
+}
 
 /** `Aug 2026` — the chart's month bucket, which used to render the raw enum name. */
 @Composable

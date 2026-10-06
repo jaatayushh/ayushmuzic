@@ -45,7 +45,7 @@ internal class UpdateRepositoryImpl(
                                 body =
                                     $$"""
                                     ### Update via F-Droid, changelogs: 
-                                    - https://github.com/jaatayushh/ayushmuzic/blob/main/fastlane/metadata/android/en-US/changelogs/$${latestVersion.versionCode}.txt
+                                    - https://github.com/maxrave-dev/SimpMusic/blob/dev/fastlane/metadata/android/en-US/changelogs/$${latestVersion.versionCode}.txt
                                     """.trimIndent(),
                             ),
                         ),
@@ -53,5 +53,13 @@ internal class UpdateRepositoryImpl(
                 }.onFailure {
                     emit(Resource.Error<UpdateData>(it.localizedMessage ?: "Unknown error"))
                 }
+        }.flowOn(Dispatchers.IO)
+
+    override fun getFdroidSigningKeys(): Flow<Resource<List<String>>> =
+        flow {
+            youTube
+                .getFdroidSigningKeys()
+                .onSuccess { emit(Resource.Success(it)) }
+                .onFailure { emit(Resource.Error<List<String>>(it.localizedMessage ?: "Unknown error")) }
         }.flowOn(Dispatchers.IO)
 }

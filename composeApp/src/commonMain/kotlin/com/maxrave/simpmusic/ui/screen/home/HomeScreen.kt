@@ -99,10 +99,13 @@ import com.maxrave.domain.utils.toSongEntity
 import com.maxrave.domain.utils.toTrack
 import com.maxrave.logger.Logger
 import com.maxrave.simpmusic.Platform
+import com.maxrave.simpmusic.expect.ui.HorizontalScrollBar
 import com.maxrave.simpmusic.extension.angledGradientBackground
 import com.maxrave.simpmusic.extension.artworkScrimBrush
+import com.maxrave.simpmusic.extension.getScreenSizeInfo
 import com.maxrave.simpmusic.extension.isScrollingUp
 import com.maxrave.simpmusic.extension.rgbFactor
+import com.maxrave.simpmusic.extension.ultraThinBarStyle
 import com.maxrave.simpmusic.getPlatform
 import com.maxrave.simpmusic.ui.component.BlogPromoDialog
 import com.maxrave.simpmusic.ui.component.CenterLoadingBox
@@ -125,15 +128,18 @@ import com.maxrave.simpmusic.ui.component.ShareSavedLyricsDialog
 import com.maxrave.simpmusic.ui.component.rememberHolderPainter
 import com.maxrave.simpmusic.ui.icon.Groups
 import com.maxrave.simpmusic.ui.icon.History
+import com.maxrave.simpmusic.ui.icon.Notifications
 import com.maxrave.simpmusic.ui.icon.Settings
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.navigation.destination.home.HomeDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.ListenTogetherDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.MoodDestination
+import com.maxrave.simpmusic.ui.navigation.destination.home.NotificationDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.RecentlySongsDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.SettingsDestination
 import com.maxrave.simpmusic.ui.navigation.destination.library.LibraryDynamicPlaylistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.ArtistDestination
+import com.maxrave.simpmusic.ui.navigation.destination.list.PodcastDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.PlaylistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.login.LoginDestination
 import com.maxrave.simpmusic.ui.screen.library.LibraryDynamicPlaylistType
@@ -141,12 +147,21 @@ import com.maxrave.simpmusic.ui.theme.desktopPanelDark
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.viewModel.FOOTGUNS_STAR_KEY
 import com.maxrave.simpmusic.viewModel.HomeViewModel
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_COMMUTE
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_ENERGIZE
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_FEEL_GOOD
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_FOCUS
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_PARTY
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_RELAX
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_ROMANCE
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_SAD
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_SLEEP
+import com.maxrave.simpmusic.viewModel.HomeViewModel.Companion.HOME_PARAMS_WORKOUT
 import com.maxrave.simpmusic.viewModel.ListState
 import com.maxrave.simpmusic.viewModel.SharedViewModel
-import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.HazeInput
+import dev.chrisbanes.haze.blur.hazeBlur
 import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -189,8 +204,22 @@ import simpmusic.composeapp.generated.resources.workout
 // DataStore key for blog-promo one-shot dialog. Bump the suffix (v2, v3, …) to re-promote.
 private const val BLOG_PROMO_KEY = "blog_promo_v1_seen"
 
+private val listOfHomeChip =
+    listOf(
+        Res.string.all,
+        Res.string.relax,
+        Res.string.sleep,
+        Res.string.energize,
+        Res.string.sad,
+        Res.string.romance,
+        Res.string.feel_good,
+        Res.string.workout,
+        Res.string.party,
+        Res.string.commute,
+        Res.string.focus,
+    )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalFoundationApi
 @Composable
 fun HomeScreen(
@@ -218,6 +247,7 @@ fun HomeScreen(
     val reloadDestination by sharedViewModel.reloadDestination.collectAsStateWithLifecycle()
     val pullToRefreshState = rememberPullToRefreshState()
     var isRefreshing by remember { mutableStateOf(false) }
+    val chipRowState = rememberScrollState()
     val params by viewModel.params.collectAsStateWithLifecycle()
     val homeListState by viewModel.homeListState.collectAsStateWithLifecycle()
     val continuation by viewModel.continuation.collectAsStateWithLifecycle()
@@ -285,9 +315,7 @@ fun HomeScreen(
     }
 
     val hazeState =
-        rememberHazeState(
-            blurEnabled = true,
-        )
+        rememberHazeState()
 
     LaunchedEffect(scrollState) {
         snapshotFlow { scrollState.firstVisibleItemIndex }
@@ -406,9 +434,12 @@ fun HomeScreen(
     if (showFootgunsDialog) {
         FootgunsStarDialog(
             onDismissRequest = {
-                // "Later" only closes the dialog: it must not touch OPEN_APP_TIME,
-                // so the next milestone stays exactly where it was.
+                // "Later" advances OPEN_APP_TIME, the same way the review and share-lyrics dialogs do.
+                // Home's launch effect runs again every time Home re-enters composition, reading the
+                // stored count; leaving it untouched kept the milestone condition true, so the prompt
+                // came back on every return to Home until the app was restarted.
                 showFootgunsDialog = false
+                sharedViewModel.onDoneReview(isDismissOnly = true)
             },
             onDoneStar = {
                 sharedViewModel.putString(FOOTGUNS_STAR_KEY, "true")
@@ -543,7 +574,7 @@ fun HomeScreen(
                     }
                     LazyColumn(
                         state = scrollState,
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         itemsIndexed(homeData, key = { _, item ->
                             item.hashCode().toString() + (mainHomeThumbnail ?: "nothumb")
@@ -593,10 +624,52 @@ fun HomeScreen(
                                         )
                                         Spacer(Modifier.height(8.dp))
                                     }
-                                    HomeItem(
-                                        navController = navController,
-                                        data = item,
-                                    )
+                                    if (item.title == stringResource(Res.string.quick_picks)) {
+                                        AnimatedVisibility(
+                                            visible =
+                                                homeData.find {
+                                                    it.title ==
+                                                        stringResource(
+                                                            Res.string.quick_picks,
+                                                        )
+                                                } != null,
+                                        ) {
+                                            QuickPicks(
+                                                homeItem =
+                                                    (
+                                                        homeData.find {
+                                                            it.title ==
+                                                                stringResource(
+                                                                    Res.string.quick_picks,
+                                                                )
+                                                        } ?: return@AnimatedVisibility
+                                                    ).let { content ->
+                                                        content.copy(
+                                                            contents =
+                                                                content.contents.mapNotNull { ct ->
+                                                                    ct?.copy(
+                                                                        artists =
+                                                                            ct.artists?.let { art ->
+                                                                                if (art.size > 1) {
+                                                                                    art.dropLast(1)
+                                                                                } else {
+                                                                                    art
+                                                                                }
+                                                                            },
+                                                                    )
+                                                                },
+                                                        )
+                                                    },
+                                                navController = navController,
+                                                viewModel = viewModel,
+                                            )
+                                        }
+                                    } else {
+                                        HomeItem(
+                                            navController = navController,
+                                            data = item,
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -659,7 +732,6 @@ fun HomeScreen(
                                     ChartTitle()
                                     Spacer(modifier = Modifier.height(5.dp))
                                     Crossfade(targetState = regionChart) {
-                                        Logger.w("HomeScreen", "regionChart: $it")
                                         if (it != null) {
                                             DropdownButton(
                                                 items = CHART_SUPPORTED_COUNTRY.itemsData.toList(),
@@ -736,9 +808,7 @@ fun HomeScreen(
                                 Modifier.background(Color.Transparent)
                             } else {
                                 Modifier
-                                    .hazeEffect(hazeState, style = HazeMaterials.ultraThin()) {
-                                        blurEnabled = true
-                                    }
+                                    .hazeBlur(HazeInput.Sources(hazeState), ultraThinBarStyle())
                             },
                         ).onGloballyPositioned { coordinates ->
                             topAppBarHeightPx = coordinates.size.height
@@ -764,6 +834,50 @@ fun HomeScreen(
                                     WindowInsets.statusBars,
                                 ),
                     )
+                }
+                Row(
+                    modifier =
+                        Modifier
+                            .horizontalScroll(chipRowState)
+                            .padding(vertical = 8.dp, horizontal = 15.dp)
+                            .background(Color.Transparent),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    listOfHomeChip.forEach { id ->
+                        val isSelected =
+                            when (params) {
+                                HOME_PARAMS_RELAX -> id == Res.string.relax
+                                HOME_PARAMS_SLEEP -> id == Res.string.sleep
+                                HOME_PARAMS_ENERGIZE -> id == Res.string.energize
+                                HOME_PARAMS_SAD -> id == Res.string.sad
+                                HOME_PARAMS_ROMANCE -> id == Res.string.romance
+                                HOME_PARAMS_FEEL_GOOD -> id == Res.string.feel_good
+                                HOME_PARAMS_WORKOUT -> id == Res.string.workout
+                                HOME_PARAMS_PARTY -> id == Res.string.party
+                                HOME_PARAMS_COMMUTE -> id == Res.string.commute
+                                HOME_PARAMS_FOCUS -> id == Res.string.focus
+                                else -> id == Res.string.all
+                            }
+                        Chip(
+                            isAnimated = loading,
+                            isSelected = isSelected,
+                            text = stringResource(id),
+                        ) {
+                            when (id) {
+                                Res.string.all -> viewModel.setParams(null)
+                                Res.string.relax -> viewModel.setParams(HOME_PARAMS_RELAX)
+                                Res.string.sleep -> viewModel.setParams(HOME_PARAMS_SLEEP)
+                                Res.string.energize -> viewModel.setParams(HOME_PARAMS_ENERGIZE)
+                                Res.string.sad -> viewModel.setParams(HOME_PARAMS_SAD)
+                                Res.string.romance -> viewModel.setParams(HOME_PARAMS_ROMANCE)
+                                Res.string.feel_good -> viewModel.setParams(HOME_PARAMS_FEEL_GOOD)
+                                Res.string.workout -> viewModel.setParams(HOME_PARAMS_WORKOUT)
+                                Res.string.party -> viewModel.setParams(HOME_PARAMS_PARTY)
+                                Res.string.commute -> viewModel.setParams(HOME_PARAMS_COMMUTE)
+                                Res.string.focus -> viewModel.setParams(HOME_PARAMS_FOCUS)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -815,6 +929,9 @@ fun HomeTopAppBar(navController: NavController) {
             }
         },
         actions = {
+            RippleIconButton(imageVector = SimpIcons.Notifications, tint = MaterialTheme.colorScheme.onBackground) {
+                navController.navigate(NotificationDestination)
+            }
             RippleIconButton(imageVector = SimpIcons.History, tint = MaterialTheme.colorScheme.onBackground) {
                 navController.navigate(RecentlySongsDestination)
             }
@@ -879,6 +996,10 @@ fun AccountLayout(
     }
 }
 
+// Portrait fills the width with one column (the next one peeking in). On a landscape window that one
+// column stretched across the whole screen, so every row there is capped instead.
+private val LandscapeGridItemMaxWidth = 400.dp
+
 @ExperimentalFoundationApi
 @Composable
 fun QuickPicks(
@@ -888,6 +1009,7 @@ fun QuickPicks(
 ) {
     val lazyListState = rememberLazyGridState()
     val snapperFlingBehavior = rememberSnapFlingBehavior(SnapLayoutInfoProvider(lazyGridState = lazyListState, snapPosition = SnapPosition.Start))
+    val isPortrait = getScreenSizeInfo().let { it.wDP < it.hDP }
     val density = LocalDensity.current
     var widthDp by remember {
         mutableStateOf(0.dp)
@@ -913,11 +1035,11 @@ fun QuickPicks(
             },
     ) {
         Text(
-            text = homeItem.subtitle ?: stringResource(Res.string.let_s_start_with_a_radio),
+            text = stringResource(Res.string.let_s_start_with_a_radio),
             style = typo().bodySmall,
         )
         Text(
-            text = homeItem.title.ifEmpty { stringResource(Res.string.quick_picks) },
+            text = stringResource(Res.string.quick_picks),
             style = typo().headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
@@ -957,11 +1079,16 @@ fun QuickPicks(
                             bottomSheetShow = true
                         },
                         data = it,
-                        widthDp = widthDp,
+                        widthDp = if (isPortrait) widthDp else minOf(widthDp, LandscapeGridItemMaxWidth + 30.dp),
                     )
                 }
             }
         }
+        HorizontalScrollBar(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            scrollState = lazyListState,
+            flingBehavior = snapperFlingBehavior,
+        )
     }
 }
 
@@ -1014,6 +1141,11 @@ fun MoodMomentAndGenre(
                     }
                 }
             }
+            HorizontalScrollBar(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                scrollState = gridState,
+                flingBehavior = flingBehavior,
+            )
         }
     }
 }
@@ -1050,6 +1182,7 @@ fun ChartData(
 
     val lazyListState2 = rememberLazyGridState()
     val snapperFlingBehavior2 = rememberSnapFlingBehavior(SnapLayoutInfoProvider(lazyGridState = lazyListState2))
+    val isPortrait = getScreenSizeInfo().let { it.wDP < it.hDP }
 
     Column(
         Modifier.onGloballyPositioned { coordinates ->
@@ -1120,9 +1253,51 @@ fun ChartData(
                         )
                     },
                     data = data,
-                    widthDp = gridWidthDp,
+                    widthDp = if (isPortrait) gridWidthDp else minOf(gridWidthDp, LandscapeGridItemMaxWidth),
                 )
             }
+        }
+        HorizontalScrollBar(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            scrollState = lazyListState2,
+            flingBehavior = snapperFlingBehavior2,
+        )
+        // Ranked podcast shows, laid out exactly like the artist chart above.
+        chart.podcasts?.let { podcasts ->
+            Text(
+                text = podcasts.title,
+                style = typo().headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+            )
+            val podcastGridState = rememberLazyGridState()
+            val podcastFlingBehavior = rememberSnapFlingBehavior(SnapLayoutInfoProvider(lazyGridState = podcastGridState))
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(3),
+                modifier = Modifier.height(240.dp),
+                state = podcastGridState,
+                flingBehavior = podcastFlingBehavior,
+            ) {
+                items(podcasts.shows.size, key = { index -> podcasts.shows[index].browseId + index }) {
+                    val data = podcasts.shows[it]
+                    ItemArtistChart(
+                        onClick = { navController.navigate(PodcastDestination(podcastId = data.browseId)) },
+                        data = data,
+                        widthDp = if (isPortrait) gridWidthDp else minOf(gridWidthDp, LandscapeGridItemMaxWidth),
+                        thumbnailShape = RoundedCornerShape(8.dp),
+                        subtitle = data.subscribers,
+                    )
+                }
+            }
+            HorizontalScrollBar(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                scrollState = podcastGridState,
+                flingBehavior = podcastFlingBehavior,
+            )
         }
     }
 }

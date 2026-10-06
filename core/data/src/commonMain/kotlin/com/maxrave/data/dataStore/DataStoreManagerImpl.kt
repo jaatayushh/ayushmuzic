@@ -118,9 +118,26 @@ internal class DataStoreManagerImpl(
         }
     }
 
+    override val tasteProfile: Flow<String?> =
+        settingsDataStore.data.map { preferences ->
+            preferences[TASTE_PROFILE]
+        }
+
+    override suspend fun setTasteProfile(json: String?) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                if (json == null) {
+                    settings.remove(TASTE_PROFILE)
+                } else {
+                    settings[TASTE_PROFILE] = json
+                }
+            }
+        }
+    }
+
     override val quality: Flow<String> =
         settingsDataStore.data.map { preferences ->
-            preferences[QUALITY] ?: COMMON_QUALITY.items[1].toString()
+            preferences[QUALITY] ?: COMMON_QUALITY.items[0].toString()
         }
 
     override suspend fun setQuality(quality: String) {
@@ -191,14 +208,21 @@ internal class DataStoreManagerImpl(
             preferences[PAGE_ID] ?: ""
         }
 
+    override val authUser: Flow<Int> =
+        settingsDataStore.data.map { preferences ->
+            preferences[AUTH_USER] ?: 0
+        }
+
     override suspend fun setCookie(
         cookie: String,
         pageId: String?,
+        authUser: Int,
     ) {
         withContext(Dispatchers.IO) {
             settingsDataStore.edit { settings ->
                 settings[COOKIE] = cookie
                 settings[PAGE_ID] = pageId ?: ""
+                settings[AUTH_USER] = authUser
             }
         }
     }
@@ -341,7 +365,7 @@ internal class DataStoreManagerImpl(
         mediaId: String,
         position: Long,
     ) {
-        Logger.w("saveRecentSong", "$mediaId $position")
+        Logger.d("saveRecentSong", "$mediaId $position")
         withContext(Dispatchers.IO) {
             settingsDataStore.edit { settings ->
                 settings[RECENT_SONG_MEDIA_ID_KEY] = mediaId
@@ -563,6 +587,8 @@ internal class DataStoreManagerImpl(
                 settings[SPDC] = spdc
             }
         }
+        // Every Spotify sign-in and sign-out path writes through here; the value itself never goes out.
+        Logger.i("Auth", if (spdc.isEmpty()) "Spotify: sp_dc cleared" else "Spotify: sp_dc saved")
     }
 
     override val equalizerEnabled: Flow<String> =
@@ -603,6 +629,19 @@ internal class DataStoreManagerImpl(
         withContext(Dispatchers.IO) {
             settingsDataStore.edit { settings ->
                 settings[EQUALIZER_PREAMP] = preampDb.toString()
+            }
+        }
+    }
+
+    override val equalizerType =
+        settingsDataStore.data.map { preferences ->
+            preferences[EQUALIZER_TYPE] ?: DataStoreManager.EQUALIZER_TYPE_BUILT_IN
+        }
+
+    override suspend fun setEqualizerType(type: String) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[EQUALIZER_TYPE] = type
             }
         }
     }
@@ -891,25 +930,6 @@ internal class DataStoreManagerImpl(
         }
     }
 
-    override val translucentBottomBar =
-        settingsDataStore.data.map { preferences ->
-            preferences[TRANSLUCENT_BOTTOM_BAR] ?: TRUE
-        }
-
-    override suspend fun setTranslucentBottomBar(translucent: Boolean) {
-        withContext(Dispatchers.IO) {
-            if (translucent) {
-                settingsDataStore.edit { settings ->
-                    settings[TRANSLUCENT_BOTTOM_BAR] = TRUE
-                }
-            } else {
-                settingsDataStore.edit { settings ->
-                    settings[TRANSLUCENT_BOTTOM_BAR] = FALSE
-                }
-            }
-        }
-    }
-
     override val themeMode =
         settingsDataStore.data.map { preferences ->
             preferences[THEME_MODE] ?: DataStoreManager.THEME_MODE_DARK
@@ -951,7 +971,7 @@ internal class DataStoreManagerImpl(
 
     override val nowPlayingStyle =
         settingsDataStore.data.map { preferences ->
-            preferences[NOW_PLAYING_STYLE] ?: DataStoreManager.NOW_PLAYING_STYLE_APPLE_MUSIC
+            preferences[NOW_PLAYING_STYLE] ?: DataStoreManager.NOW_PLAYING_STYLE_SPOTIFY
         }
 
     override suspend fun setNowPlayingStyle(style: String) {
@@ -964,7 +984,7 @@ internal class DataStoreManagerImpl(
 
     override val lyricsStyle =
         settingsDataStore.data.map { preferences ->
-            preferences[LYRICS_STYLE] ?: DataStoreManager.LYRICS_STYLE_APPLE_MUSIC
+            preferences[LYRICS_STYLE] ?: DataStoreManager.LYRICS_STYLE_CLASSIC
         }
 
     override suspend fun setLyricsStyle(style: String) {
@@ -984,6 +1004,19 @@ internal class DataStoreManagerImpl(
         withContext(Dispatchers.IO) {
             settingsDataStore.edit { settings ->
                 settings[ROMANIZATION_LANGUAGES] = languages
+            }
+        }
+    }
+
+    override val lyricsOffsetMs =
+        settingsDataStore.data.map { preferences ->
+            preferences[LYRICS_OFFSET_MS] ?: 0
+        }
+
+    override suspend fun setLyricsOffsetMs(offsetMs: Int) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[LYRICS_OFFSET_MS] = offsetMs
             }
         }
     }
@@ -1384,28 +1417,9 @@ internal class DataStoreManagerImpl(
         }
     }
 
-    override val keepServiceAlive: Flow<String> =
-        settingsDataStore.data.map { preferences ->
-            preferences[KEEP_SERVICE_ALIVE] ?: FALSE
-        }
-
-    override suspend fun setKeepServiceAlive(keep: Boolean) {
-        withContext(Dispatchers.IO) {
-            if (keep) {
-                settingsDataStore.edit { settings ->
-                    settings[KEEP_SERVICE_ALIVE] = TRUE
-                }
-            } else {
-                settingsDataStore.edit { settings ->
-                    settings[KEEP_SERVICE_ALIVE] = FALSE
-                }
-            }
-        }
-    }
-
     override val crossfadeEnabled: Flow<String> =
         settingsDataStore.data.map { preferences ->
-            preferences[CROSSFADE_ENABLED] ?: TRUE
+            preferences[CROSSFADE_ENABLED] ?: FALSE
         }
 
     override suspend fun setCrossfadeEnabled(enabled: Boolean) {
@@ -1496,6 +1510,19 @@ internal class DataStoreManagerImpl(
         }
     }
 
+    override val preferredAudioLanguage =
+        settingsDataStore.data.map { preferences ->
+            preferences[PREFERRED_AUDIO_LANGUAGE] ?: ""
+        }
+
+    override suspend fun setPreferredAudioLanguage(language: String) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[PREFERRED_AUDIO_LANGUAGE] = language.trim()
+            }
+        }
+    }
+
     override val helpBuildLyricsDatabase: Flow<String> =
         settingsDataStore.data.map { preferences ->
             preferences[HELP_BUILD_LYRICS_DATABASE] ?: FALSE
@@ -1563,7 +1590,7 @@ internal class DataStoreManagerImpl(
     override val enableLiquidGlass: Flow<String>
         get() =
             settingsDataStore.data.map { preferences ->
-                preferences[LIQUID_GLASS] ?: TRUE
+                preferences[LIQUID_GLASS] ?: FALSE
             }
 
     override suspend fun setEnableLiquidGlass(enable: Boolean) {
@@ -1610,6 +1637,7 @@ internal class DataStoreManagerImpl(
                 settings[DISCORD_TOKEN] = token
             }
         }
+        Logger.i("Auth", if (token.isEmpty()) "Discord: token cleared" else "Discord: token saved")
     }
 
     override val richPresenceEnabled: Flow<String> =
@@ -1652,6 +1680,7 @@ internal class DataStoreManagerImpl(
                 settings[LASTFM_USERNAME] = if (sessionKey.isEmpty()) "" else username
             }
         }
+        Logger.i("Auth", if (sessionKey.isEmpty()) "Last.fm: session cleared" else "Last.fm: session saved")
     }
 
     override val lastfmScrobbleEnabled: Flow<String> =
@@ -1751,10 +1780,12 @@ internal class DataStoreManagerImpl(
         val COOKIE = stringPreferencesKey("cookie")
 
         val PAGE_ID = stringPreferencesKey("page_id")
+        val AUTH_USER = intPreferencesKey("auth_user")
         val LOGGED_IN = stringPreferencesKey("logged_in")
         val LOCATION = stringPreferencesKey("location")
         val MOOD_AND_GENRES_CACHE = stringPreferencesKey("mood_and_genres_cache")
         val MOOD_ARTWORK_CACHE = stringPreferencesKey("mood_artwork_cache")
+        val TASTE_PROFILE = stringPreferencesKey("ai_taste_profile")
         val QUALITY = stringPreferencesKey("quality")
         val DOWNLOAD_QUALITY = stringPreferencesKey("download_quality")
         val VIDEO_DOWNLOAD_QUALITY = stringPreferencesKey("video_download_quality")
@@ -1770,7 +1801,6 @@ internal class DataStoreManagerImpl(
         val FROM_SAVED_PLAYLIST = stringPreferencesKey("from_saved_playlist")
 
         val KILL_SERVICE_ON_EXIT = stringPreferencesKey("kill_service_on_exit")
-        val KEEP_SERVICE_ALIVE = stringPreferencesKey("keep_service_alive")
         val CROSSFADE_ENABLED = stringPreferencesKey("crossfade_enabled")
         val CROSSFADE_DURATION = intPreferencesKey("crossfade_duration")
         val CROSSFADE_DJ_MODE = stringPreferencesKey("crossfade_dj_mode")
@@ -1793,6 +1823,7 @@ internal class DataStoreManagerImpl(
         val EQUALIZER_AUTOEQ_PROFILE = stringPreferencesKey("equalizer_autoeq_profile")
         val EQUALIZER_BANDS = stringPreferencesKey("equalizer_bands")
         val EQUALIZER_ENABLED = stringPreferencesKey("equalizer_enabled")
+        val EQUALIZER_TYPE = stringPreferencesKey("equalizer_type")
         val EQUALIZER_PREAMP = stringPreferencesKey("equalizer_preamp")
         val DELAY_ENABLED = stringPreferencesKey("delay_enabled")
         val DELAY_TIME_MS = stringPreferencesKey("delay_time_ms")
@@ -1811,13 +1842,13 @@ internal class DataStoreManagerImpl(
         val TIDAL_CLIENT_SECRET = stringPreferencesKey("tidal_client_secret")
         val HOME_LIMIT = intPreferencesKey("home_limit")
         val CHART_KEY = stringPreferencesKey("chart_key")
-        val TRANSLUCENT_BOTTOM_BAR = stringPreferencesKey("translucent_bottom_bar")
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val THEME_COLOR_SOURCE = stringPreferencesKey("theme_color_source")
         val CUSTOM_THEME_COLOR = stringPreferencesKey("custom_theme_color")
         val NOW_PLAYING_STYLE = stringPreferencesKey("now_playing_style")
         val LYRICS_STYLE = stringPreferencesKey("lyrics_style")
         val ROMANIZATION_LANGUAGES = stringPreferencesKey("romanization_languages")
+        val LYRICS_OFFSET_MS = intPreferencesKey("lyrics_offset_ms")
         val USING_PROXY = stringPreferencesKey("using_proxy")
         val PROXY_TYPE = stringPreferencesKey("proxy_type")
         val PROXY_HOST = stringPreferencesKey("proxy_host")
@@ -1846,6 +1877,7 @@ internal class DataStoreManagerImpl(
 
         val LOCAL_PLAYLIST_FILTER = stringPreferencesKey("local_playlist_filter")
         val YOUTUBE_SUBTITLE_LANGUAGE = stringPreferencesKey("youtube_subtitle_language")
+        val PREFERRED_AUDIO_LANGUAGE = stringPreferencesKey("preferred_audio_language")
         val HELP_BUILD_LYRICS_DATABASE = stringPreferencesKey("help_build_lyrics_database")
         val CONTRIBUTOR_NAME = stringPreferencesKey("contributor_name")
         val CONTRIBUTOR_EMAIL = stringPreferencesKey("contributor_email")

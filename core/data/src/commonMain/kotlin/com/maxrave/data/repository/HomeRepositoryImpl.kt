@@ -1,10 +1,12 @@
 package com.maxrave.data.repository
 
+import com.maxrave.data.mapping.toHomeContent
 import com.maxrave.data.parser.parseChart
 import com.maxrave.data.parser.parseGenreObject
 import com.maxrave.data.parser.parseMixedContent
 import com.maxrave.data.parser.parseMoodsMomentObject
 import com.maxrave.data.parser.parseNewRelease
+import com.maxrave.domain.data.model.home.BrowsePage
 import com.maxrave.domain.data.model.home.HomeItem
 import com.maxrave.domain.data.model.home.chart.Chart
 import com.maxrave.domain.data.model.mood.Mood
@@ -17,10 +19,8 @@ import com.maxrave.domain.repository.HomeRepository
 import com.maxrave.domain.utils.Resource
 import com.maxrave.kotlinytmusicscraper.YouTube
 import com.maxrave.logger.Logger
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
@@ -67,68 +67,104 @@ internal class HomeRepositoryImpl(
         songString: String,
     ): Flow<Resource<Pair<String?, List<HomeItem>>>> =
         flow {
-            try {
+            runCatching {
                 val limit = dataStoreManager.homeLimit.first()
-                var customQueryResult = youTube.customQuery(browseId = "FEmusic_home", params = params)
-                if (customQueryResult.isFailure) {
-                    Logger.w("HomeRepository", "Initial customQuery failed (${customQueryResult.exceptionOrNull()?.message}), retrying in 1s...")
-                    delay(1000)
-                    customQueryResult = youTube.customQuery(browseId = "FEmusic_home", params = params)
-                }
-                customQueryResult
+                youTube
+                    .customQuery(browseId = "FEmusic_home", params = params)
                     .onSuccess { result ->
                         val list: ArrayList<HomeItem> = arrayListOf()
-                        val carousel = result.contents
-                            ?.singleColumnBrowseResultsRenderer
-                            ?.tabs
-                            ?.getOrNull(0)
-                            ?.tabRenderer
-                            ?.content
-                            ?.sectionListRenderer
-                            ?.contents
-                            ?.getOrNull(0)
-                            ?.musicCarouselShelfRenderer
-
-                        val straplineRun = carousel
-                            ?.header
-                            ?.musicCarouselShelfBasicHeaderRenderer
-                            ?.strapline
-                            ?.runs
-                            ?.getOrNull(0)
-
-                        if (straplineRun?.text != null) {
-                            val accountName = straplineRun.text ?: ""
-                            val accountThumbUrl = carousel
+                        if (result.contents
+                                ?.singleColumnBrowseResultsRenderer
+                                ?.tabs
+                                ?.get(
+                                    0,
+                                )?.tabRenderer
+                                ?.content
+                                ?.sectionListRenderer
+                                ?.contents
+                                ?.get(
+                                    0,
+                                )?.musicCarouselShelfRenderer
                                 ?.header
                                 ?.musicCarouselShelfBasicHeaderRenderer
-                                ?.thumbnail
-                                ?.musicThumbnailRenderer
-                                ?.thumbnail
-                                ?.thumbnails
-                                ?.getOrNull(0)
-                                ?.url
-                                ?.replace("s88", "s352") ?: ""
-
-                            if (accountName.isNotEmpty() && accountThumbUrl.isNotEmpty()) {
+                                ?.strapline
+                                ?.runs
+                                ?.get(
+                                    0,
+                                )?.text != null
+                        ) {
+                            val accountName =
+                                result.contents
+                                    ?.singleColumnBrowseResultsRenderer
+                                    ?.tabs
+                                    ?.get(
+                                        0,
+                                    )?.tabRenderer
+                                    ?.content
+                                    ?.sectionListRenderer
+                                    ?.contents
+                                    ?.get(
+                                        0,
+                                    )?.musicCarouselShelfRenderer
+                                    ?.header
+                                    ?.musicCarouselShelfBasicHeaderRenderer
+                                    ?.strapline
+                                    ?.runs
+                                    ?.get(
+                                        0,
+                                    )?.text ?: ""
+                            val accountThumbUrl =
+                                result.contents
+                                    ?.singleColumnBrowseResultsRenderer
+                                    ?.tabs
+                                    ?.get(
+                                        0,
+                                    )?.tabRenderer
+                                    ?.content
+                                    ?.sectionListRenderer
+                                    ?.contents
+                                    ?.get(
+                                        0,
+                                    )?.musicCarouselShelfRenderer
+                                    ?.header
+                                    ?.musicCarouselShelfBasicHeaderRenderer
+                                    ?.thumbnail
+                                    ?.musicThumbnailRenderer
+                                    ?.thumbnail
+                                    ?.thumbnails
+                                    ?.get(
+                                        0,
+                                    )?.url
+                                    ?.replace("s88", "s352") ?: ""
+                            if (accountName != "" && accountThumbUrl != "") {
                                 dataStoreManager.putString("AccountName", accountName)
                                 dataStoreManager.putString("AccountThumbUrl", accountThumbUrl)
                             }
                         }
-                        val sectionList = result.contents
-                            ?.singleColumnBrowseResultsRenderer
-                            ?.tabs
-                            ?.getOrNull(0)
-                            ?.tabRenderer
-                            ?.content
-                            ?.sectionListRenderer
-
-                        val continueParam = sectionList
-                            ?.continuations
-                            ?.getOrNull(0)
-                            ?.nextContinuationData
-                            ?.continuation
-
-                        val data = sectionList?.contents
+                        val continueParam =
+                            result.contents
+                                ?.singleColumnBrowseResultsRenderer
+                                ?.tabs
+                                ?.get(
+                                    0,
+                                )?.tabRenderer
+                                ?.content
+                                ?.sectionListRenderer
+                                ?.continuations
+                                ?.get(
+                                    0,
+                                )?.nextContinuationData
+                                ?.continuation
+                        val data =
+                            result.contents
+                                ?.singleColumnBrowseResultsRenderer
+                                ?.tabs
+                                ?.get(
+                                    0,
+                                )?.tabRenderer
+                                ?.content
+                                ?.sectionListRenderer
+                                ?.contents
                         list.addAll(
                             parseMixedContent(
                                 data,
@@ -136,53 +172,73 @@ internal class HomeRepositoryImpl(
                                 songString,
                             ),
                         )
+//                        var count = 0
+//                        while (count < limit && continueParam != null) {
+//                            youTube
+//                                .customQuery(browseId = "", continuation = continueParam)
+//                                .onSuccess { response ->
+//                                    continueParam =
+//                                        response.continuationContents
+//                                            ?.sectionListContinuation
+//                                            ?.continuations
+//                                            ?.get(
+//                                                0,
+//                                            )?.nextContinuationData
+//                                            ?.continuation
+//                                    Logger.d("Repository", "continueParam: $continueParam")
+//                                    val dataContinue =
+//                                        response.continuationContents?.sectionListContinuation?.contents
+//                                    list.addAll(
+//                                        parseMixedContent(
+//                                            dataContinue,
+//                                            viewString,
+//                                            songString,
+//                                        ),
+//                                    )
+//                                    count++
+//                                    Logger.d("Repository", "count: $count")
+//                                }.onFailure {
+//                                    Logger.e("Repository", "Error: ${it.message}")
+//                                    count++
+//                                }
+//                        }
                         Logger.d("Repository", "List size: ${list.size}")
                         emit(Resource.Success(continueParam to list.toList()))
                     }.onFailure { error ->
                         emit(Resource.Error<Pair<String?, List<HomeItem>>>(error.message.toString()))
                     }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Logger.e("HomeRepository", "getHomeData error: ${e.message}")
-                emit(Resource.Error<Pair<String?, List<HomeItem>>>(e.message ?: "Unknown error"))
             }
         }.flowOn(Dispatchers.IO)
 
     override fun getHomeDataContinue(
         continueParam: String,
         viewString: String,
-        songString: String,
+        songString: String
     ): Flow<Resource<Pair<String?, List<HomeItem>>>> = flow {
-        try {
-            youTube
-                .customQuery(browseId = "", continuation = continueParam)
-                .onSuccess { response ->
-                    val newContinueParam =
-                        response.continuationContents
-                            ?.sectionListContinuation
-                            ?.continuations
-                            ?.getOrNull(0)
-                            ?.nextContinuationData
-                            ?.continuation
-                    Logger.d("Repository", "continueParam: $continueParam")
-                    val dataContinue =
-                        response.continuationContents?.sectionListContinuation?.contents
-                    val list =
-                        parseMixedContent(
-                            dataContinue,
-                            viewString,
-                            songString,
-                        )
-                    emit(Resource.Success(newContinueParam to list))
-                }.onFailure {
-                    emit(Resource.Error<Pair<String?, List<HomeItem>>>(it.message.toString()))
-                }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            emit(Resource.Error<Pair<String?, List<HomeItem>>>(e.message ?: "Unknown error"))
-        }
+        youTube
+            .customQuery(browseId = "", continuation = continueParam)
+            .onSuccess { response ->
+                val newContinueParam =
+                    response.continuationContents
+                        ?.sectionListContinuation
+                        ?.continuations
+                        ?.get(
+                            0,
+                        )?.nextContinuationData
+                        ?.continuation
+                Logger.d("Repository", "continueParam: $continueParam")
+                val dataContinue =
+                    response.continuationContents?.sectionListContinuation?.contents
+                val list =
+                    parseMixedContent(
+                        dataContinue,
+                        viewString,
+                        songString,
+                    )
+                emit(Resource.Success(newContinueParam to list))
+            }.onFailure {
+                emit(Resource.Error<Pair<String?, List<HomeItem>>>(it.message.toString()))
+            }
     }.flowOn(Dispatchers.IO)
 
     override fun getNewRelease(
@@ -190,25 +246,18 @@ internal class HomeRepositoryImpl(
         musicVideoString: String,
     ): Flow<Resource<List<HomeItem>>> =
         flow {
-            try {
-                youTube
-                    .newRelease()
-                    .onSuccess { result ->
-                        emit(Resource.Success<List<HomeItem>>(parseNewRelease(result, newReleaseString, musicVideoString)))
-                    }.onFailure { error ->
-                        emit(Resource.Error<List<HomeItem>>(error.message.toString()))
-                    }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Logger.e("HomeRepository", "getNewRelease error: ${e.message}")
-                emit(Resource.Error<List<HomeItem>>(e.message ?: "Unknown error"))
-            }
+            youTube
+                .newRelease()
+                .onSuccess { result ->
+                    emit(Resource.Success<List<HomeItem>>(parseNewRelease(result, newReleaseString, musicVideoString)))
+                }.onFailure { error ->
+                    emit(Resource.Error<List<HomeItem>>(error.message.toString()))
+                }
         }.flowOn(Dispatchers.IO)
 
     override fun getChartData(countryCode: String): Flow<Resource<Chart>> =
         flow {
-            try {
+            runCatching {
                 youTube
                     .customQuery("FEmusic_charts", country = countryCode)
                     .onSuccess { result ->
@@ -216,8 +265,9 @@ internal class HomeRepositoryImpl(
                             result.contents
                                 ?.singleColumnBrowseResultsRenderer
                                 ?.tabs
-                                ?.getOrNull(0)
-                                ?.tabRenderer
+                                ?.get(
+                                    0,
+                                )?.tabRenderer
                                 ?.content
                                 ?.sectionListRenderer
                         val chart = parseChart(data)
@@ -229,11 +279,6 @@ internal class HomeRepositoryImpl(
                     }.onFailure { error ->
                         emit(Resource.Error<Chart>(error.message.toString()))
                     }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Logger.e("HomeRepository", "getChartData error: ${e.message}")
-                emit(Resource.Error<Chart>(e.message ?: "Unknown error"))
             }
         }.flowOn(Dispatchers.IO)
 
@@ -249,7 +294,7 @@ internal class HomeRepositoryImpl(
             if (cached != null) {
                 emit(Resource.Success<Mood>(cached))
             }
-            try {
+            runCatching {
                 youTube
                     .moodAndGenres()
                     .onSuccess { result ->
@@ -280,13 +325,6 @@ internal class HomeRepositoryImpl(
                             emit(Resource.Error<Mood>(e.message.toString()))
                         }
                     }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Logger.e("HomeRepository", "getMoodAndMomentsData error: ${e.message}")
-                if (cached == null) {
-                    emit(Resource.Error<Mood>(e.message ?: "Unknown error"))
-                }
             }
         }.flowOn(Dispatchers.IO)
 
@@ -364,5 +402,38 @@ internal class HomeRepositoryImpl(
                         emit(Resource.Error<GenreObject>(e.message.toString()))
                     }
             }
+        }.flowOn(Dispatchers.IO)
+
+    override fun getBrowsePage(
+        browseId: String,
+        params: String?,
+    ): Flow<Resource<BrowsePage>> =
+        flow {
+            youTube
+                .browse(browseId = browseId, params = params)
+                .onSuccess { result ->
+                    emit(
+                        Resource.Success(
+                            BrowsePage(
+                                title = result.title,
+                                contents =
+                                    result.items
+                                        .flatMap { it.items }
+                                        .distinctBy { it.id }
+                                        .map { it.toHomeContent() },
+                                moods =
+                                    result.items.flatMap { it.moods }.map { item ->
+                                        MoodItem(
+                                            title = item.title,
+                                            params = item.endpoint.params ?: "",
+                                            stripeColor = item.stripeColor,
+                                        )
+                                    },
+                            ),
+                        ),
+                    )
+                }.onFailure { e ->
+                    emit(Resource.Error<BrowsePage>(e.message.toString()))
+                }
         }.flowOn(Dispatchers.IO)
 }

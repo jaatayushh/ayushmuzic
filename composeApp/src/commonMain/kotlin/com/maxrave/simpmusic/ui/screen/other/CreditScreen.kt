@@ -28,32 +28,39 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.maxrave.domain.extension.now
 import com.maxrave.simpmusic.expect.openUrl
+import com.maxrave.simpmusic.extension.ultraThinBarStyle
 import com.maxrave.simpmusic.ui.component.RippleIconButton
 import com.maxrave.simpmusic.ui.icon.ArrowBackIosNew
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.utils.VersionManager
-import dev.chrisbanes.haze.hazeEffect
+import com.mikepenz.markdown.m3.Markdown
+import com.mikepenz.markdown.m3.markdownTypography
+import dev.chrisbanes.haze.HazeInput
+import dev.chrisbanes.haze.blur.hazeBlur
 import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
-import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import simpmusic.composeapp.generated.resources.*
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreditScreen(
     paddingValues: PaddingValues,
@@ -98,14 +105,14 @@ fun CreditScreen(
             fontSize = 13.sp,
         )
 
-        // Developer - clickable, opens repo
+        // Developer - clickable, opens dev blog
         Text(
-            text = "Ayush",
+            text = stringResource(Res.string.maxrave_dev),
             style = typo().bodyMedium,
             textDecoration = TextDecoration.Underline,
             modifier =
                 Modifier.clickable {
-                    openUrl("https://github.com/jaatayushh/ayushmuzic")
+                    openUrl("https://maxrave.dev")
                 },
         )
 
@@ -128,7 +135,7 @@ fun CreditScreen(
             // Website button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/jaatayushh/ayushmuzic")
+                    openUrl("https://simpmusic.org")
                 },
                 modifier =
                     Modifier
@@ -139,10 +146,30 @@ fun CreditScreen(
                 Text(text = stringResource(Res.string.website))
             }
 
+            // Developer blog button
+            TextButton(
+                onClick = {
+                    openUrl("https://maxrave.dev")
+                },
+                modifier =
+                    Modifier
+                        .align(Alignment.Start)
+                        .padding(horizontal = 25.dp)
+                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+            ) {
+                Column {
+                    Text(text = stringResource(Res.string.developer_blog))
+                    Text(
+                        text = stringResource(Res.string.developer_blog_tagline),
+                        style = typo().bodySmall,
+                    )
+                }
+            }
+
             // GitHub button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/jaatayushh/ayushmuzic")
+                    openUrl("https://github.com/maxrave-dev/SimpMusic")
                 },
                 modifier =
                     Modifier
@@ -156,7 +183,7 @@ fun CreditScreen(
             // Issue tracker button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/jaatayushh/ayushmuzic/issues")
+                    openUrl("https://github.com/maxrave-dev/SimpMusic/issues")
                 },
                 modifier =
                     Modifier
@@ -166,13 +193,51 @@ fun CreditScreen(
             ) {
                 Text(text = stringResource(Res.string.issue_tracker))
             }
+
+            // Buy me a coffee button
+            TextButton(
+                onClick = {
+                    openUrl("https://github.com/sponsors/maxrave-dev")
+                },
+                modifier =
+                    Modifier
+                        .align(Alignment.Start)
+                        .padding(horizontal = 25.dp)
+                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+            ) {
+                Text(text = stringResource(Res.string.buy_me_a_coffee))
+            }
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // README's "Legal Disclaimer & Terms of Use", bundled as files/legal_disclaimer.md: a copy,
+        // so the two are updated together.
+        val legalDisclaimer by produceState<String?>(null) {
+            value = Res.readBytes("files/legal_disclaimer.md").decodeToString()
+        }
+        legalDisclaimer?.let {
+            Markdown(
+                it,
+                typography =
+                    markdownTypography(
+                        h2 = typo().titleMedium,
+                        h3 = typo().labelSmall,
+                        text = typo().bodyMedium,
+                        paragraph = typo().bodyMedium,
+                        bullet = typo().bodyMedium,
+                        textLink = TextLinkStyles(SpanStyle(textDecoration = TextDecoration.Underline)),
+                    ),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 25.dp, vertical = 10.dp),
+            )
+        }
+
         // Copyright text
         Text(
-            text = stringResource(Res.string.copyright),
+            text = stringResource(Res.string.copyright, now().year.toString()),
             style = typo().bodySmall,
             modifier =
                 Modifier
@@ -187,9 +252,7 @@ fun CreditScreen(
     TopAppBar(
         modifier =
             Modifier
-                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
-                    blurEnabled = true
-                },
+                .hazeBlur(HazeInput.Sources(hazeState), ultraThinBarStyle()),
         title = {
             Text(
                 text = stringResource(Res.string.app_name),

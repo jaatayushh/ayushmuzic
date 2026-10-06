@@ -5,6 +5,7 @@ import com.maxrave.domain.data.model.home.HomeItem
 import com.maxrave.domain.data.model.searchResult.songs.Album
 import com.maxrave.domain.data.model.searchResult.songs.Artist
 import com.maxrave.kotlinytmusicscraper.models.ArtistItem
+import com.maxrave.kotlinytmusicscraper.models.BrowseEndpoint
 import com.maxrave.kotlinytmusicscraper.models.MusicResponsiveListItemRenderer
 import com.maxrave.kotlinytmusicscraper.models.MusicTwoRowItemRenderer
 import com.maxrave.kotlinytmusicscraper.models.PlaylistItem
@@ -61,9 +62,7 @@ internal fun parseMixedContent(
                 }
             } else {
                 val results1 = row.musicCarouselShelfRenderer
-                Logger.w("parse_mixed_content", results1.toString())
                 val contentList = results1?.contents
-                Logger.w("parse_mixed_content", results1?.contents?.size.toString())
                 val title =
                     results1
                         ?.header
@@ -73,10 +72,7 @@ internal fun parseMixedContent(
                         ?.get(0)
                         ?.text
                         ?: ""
-                Logger.w("parse_mixed_content", title)
-                if (title == "Your daily discover") {
-                    Logger.w("parse_mixed_content", list.toString())
-                }
+                Logger.d("parse_mixed_content", "$title: ${contentList?.size ?: 0} items")
                 val subtitle =
                     results1
                         ?.header
@@ -104,6 +100,15 @@ internal fun parseMixedContent(
                         ?.navigationEndpoint
                         ?.browseEndpoint
                         ?.browseId
+                val moreEndpoint =
+                    results1
+                        ?.header
+                        ?.musicCarouselShelfBasicHeaderRenderer
+                        ?.moreContentButton
+                        ?.buttonRenderer
+                        ?.navigationEndpoint
+                        ?.browseEndpoint
+                        ?.toMoreEndpoint()
                 val listContent = mutableListOf<Content?>()
                 if (!contentList.isNullOrEmpty()) {
                     for (result1 in contentList) {
@@ -192,7 +197,6 @@ internal fun parseMixedContent(
                                             it.printStackTrace()
                                         }
                                 }
-                                Logger.w("Song", ytItem.toString())
                                 if (ytItem != null) {
                                     listContent.add(
                                         Content(
@@ -227,7 +231,6 @@ internal fun parseMixedContent(
                             } else if (musicTwoRowItemRenderer.isVideo) {
                                 val ytItem =
                                     ArtistPage.fromMusicTwoRowItemRenderer(musicTwoRowItemRenderer) as VideoItem?
-                                Logger.w("Video", ytItem.toString())
                                 val artists =
                                     ytItem
                                         ?.artists
@@ -278,13 +281,13 @@ internal fun parseMixedContent(
                                             durationSeconds = ytItem.duration,
                                             radio = null,
                                             videoType = ytItem.musicVideoType,
+                                            isLive = musicTwoRowItemRenderer.isLive,
                                         ),
                                     )
                                 }
                             } else if (musicTwoRowItemRenderer.isArtist || musicTwoRowItemRenderer.isUserChannel) {
                                 val ytItem =
                                     RelatedPage.fromMusicTwoRowItemRenderer(musicTwoRowItemRenderer) as ArtistItem?
-                                Logger.w("Artists", ytItem.toString())
                                 if (ytItem != null) {
                                     listContent.add(
                                         Content(
@@ -549,10 +552,10 @@ internal fun parseMixedContent(
                             subtitle = subtitle,
                             thumbnail = thumbnail,
                             channelId = if (artistChannelId?.contains("UC") == true) artistChannelId else null,
+                            moreEndpoint = moreEndpoint,
                         ),
                     )
                 }
-                Logger.w("parse_mixed_content", list.toString())
             }
         }
     }
@@ -773,6 +776,13 @@ internal fun parseNewRelease(
                         radio = null,
                     )
                 },
+            // YouTube still hangs FEmusic_new_releases_albums on this shelf, but that page has answered
+            // 4xx since at least 2026-05-29 (ArchiveTune added a fallback for it that day) and 404s for
+            // every client as of 2026-09-19, so a More there only opens an error. Any other target stays.
+            moreEndpoint =
+                explore.releasedMoreEndpoint
+                    ?.takeUnless { it.browseId == "FEmusic_new_releases_albums" }
+                    ?.toMoreEndpoint(),
         ),
     )
     result.add(
@@ -829,7 +839,18 @@ internal fun parseNewRelease(
                         radio = null,
                     )
                 },
+            moreEndpoint = explore.musicVideoMoreEndpoint?.toMoreEndpoint(),
         ),
     )
+    // Signed out, FEmusic_new_releases carries only its video shelf, so "New releases" comes back
+    // empty; a section with nothing in it only draws a bare title.
+    result.removeAll { it.contents.isEmpty() }
     return result
 }
+
+private fun BrowseEndpoint.toMoreEndpoint() =
+    HomeItem.MoreEndpoint(
+        browseId = browseId,
+        params = params,
+        pageType = browseEndpointContextSupportedConfigs?.browseEndpointContextMusicConfig?.pageType,
+    )

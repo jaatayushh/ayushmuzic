@@ -36,6 +36,7 @@ import com.maxrave.domain.utils.collectResource
 import com.maxrave.domain.utils.toArrayListTrack
 import com.maxrave.domain.utils.toSongEntity
 import com.maxrave.domain.utils.toTrack
+import com.maxrave.logger.LogLevel
 import com.maxrave.logger.Logger
 import com.maxrave.simpmusic.pagination.PagingActions
 import com.maxrave.simpmusic.viewModel.base.BaseViewModel
@@ -1036,29 +1037,30 @@ class LocalPlaylistViewModel(
                         hideLoadingDialog()
                     },
                     onError = { message ->
-                        log("changeLocalPlaylistItemPosition (synced): error $message")
+                        log("changeLocalPlaylistItemPosition (synced): error $message", LogLevel.WARN)
                         makeToast(message ?: getString(Res.string.error))
                         hideLoadingDialog()
                     },
                 )
         } else {
             // Unsynced playlist: local only, no loading dialog needed
-            val loadedList =
-                lazyTrackPagingItems.value?.itemSnapshotList?.toList() ?: return
-            val fromItem = loadedList.getOrNull(from)?.first ?: return
-            val toItem = loadedList.getOrNull(to)?.first ?: return
-            val fromPosition = loadedList.getOrNull(from)?.second?.position ?: from
-            val toPosition = loadedList.getOrNull(to)?.second?.position ?: to
-            val playlistId = uiState.value.id
-
             localPlaylistRepository
-                .changePositionOfSongInPlaylist(playlistId, fromItem.videoId, toPosition)
-                .lastOrNull()
-                ?.let { log("changeLocalPlaylistItemPosition: from $it") }
-            localPlaylistRepository
-                .changePositionOfSongInPlaylist(playlistId, toItem.videoId, fromPosition)
-                .lastOrNull()
-                ?.let { log("changeLocalPlaylistItemPosition: to $it") }
+                .moveItemInLocalPlaylist(
+                    playlistId = uiState.value.id,
+                    fromIndex = from,
+                    toIndex = to,
+                ).collectResource(
+                    onLoading = {
+                        log("changeLocalPlaylistItemPosition (local): loading")
+                    },
+                    onSuccess = {
+                        log("changeLocalPlaylistItemPosition (local): success $it")
+                    },
+                    onError = { message ->
+                        log("changeLocalPlaylistItemPosition (local): error $message", LogLevel.WARN)
+                        makeToast(message)
+                    },
+                )
         }
     }
 }
