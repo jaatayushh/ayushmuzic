@@ -161,6 +161,28 @@ fun NowPlayingContentAppleMusic(
         viewState = AppleMusicView.MAIN
     }
 
+    // Auto enable lyrics button when synced lyrics is available
+    var autoOpenedLyricsForTrack by rememberSaveable { mutableStateOf<String?>(null) }
+    val currentMediaId = state.artworkQueue.getOrNull(state.currentOrderIndex)?.videoId
+        ?: state.screenData.songInfoData?.videoId
+        ?: ""
+    val lyrics = state.screenData.lyricsData?.lyrics
+    val lines = lyrics?.lines
+    val isSyncedLyricsAvailable = !lines.isNullOrEmpty() &&
+        lyrics?.syncType != null &&
+        lyrics?.syncType != "UNSYNCED"
+
+    LaunchedEffect(currentMediaId, isSyncedLyricsAvailable) {
+        if (currentMediaId.isNotBlank() && isSyncedLyricsAvailable) {
+            if (autoOpenedLyricsForTrack != currentMediaId) {
+                autoOpenedLyricsForTrack = currentMediaId
+                if (viewState == AppleMusicView.MAIN) {
+                    viewState = AppleMusicView.LYRICS
+                }
+            }
+        }
+    }
+
     // This style has no scroll and no collapsed toolbar (unlike Classic/M3E); park the shared
     // toolbar-visibility flag at false so a style switch mid-session can't leave it stuck shown.
     LaunchedEffect(Unit) {

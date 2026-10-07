@@ -45,8 +45,14 @@ jobs:
         run: |
           mkdir -p apk-output
           VERSION="${{ steps.version.outputs.version }}"
-          cp androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk apk-output/AyushMuzic-v${VERSION}-arm64.apk
-          cp androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
+          if [ -f androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk ]; then
+            cp androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk apk-output/AyushMuzic-v${VERSION}-arm64.apk
+          fi
+          if [ -f androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk ]; then
+            cp androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
+          elif [ -f androidApp/build/outputs/apk/debug/androidApp-debug.apk ]; then
+            cp androidApp/build/outputs/apk/debug/androidApp-debug.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
+          fi
           ls -lh apk-output/
 
       - name: Upload Android APK artifacts
@@ -174,8 +180,8 @@ jobs:
       - name: Fetch MPV Natives
         run: ./gradlew :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace
 
-      - name: Build Linux Deb and AppImage
-        run: ./gradlew :desktopApp:packageReleaseDeb :desktopApp:packageReleaseAppImage --no-daemon --no-configuration-cache --stacktrace
+      - name: Build Linux Deb and Distributable
+        run: ./gradlew :desktopApp:packageReleaseDeb :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage Linux packages for upload
         run: |

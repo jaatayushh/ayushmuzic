@@ -971,7 +971,7 @@ internal class DataStoreManagerImpl(
 
     override val nowPlayingStyle =
         settingsDataStore.data.map { preferences ->
-            preferences[NOW_PLAYING_STYLE] ?: DataStoreManager.NOW_PLAYING_STYLE_SPOTIFY
+            preferences[NOW_PLAYING_STYLE] ?: DataStoreManager.NOW_PLAYING_STYLE_APPLE_MUSIC
         }
 
     override suspend fun setNowPlayingStyle(style: String) {
@@ -984,7 +984,7 @@ internal class DataStoreManagerImpl(
 
     override val lyricsStyle =
         settingsDataStore.data.map { preferences ->
-            preferences[LYRICS_STYLE] ?: DataStoreManager.LYRICS_STYLE_CLASSIC
+            preferences[LYRICS_STYLE] ?: DataStoreManager.LYRICS_STYLE_APPLE_MUSIC
         }
 
     override suspend fun setLyricsStyle(style: String) {
@@ -1419,7 +1419,7 @@ internal class DataStoreManagerImpl(
 
     override val crossfadeEnabled: Flow<String> =
         settingsDataStore.data.map { preferences ->
-            preferences[CROSSFADE_ENABLED] ?: FALSE
+            preferences[CROSSFADE_ENABLED] ?: TRUE
         }
 
     override suspend fun setCrossfadeEnabled(enabled: Boolean) {
@@ -1438,7 +1438,7 @@ internal class DataStoreManagerImpl(
 
     override val crossfadeDuration: Flow<Int> =
         settingsDataStore.data.map { preferences ->
-            preferences[CROSSFADE_DURATION] ?: 5000
+            preferences[CROSSFADE_DURATION] ?: DataStoreManager.CROSSFADE_DURATION_AUTO
         }
 
     override suspend fun setCrossfadeDuration(duration: Int) {
@@ -1698,7 +1698,7 @@ internal class DataStoreManagerImpl(
 
     override val localTrackingEnabled: Flow<String> =
         settingsDataStore.data.map { preferences ->
-            preferences[LOCAL_TRACKING_ENABLED] ?: FALSE
+            preferences[LOCAL_TRACKING_ENABLED] ?: TRUE
         }
 
     override suspend fun setLocalTrackingEnabled(enabled: Boolean) {

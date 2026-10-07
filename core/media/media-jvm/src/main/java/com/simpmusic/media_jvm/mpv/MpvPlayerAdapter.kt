@@ -198,13 +198,13 @@ class MpvPlayerAdapter(
 
     // Crossfade system
     @Volatile
-    private var crossfadeEnabled = false
+    private var crossfadeEnabled = true
 
     /** See MediaPlayerInterface.crossfadeSuppressed — set while in a Listen Together room. */
     override var crossfadeSuppressed: Boolean = false
 
     @Volatile
-    private var crossfadeDurationMs = 5000
+    private var crossfadeDurationMs = DataStoreManager.CROSSFADE_DURATION_AUTO
 
     @Volatile
     private var djCrossfadeEnabled = false

@@ -6,6 +6,8 @@ import com.maxrave.data.parser.parseGenreObject
 import com.maxrave.data.parser.parseMixedContent
 import com.maxrave.data.parser.parseMoodsMomentObject
 import com.maxrave.data.parser.parseNewRelease
+import com.maxrave.data.db.datasource.LocalDataSource
+import com.maxrave.kotlinytmusicscraper.models.WatchEndpoint
 import com.maxrave.domain.data.model.home.BrowsePage
 import com.maxrave.domain.data.model.home.HomeItem
 import com.maxrave.domain.data.model.home.chart.Chart
@@ -51,6 +53,7 @@ private const val MOOD_ARTWORK_TTL_MILLIS = 7L * 24 * 60 * 60 * 1000
 internal class HomeRepositoryImpl(
     private val dataStoreManager: DataStoreManager,
     private val youTube: YouTube,
+    private val localDataSource: LocalDataSource,
 ) : HomeRepository {
     /**
      * Same posture as the Room converters: a cache written by an older build must not crash the
@@ -68,6 +71,116 @@ internal class HomeRepositoryImpl(
     ): Flow<Resource<Pair<String?, List<HomeItem>>>> =
         flow {
             runCatching {
+                val isGuest = dataStoreManager.cookie.first().isEmpty()
+                if (isGuest && params == null) {
+                    val recentId = dataStoreManager.recentMediaId.first()
+                    val lastVideoId = if (recentId.isNotEmpty()) {
+                        recentId
+                    } else {
+                        localDataSource.getRecentSongs(1, 0).firstOrNull()?.videoId ?: ""
+                    }
+                    if (lastVideoId.isNotEmpty()) {
+                        val lastSong = localDataSource.getSong(lastVideoId)
+                        val songTitle = lastSong?.title ?: ""
+                        val artistName = lastSong?.artistName?.firstOrNull() ?: ""
+
+                        val nextResult = youTube.next(WatchEndpoint(videoId = lastVideoId)).getOrNull()
+                        if (nextResult != null && nextResult.items.isNotEmpty()) {
+                            val relatedRows = mutableListOf<HomeItem>()
+                            val relatedBrowseId = nextResult.relatedEndpoint?.browseId
+                            if (!relatedBrowseId.isNullOrEmpty()) {
+                                youTube.customQuery(browseId = relatedBrowseId).getOrNull()?.let { relatedResponse ->
+                                    val relatedContents = relatedResponse.contents
+                                        ?.singleColumnBrowseResultsRenderer
+                                        ?.tabs
+                                        ?.firstOrNull()
+                                        ?.tabRenderer
+                                        ?.content
+                                        ?.sectionListRenderer
+                                        ?.contents
+                                    val parsed = parseMixedContent(relatedContents, viewString, songString)
+                                    relatedRows.addAll(parsed.filter { it.contents.isNotEmpty() })
+                                }
+                            }
+
+                            val automixItems = nextResult.items.filter { it.id != lastVideoId }
+                            val automixContent = automixItems.map { it.toHomeContent() }
+
+                            val homeItems = mutableListOf<HomeItem>()
+
+                            // Row 1: Primary row: "Because you listened to [Song Title]"
+                            val primaryChunk = automixContent.take(8)
+                            if (primaryChunk.isNotEmpty()) {
+                                homeItems.add(
+                                    HomeItem(
+                                        title = if (songTitle.isNotEmpty()) "Because you listened to $songTitle" else "Recommended for You",
+                                        subtitle = if (artistName.isNotEmpty()) "Similar to $songTitle by $artistName" else null,
+                                        contents = primaryChunk,
+                                    )
+                                )
+                            }
+
+                            // Row 2: Artist row if available
+                            val artistTracks = if (artistName.isNotEmpty()) {
+                                automixContent.filter { it.artists?.any { a -> a.name.equals(artistName, ignoreCase = true) } == true }
+                            } else emptyList()
+                            if (artistTracks.size >= 2) {
+                                homeItems.add(
+                                    HomeItem(
+                                        title = "More from $artistName",
+                                        subtitle = "Popular tracks & features",
+                                        contents = artistTracks,
+                                    )
+                                )
+                            }
+
+                            // Add rows from related shelves (e.g. "You might also like", "Similar artists")
+                            for (rel in relatedRows) {
+                                if (homeItems.size < 7) {
+                                    homeItems.add(rel)
+                                }
+                            }
+
+                            // Fill remaining rows from the automix tracks
+                            val remainingTracks = automixContent.drop(8).filterNot { track ->
+                                artistTracks.any { it.videoId == track.videoId }
+                            }
+
+                            val thematicTitles = listOf(
+                                "Similar Tracks & Vibes" to "Music matching your current taste",
+                                "Radio Mix: ${songTitle.ifEmpty { "Similar Vibes" }}" to "Endless mix based on your last track",
+                                "Fans Also Like" to "Tracks popular with listeners of this style",
+                                "Recommended for You" to "Songs picked for you",
+                                "Discover More" to "Expand your music horizon",
+                                "Trending & Related" to "Popular tracks in similar genres",
+                            )
+
+                            var themeIdx = 0
+                            var chunkOffset = 0
+                            while (homeItems.size < 7 && chunkOffset < remainingTracks.size && themeIdx < thematicTitles.size) {
+                                val chunk = remainingTracks.drop(chunkOffset).take(6)
+                                if (chunk.isNotEmpty()) {
+                                    val (t, s) = thematicTitles[themeIdx]
+                                    homeItems.add(
+                                        HomeItem(
+                                            title = t,
+                                            subtitle = s,
+                                            contents = chunk,
+                                        )
+                                    )
+                                    chunkOffset += 6
+                                }
+                                themeIdx++
+                            }
+
+                            if (homeItems.isNotEmpty()) {
+                                emit(Resource.Success<Pair<String?, List<HomeItem>>>(Pair(null, homeItems.take(7))))
+                                return@runCatching
+                            }
+                        }
+                    }
+                }
+
                 val limit = dataStoreManager.homeLimit.first()
                 youTube
                     .customQuery(browseId = "FEmusic_home", params = params)

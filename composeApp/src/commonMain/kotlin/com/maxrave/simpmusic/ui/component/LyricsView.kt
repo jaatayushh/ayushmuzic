@@ -458,7 +458,7 @@ fun LyricsView(
     // would be four copies of the same lookup. Re-checked against isLyricsBlurSupported() even
     // though Settings hides the option below Android 12 — a DataStore restored from a backup, or
     // carried to another device, can still hold APPLE_MUSIC on a phone that cannot draw it.
-    val lyricsStyle by dataStoreManager.lyricsStyle.collectAsStateWithLifecycle(DataStoreManager.LYRICS_STYLE_CLASSIC)
+    val lyricsStyle by dataStoreManager.lyricsStyle.collectAsStateWithLifecycle(DataStoreManager.LYRICS_STYLE_APPLE_MUSIC)
     val appleStyle = lyricsStyle == DataStoreManager.LYRICS_STYLE_APPLE_MUSIC && isLyricsBlurSupported()
 
     // Read here for the same reason the style is: all four call sites want the user's one choice,

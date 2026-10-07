@@ -103,7 +103,7 @@ internal fun AppleMusicLyricsView(
     // tab, which contributes no gutter, left Classic lyrics flush against the screen edge while
     // the header right above them sits at 20dp. Same split the fullscreen sheet already does:
     // the caller contributes whatever the renderer does not, so the TOTAL is the same either way.
-    val lyricsStyle by dataStoreManager.lyricsStyle.collectAsStateWithLifecycle(DataStoreManager.LYRICS_STYLE_CLASSIC)
+    val lyricsStyle by dataStoreManager.lyricsStyle.collectAsStateWithLifecycle(DataStoreManager.LYRICS_STYLE_APPLE_MUSIC)
     val rendererOwnsGutter = lyricsStyle == DataStoreManager.LYRICS_STYLE_APPLE_MUSIC && isLyricsBlurSupported()
 
     // Apple hands the whole page to the lyrics once you stop touching it, and brings the transport

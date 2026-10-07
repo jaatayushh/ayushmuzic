@@ -155,9 +155,9 @@ class SettingsViewModel(
     val customOpenAIBaseUrl: StateFlow<String> = _customOpenAIBaseUrl
     private val _customOpenAIHeaders = MutableStateFlow<String>("")
     val customOpenAIHeaders: StateFlow<String> = _customOpenAIHeaders
-    private val _crossfadeEnabled = MutableStateFlow<Boolean>(false)
+    private val _crossfadeEnabled = MutableStateFlow<Boolean>(true)
     val crossfadeEnabled: StateFlow<Boolean> = _crossfadeEnabled
-    private val _crossfadeDuration = MutableStateFlow<Int>(5000)
+    private val _crossfadeDuration = MutableStateFlow<Int>(DataStoreManager.CROSSFADE_DURATION_AUTO)
     val crossfadeDuration: StateFlow<Int> = _crossfadeDuration
     private val _crossfadeDjMode = MutableStateFlow<Boolean>(true)
     val crossfadeDjMode: StateFlow<Boolean> = _crossfadeDjMode
@@ -220,7 +220,7 @@ class SettingsViewModel(
     private val _videoDownloadQuality = MutableStateFlow<String?>(null)
     val videoDownloadQuality: StateFlow<String?> = _videoDownloadQuality
 
-    private val _localTrackingEnabled = MutableStateFlow<Boolean>(false)
+    private val _localTrackingEnabled = MutableStateFlow<Boolean>(true)
     val localTrackingEnabled: StateFlow<Boolean> = _localTrackingEnabled
 
     private val _blogNotificationEnabled = MutableStateFlow(true)

@@ -76,7 +76,7 @@ val repositoryModule =
         }
 
         single<HomeRepository>(createdAtStart = true) {
-            HomeRepositoryImpl(get(), get())
+            HomeRepositoryImpl(get(), get(), get())
         }
 
         single<ImportRepository>(createdAtStart = true) {
