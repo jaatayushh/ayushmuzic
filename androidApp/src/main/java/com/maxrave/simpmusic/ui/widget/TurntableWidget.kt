@@ -49,7 +49,7 @@ import coil3.toBitmap
 import com.kmpalette.rememberPaletteState
 import com.maxrave.common.Config
 import com.maxrave.simpmusic.MainActivity
-import com.maxrave.simpmusic.R
+import com.ayush.muzic.R
 import com.maxrave.simpmusic.extension.getColorFromPalette
 import com.maxrave.simpmusic.viewModel.SharedViewModel
 import com.maxrave.simpmusic.viewModel.UIEvent

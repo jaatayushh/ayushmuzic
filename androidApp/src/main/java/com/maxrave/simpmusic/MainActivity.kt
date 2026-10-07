@@ -1,5 +1,6 @@
 package com.maxrave.simpmusic
 
+import com.ayush.muzic.BuildConfig
 import android.Manifest
 import android.content.ComponentName
 import android.content.Intent

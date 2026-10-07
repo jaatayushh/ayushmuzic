@@ -39,7 +39,7 @@ jobs:
           echo "App version: $VERSION"
 
       - name: Build Android Debug APKs
-        run: ./gradlew :androidApp:assembleDebug --no-daemon --stacktrace
+        run: ./gradlew :androidApp:assembleDebug --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage APKs for upload
         run: |
@@ -78,7 +78,7 @@ jobs:
           echo "App version: $VERSION"
 
       - name: Build Windows MSI
-        run: .\gradlew.bat :desktopApp:packageReleaseMsi --no-daemon --stacktrace
+        run: .\gradlew.bat :desktopApp:packageReleaseMsi --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage MSI for upload
         shell: bash
@@ -122,10 +122,10 @@ jobs:
           echo "App version: $VERSION"
 
       - name: Fetch MPV Natives
-        run: ./gradlew :composeApp:mpvSetupAll --no-daemon --stacktrace
+        run: ./gradlew :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace
 
       - name: Build macOS DMG
-        run: ./gradlew :desktopApp:packageReleaseDmg --no-daemon --stacktrace
+        run: ./gradlew :desktopApp:packageReleaseDmg --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage DMG for upload
         run: |
@@ -172,10 +172,10 @@ jobs:
           echo "App version: $VERSION"
 
       - name: Fetch MPV Natives
-        run: ./gradlew :composeApp:mpvSetupAll --no-daemon --stacktrace
+        run: ./gradlew :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace
 
       - name: Build Linux Deb and AppImage
-        run: ./gradlew :desktopApp:packageReleaseDeb :desktopApp:packageReleaseAppImage --no-daemon --stacktrace
+        run: ./gradlew :desktopApp:packageReleaseDeb :desktopApp:packageReleaseAppImage --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage Linux packages for upload
         run: |
@@ -250,7 +250,7 @@ jobs:
             - **Real-Time Telemetry & Analytics Tracking**: Integrated centralized dashboard telemetry (`https://ayushflix-admin-panel.vercel.app/api/telemetry`) tracking playback progress, 15-second heartbeat, song clicks, and searches.
             - **Silent Crash & Error Telemetry**: Automatically reports uncaught exceptions and audio player errors to `/api/error` with stack trace without interrupting the UI or playback.
             - **Full Cross-Platform Coverage**: Supported and wired into **Android**, **Windows**, **macOS**, **Linux**, and **Samsung Smart TV (Tizen)**.
-            - **Bumped Release**: Version 1.0.7 (Build 65).
+            - **Bumped Release**: Version 1.0.8 (Build 67).
             
             ### Assets
             - `AyushMuzic-v${{ steps.version.outputs.version }}-arm64.apk` — Optimized build for modern 64-bit Android devices.
