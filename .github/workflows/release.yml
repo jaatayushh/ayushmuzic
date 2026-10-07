@@ -38,17 +38,24 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "App version: $VERSION"
 
-      - name: Build Android Debug APKs
-        run: ./gradlew :androidApp:assembleDebug --no-daemon --no-configuration-cache --stacktrace
+      - name: Build Android APKs
+        run: |
+          ./gradlew :androidApp:assembleRelease --no-daemon --no-configuration-cache --stacktrace || ./gradlew :androidApp:assembleDebug --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage APKs for upload
         run: |
           mkdir -p apk-output
           VERSION="${{ steps.version.outputs.version }}"
-          if [ -f androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk ]; then
+          if [ -f androidApp/build/outputs/apk/release/androidApp-arm64-v8a-release.apk ]; then
+            cp androidApp/build/outputs/apk/release/androidApp-arm64-v8a-release.apk apk-output/AyushMuzic-v${VERSION}-arm64.apk
+          elif [ -f androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk ]; then
             cp androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk apk-output/AyushMuzic-v${VERSION}-arm64.apk
           fi
-          if [ -f androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk ]; then
+          if [ -f androidApp/build/outputs/apk/release/androidApp-universal-release.apk ]; then
+            cp androidApp/build/outputs/apk/release/androidApp-universal-release.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
+          elif [ -f androidApp/build/outputs/apk/release/androidApp-release.apk ]; then
+            cp androidApp/build/outputs/apk/release/androidApp-release.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
+          elif [ -f androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk ]; then
             cp androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
           elif [ -f androidApp/build/outputs/apk/debug/androidApp-debug.apk ]; then
             cp androidApp/build/outputs/apk/debug/androidApp-debug.apk apk-output/AyushMuzic-v${VERSION}-universal.apk

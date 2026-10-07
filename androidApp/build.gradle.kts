@@ -81,8 +81,18 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("ayushmuzic.jks")
+            storePassword = "ayushmuzic"
+            keyAlias = "ayushmuzic"
+            keyPassword = "ayushmuzic"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -99,6 +109,7 @@ android {
             }
         }
         debug {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
         }
     }
