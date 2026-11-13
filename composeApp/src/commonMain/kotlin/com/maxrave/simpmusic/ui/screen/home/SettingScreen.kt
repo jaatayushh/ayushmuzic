@@ -2853,9 +2853,9 @@ fun SettingScreen(
                 )
                 SettingItem(
                     title = stringResource(Res.string.follow_me_on_x),
-                    subtitle = "@maxrave_dev",
+                    subtitle = "@jaatayushh",
                     onClick = {
-                        uriHandler.openUri("https://x.com/maxrave_dev")
+                        uriHandler.openUri("https://x.com/jaatayushh")
                     },
                 )
                 SettingItem(

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -89,7 +90,7 @@ fun CreditScreen(
             modifier =
                 Modifier
                     .size(150.dp)
-                    .clip(CircleShape),
+                    .clip(RoundedCornerShape(32.dp)),
         )
 
         Spacer(modifier = Modifier.height(30.dp))

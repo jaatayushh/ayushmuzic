@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="composeApp/icon/circle_app_icon.png" width="140" alt="AyushMuzic Logo" style="border-radius: 28px;" />
+  <img src="composeApp/icon/rounded_app_icon.png" width="140" alt="AyushMuzic Logo" style="border-radius: 28px;" />
   <h1>AyushMuzic</h1>
   <p><b>A modern, high-performance, ad-free YouTube Music client for Android, Windows, macOS, and Linux built with Compose Multiplatform.</b></p>
 
