@@ -68,7 +68,7 @@ internal fun NowPlayingContentState.secondaryTextColor(): Color =
 // area below the gradient so all three match exactly and leave no seam.
 internal val PlayerBackdropColor = Color(0xFF121212)
 
-private val RICH_SYNC_TIMESTAMP_REGEX = Regex("""<\d{2}:\d{2}\.\d{2,3}>\s*""")
+private val RICH_SYNC_TIMESTAMP_REGEX = Regex("""<\d{1,2}:\d{2}\.\d{1,3}>\s*""")
 private val WHITESPACE_REGEX = Regex("""\s+""")
 
 // Word-by-word lyrics carry a timestamp per word; replace each with a space

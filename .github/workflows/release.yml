@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+      - '[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
 
 concurrency:
@@ -15,13 +16,11 @@ permissions:
 
 jobs:
   build-android:
-    name: Build Android APKs (arm64 & universal)
+    name: Build Android APKs (arm64, armv7, x86_64 & universal)
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -42,26 +41,35 @@ jobs:
 
       - name: Build Android APKs
         run: |
-          ./gradlew :androidApp:assembleRelease --no-daemon --no-configuration-cache --stacktrace || ./gradlew :androidApp:assembleDebug --no-daemon --no-configuration-cache --stacktrace
+          ./gradlew :androidApp:assembleRelease :vivoAndroidApp:assembleRelease --no-daemon --no-configuration-cache --stacktrace || ./gradlew :androidApp:assembleRelease --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage APKs for upload
         run: |
           mkdir -p apk-output
           VERSION="${{ steps.version.outputs.version }}"
+          
+          # Stage androidApp release APKs
           if [ -f androidApp/build/outputs/apk/release/androidApp-arm64-v8a-release.apk ]; then
             cp androidApp/build/outputs/apk/release/androidApp-arm64-v8a-release.apk apk-output/AyushMuzic-v${VERSION}-arm64.apk
-          elif [ -f androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk ]; then
-            cp androidApp/build/outputs/apk/debug/androidApp-arm64-v8a-debug.apk apk-output/AyushMuzic-v${VERSION}-arm64.apk
+          fi
+          if [ -f androidApp/build/outputs/apk/release/androidApp-armeabi-v7a-release.apk ]; then
+            cp androidApp/build/outputs/apk/release/androidApp-armeabi-v7a-release.apk apk-output/AyushMuzic-v${VERSION}-armv7.apk
+          fi
+          if [ -f androidApp/build/outputs/apk/release/androidApp-x86_64-release.apk ]; then
+            cp androidApp/build/outputs/apk/release/androidApp-x86_64-release.apk apk-output/AyushMuzic-v${VERSION}-x86_64.apk
           fi
           if [ -f androidApp/build/outputs/apk/release/androidApp-universal-release.apk ]; then
             cp androidApp/build/outputs/apk/release/androidApp-universal-release.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
           elif [ -f androidApp/build/outputs/apk/release/androidApp-release.apk ]; then
             cp androidApp/build/outputs/apk/release/androidApp-release.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
-          elif [ -f androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk ]; then
-            cp androidApp/build/outputs/apk/debug/androidApp-universal-debug.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
-          elif [ -f androidApp/build/outputs/apk/debug/androidApp-debug.apk ]; then
-            cp androidApp/build/outputs/apk/debug/androidApp-debug.apk apk-output/AyushMuzic-v${VERSION}-universal.apk
           fi
+          
+          # Stage vivo release APK if built
+          VIVO_APK=$(find vivoAndroidApp/build/outputs/apk/release -name "*.apk" 2>/dev/null | head -1)
+          if [ -n "$VIVO_APK" ]; then
+            cp "$VIVO_APK" apk-output/AyushMuzic-v${VERSION}-vivo-arm64.apk
+          fi
+
           ls -lh apk-output/
 
       - name: Upload Android APK artifacts
@@ -71,13 +79,11 @@ jobs:
           path: apk-output/*.apk
 
   build-windows:
-    name: Build Windows MSI Installer
+    name: Build Windows MSI & Distributable
     runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -94,24 +100,48 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "App version: $VERSION"
 
-      - name: Build Windows MSI
-        run: .\gradlew.bat :desktopApp:packageReleaseMsi --no-daemon --no-configuration-cache --stacktrace
+      - name: Fetch MPV Natives
+        run: .\gradlew.bat :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace
 
-      - name: Stage MSI for upload
+      - name: Build Windows MSI and Distributable
+        run: .\gradlew.bat :desktopApp:packageReleaseMsi :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace
+
+      - name: Stage Windows packages for upload
         shell: bash
         run: |
-          mkdir -p msi-output
+          mkdir -p win-output
           VERSION="${{ steps.version.outputs.version }}"
+          
           MSI_FILE=$(find desktopApp/build/compose/binaries -name "*.msi" | head -1)
-          echo "Found MSI: $MSI_FILE"
-          cp "$MSI_FILE" "msi-output/AyushMuzic-v${VERSION}-Setup.msi"
-          ls -lh msi-output/
+          if [ -n "$MSI_FILE" ]; then
+            echo "Found MSI: $MSI_FILE"
+            cp "$MSI_FILE" "win-output/AyushMuzic-v${VERSION}-Setup.msi"
+          fi
+          
+          EXE_FILE=$(find desktopApp/build/compose/binaries -name "*.exe" | head -1)
+          if [ -n "$EXE_FILE" ]; then
+            echo "Found EXE: $EXE_FILE"
+            cp "$EXE_FILE" "win-output/AyushMuzic-v${VERSION}-Setup.exe"
+          fi
+          
+          APP_DIR=$(find desktopApp/build/compose/binaries -type d -path "*/app/*" | head -1)
+          if [ -z "$APP_DIR" ]; then
+            APP_DIR=$(find desktopApp/build/compose/binaries -type d -name "AyushMuzic" | head -1)
+          fi
+          if [ -n "$APP_DIR" ]; then
+            echo "Found App Directory: $APP_DIR"
+            PARENT_DIR=$(dirname "$APP_DIR")
+            DIR_NAME=$(basename "$APP_DIR")
+            (cd "$PARENT_DIR" && tar -czf "$GITHUB_WORKSPACE/win-output/AyushMuzic-v${VERSION}-windows-x64.zip" "$DIR_NAME") || true
+          fi
 
-      - name: Upload Windows MSI artifact
+          ls -lh win-output/
+
+      - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-msi
-          path: msi-output/*.msi
+          name: windows-packages
+          path: win-output/*
 
   build-mac:
     name: Build macOS DMG
@@ -120,8 +150,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -152,7 +180,9 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           DMG_FILE=$(find desktopApp/build/compose/binaries -name "*.dmg" | head -1)
           echo "Found DMG: $DMG_FILE"
-          cp "$DMG_FILE" "mac-output/AyushMuzic-v${VERSION}-macOS.dmg"
+          if [ -n "$DMG_FILE" ]; then
+            cp "$DMG_FILE" "mac-output/AyushMuzic-v${VERSION}-macOS.dmg"
+          fi
           ls -lh mac-output/
 
       - name: Upload macOS DMG artifact
@@ -167,8 +197,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
 
       - name: Install packaging dependencies
         run: |
@@ -196,7 +224,7 @@ jobs:
         run: ./gradlew :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace
 
       - name: Build Linux Deb and Distributable
-        run: ./gradlew :desktopApp:packageReleaseDeb :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace
+        run: ./gradlew :desktopApp:packageReleaseDeb :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace || ./gradlew :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage Linux packages for upload
         run: |
@@ -233,15 +261,13 @@ jobs:
   publish-release:
     name: Publish GitHub Release
     needs: [build-android, build-windows, build-mac, build-linux]
-    if: always() && !cancelled() && (needs.build-android.result == 'success' || needs.build-windows.result == 'success' || needs.build-linux.result == 'success')
+    if: always() && !cancelled() && (needs.build-android.result == 'success' || needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-mac.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
 
       - name: Read app version
         id: version
@@ -258,29 +284,34 @@ jobs:
       - name: Organize release assets
         run: |
           mkdir -p dist
-          find release-assets -type f \( -name "*.apk" -o -name "*.msi" -o -name "*.dmg" -o -name "*.deb" -o -name "*.tar.gz" \) -exec cp {} dist/ \;
+          find release-assets -type f \( -name "*.apk" -o -name "*.msi" -o -name "*.exe" -o -name "*.dmg" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.zip" \) -exec cp {} dist/ \;
           ls -lh dist/
 
       - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.version.outputs.version) }}
           name: AyushMuzic v${{ steps.version.outputs.version }}
           body: |
             ## AyushMuzic v${{ steps.version.outputs.version }}
             
             ### What's Changed
-            - **Real-Time Telemetry & Analytics Tracking**: Integrated centralized dashboard telemetry (`https://ayushflix-admin-panel.vercel.app/api/telemetry`) tracking playback progress, 15-second heartbeat, song clicks, and searches.
-            - **Silent Crash & Error Telemetry**: Automatically reports uncaught exceptions and audio player errors to `/api/error` with stack trace without interrupting the UI or playback.
-            - **Full Cross-Platform Coverage**: Supported and wired into **Android**, **Windows**, **macOS**, **Linux**, and **Samsung Smart TV (Tizen)**.
-            - **Bumped Release**: Version 1.0.8 (Build 67).
+            - **Fixed Hindi Word-by-Word Lyrics Sync**: Filtered out companion transliteration (`ttm:role="x-roman"`), translation, and phonetic tags to eliminate glitchy duplicate/random words during sync.
+            - **Fixed Desktop Playback Connection Error**: Resolved false 403 / "Time out, check internet connection" errors during song streaming on Desktop by switching to 1-byte HTTP range requests and resilient fallback.
+            - **Full Apple SF Pro Typography**: Standardized Apple SF Pro across 100% of the UI (titles, headlines, body, labels, buttons) with zero Roboto fallback.
+            - **Branding & Version Update**: Rebranded completely to AyushMuzic (developer: jaatayushh), bumped version to 1.0.9 (code 109).
+            - **Unified Release Keystore**: Built and signed with the official `ayushmuzic.jks` release keystore.
             
             ### Assets
-            - `AyushMuzic-v${{ steps.version.outputs.version }}-arm64.apk` — Optimized build for modern 64-bit Android devices.
-            - `AyushMuzic-v${{ steps.version.outputs.version }}-universal.apk` — Compatible with all supported Android architectures.
-            - `AyushMuzic-v${{ steps.version.outputs.version }}-Setup.msi` — Standalone Windows 10/11 installer.
-            - `AyushMuzic-v${{ steps.version.outputs.version }}-macOS.dmg` — Standalone macOS DMG installer.
-            - `AyushMuzic-v${{ steps.version.outputs.version }}-linux.deb` — Debian / Ubuntu / Mint installer package.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-arm64.apk` — Optimized build for modern 64-bit Android devices (arm64-v8a).
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-universal.apk` — Universal Android build supporting all architectures.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-armv7.apk` — 32-bit Android build (armeabi-v7a).
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-x86_64.apk` — Android emulator & x86_64 tablet build.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-vivo-arm64.apk` — Vivo Origin Island edition.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-Setup.msi` — Windows 10/11 installer.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-windows-x64.zip` — Windows portable edition.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-macOS.dmg` — Apple macOS DMG installer.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-linux.deb` — Debian / Ubuntu / Linux Mint package.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-linux-x64.tar.gz` — Universal portable Linux distribution.
           files: dist/*
           token: ${{ secrets.GITHUB_TOKEN }}

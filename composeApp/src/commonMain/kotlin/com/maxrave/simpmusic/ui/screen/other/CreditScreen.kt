@@ -115,7 +115,7 @@ fun CreditScreen(
             textDecoration = TextDecoration.Underline,
             modifier =
                 Modifier.clickable {
-                    openUrl("https://maxrave.dev")
+                    openUrl("https://github.com/jaatayushh")
                 },
         )
 
@@ -138,7 +138,7 @@ fun CreditScreen(
             // Website button
             TextButton(
                 onClick = {
-                    openUrl("https://simpmusic.org")
+                    openUrl("https://github.com/jaatayushh/AyushMuzic")
                 },
                 modifier =
                     Modifier
@@ -152,7 +152,7 @@ fun CreditScreen(
             // Developer blog button
             TextButton(
                 onClick = {
-                    openUrl("https://www.simpmusic.org/blogs")
+                    openUrl("https://github.com/jaatayushh/AyushMuzic")
                 },
                 modifier =
                     Modifier
@@ -172,7 +172,7 @@ fun CreditScreen(
             // GitHub button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/maxrave-dev/SimpMusic")
+                    openUrl("https://github.com/jaatayushh/AyushMuzic")
                 },
                 modifier =
                     Modifier
@@ -186,7 +186,7 @@ fun CreditScreen(
             // Issue tracker button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/maxrave-dev/SimpMusic/issues")
+                    openUrl("https://github.com/jaatayushh/AyushMuzic/issues")
                 },
                 modifier =
                     Modifier
@@ -200,7 +200,7 @@ fun CreditScreen(
             // Buy me a coffee button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/sponsors/maxrave-dev")
+                    openUrl("https://github.com/jaatayushh")
                 },
                 modifier =
                     Modifier

@@ -44,8 +44,8 @@ fun parseRichSyncWords(
     println("[parseRichSyncWords] Input preview: ${words.take(100)}")
 
     // Strategy: Find all timestamps first, then extract text between them
-    // Regex to match timestamp only: <MM:SS.mm> or <MM:SS.mmm>
-    val timestampRegex = Regex("""<(\d{2}):(\d{2})\.(\d{2,3})>""")
+    // Regex to match timestamp: <M:SS.m>, <MM:SS.mm> or <MM:SS.mmm>
+    val timestampRegex = Regex("""<(\d{1,2}):(\d{2})\.(\d{1,3})>""")
 
     val wordTimings = mutableListOf<WordTiming>()
 
@@ -56,13 +56,15 @@ fun parseRichSyncWords(
         val (minutes, seconds, fraction) = match.destructured
 
         // Convert time to milliseconds
-        // If 2 digits (centiseconds): multiply by 10 to get ms (e.g., 62 -> 620ms)
-        // If 3 digits (milliseconds): use as-is (e.g., 620 -> 620ms)
         val fractionMs = fraction.toLongOrNull() ?: 0L
         val timeMs =
             (minutes.toLongOrNull() ?: 0L) * 60000L +
                 (seconds.toLongOrNull() ?: 0L) * 1000L +
-                if (fraction.length == 2) fractionMs * 10L else fractionMs
+                when (fraction.length) {
+                    1 -> fractionMs * 100L
+                    2 -> fractionMs * 10L
+                    else -> fractionMs
+                }
 
         // Extract text after this timestamp until the next timestamp (or end of string)
         val startPos = match.range.last + 1
@@ -73,12 +75,13 @@ fun parseRichSyncWords(
                 words.length
             }
 
-        // Get the text between timestamps and trim it
-        val textBetween = words.substring(startPos, endPos).trim()
+        // Get the text between timestamps, strip any stray HTML/XML tags, and trim it
+        val textBetween = words.substring(startPos, endPos)
+        val cleanText = decodeHtmlEntities(textBetween.replace(Regex("<[^>]*>"), "")).trim()
 
         // Only add if there's actual text (not just whitespace or empty)
-        if (textBetween.isNotBlank()) {
-            wordTimings.add(WordTiming(text = decodeHtmlEntities(textBetween), startTimeMs = timeMs))
+        if (cleanText.isNotBlank()) {
+            wordTimings.add(WordTiming(text = cleanText, startTimeMs = timeMs))
         }
     }
 

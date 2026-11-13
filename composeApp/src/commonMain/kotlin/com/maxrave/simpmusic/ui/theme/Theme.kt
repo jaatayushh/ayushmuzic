@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.ripple.RippleAlpha
@@ -173,6 +174,7 @@ fun AppTheme(
             CompositionLocalProvider(
                 LocalRippleConfiguration provides SoftRippleConfiguration,
                 LocalContentColor provides colorScheme.onSurfaceVariant,
+                LocalTextStyle provides typo(colorScheme).bodyMedium,
                 LocalAppColors provides if (isDark) DarkAppColors else LightAppColors,
                 LocalIsDarkTheme provides isDark,
                 LocalForcedDarkColorScheme provides forcedDarkScheme,
@@ -242,6 +244,7 @@ fun ForceDarkContent(content: @Composable () -> Unit) {
                 LocalForceDarkText provides true,
                 LocalIsDarkTheme provides true,
                 LocalContentColor provides darkScheme.onSurfaceVariant,
+                LocalTextStyle provides typo(darkScheme, forceDark = true).bodyMedium,
                 LocalAppColors provides DarkAppColors,
                 content = content,
             )

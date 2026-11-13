@@ -17,12 +17,18 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
 import simpmusic.composeapp.generated.resources.Res
-import simpmusic.composeapp.generated.resources.poppins_medium
+import simpmusic.composeapp.generated.resources.sf_pro_bold
+import simpmusic.composeapp.generated.resources.sf_pro_medium
+import simpmusic.composeapp.generated.resources.sf_pro_regular
+import simpmusic.composeapp.generated.resources.sf_pro_semibold
 
 @Composable
 fun fontFamily(): FontFamily =
     FontFamily(
-        Font(Res.font.poppins_medium, FontWeight.Normal, FontStyle.Normal),
+        Font(Res.font.sf_pro_regular, FontWeight.Normal, FontStyle.Normal),
+        Font(Res.font.sf_pro_medium, FontWeight.Medium, FontStyle.Normal),
+        Font(Res.font.sf_pro_semibold, FontWeight.SemiBold, FontStyle.Normal),
+        Font(Res.font.sf_pro_bold, FontWeight.Bold, FontStyle.Normal),
     )
 
 /**
@@ -54,15 +60,61 @@ fun typo(
     val textDirection = if (rtl) TextDirection.Content else TextDirection.Unspecified
     val textAlign = if (rtl) TextAlign.Right else TextAlign.Unspecified
 
+    val defaultTypo = Typography()
     val typo =
         Typography(
-            /***
-             * This typo().is use for the title of the Playlist, Artist, Song, Album, etc. in Home, Mood, Genre, Playlist, etc.
-             */
-            titleSmall =
+            displayLarge =
                 TextStyle(
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Normal,
+                    fontFamily = fontFamily,
+                    color = bodyColor,
+                    textDirection = textDirection,
+                    textAlign = textAlign,
+                ),
+            displayMedium =
+                defaultTypo.displayMedium.copy(
+                    fontFamily = fontFamily,
+                    color = bodyColor,
+                    textDirection = textDirection,
+                    textAlign = textAlign,
+                ),
+            displaySmall =
+                defaultTypo.displaySmall.copy(
+                    fontFamily = fontFamily,
+                    color = bodyColor,
+                    textDirection = textDirection,
+                    textAlign = textAlign,
+                ),
+            headlineLarge =
+                TextStyle(
+                    fontSize = 23.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamily,
+                    color = bodyColor,
+                    textDirection = textDirection,
+                    textAlign = textAlign,
+                ),
+            headlineMedium =
+                TextStyle(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = fontFamily,
+                    color = bodyColor,
+                    textDirection = textDirection,
+                    textAlign = textAlign,
+                ),
+            headlineSmall =
+                defaultTypo.headlineSmall.copy(
+                    fontFamily = fontFamily,
+                    color = bodyColor,
+                    textDirection = textDirection,
+                    textAlign = textAlign,
+                ),
+            titleLarge =
+                TextStyle(
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
                     fontFamily = fontFamily,
                     color = titleColor,
                     textDirection = textDirection,
@@ -77,18 +129,18 @@ fun typo(
                     textDirection = textDirection,
                     textAlign = textAlign,
                 ),
-            titleLarge =
+            titleSmall =
                 TextStyle(
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
                     fontFamily = fontFamily,
                     color = titleColor,
                     textDirection = textDirection,
                     textAlign = textAlign,
                 ),
-            bodySmall =
+            bodyLarge =
                 TextStyle(
-                    fontSize = 11.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
                     fontFamily = fontFamily,
                     color = bodyColor,
@@ -104,37 +156,17 @@ fun typo(
                     textDirection = textDirection,
                     textAlign = textAlign,
                 ),
-            bodyLarge =
+            bodySmall =
                 TextStyle(
-                    fontSize = 18.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.Normal,
                     fontFamily = fontFamily,
                     color = bodyColor,
                     textDirection = textDirection,
                     textAlign = textAlign,
                 ),
-            displayLarge =
-                TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal,
-                    fontFamily = fontFamily,
-                    color = bodyColor,
-                    textDirection = textDirection,
-                    textAlign = textAlign,
-                ),
-            headlineMedium =
-                TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = fontFamily,
-                    color = bodyColor,
-                    textDirection = textDirection,
-                    textAlign = textAlign,
-                ),
-            headlineLarge =
-                TextStyle(
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Bold,
+            labelLarge =
+                defaultTypo.labelLarge.copy(
                     fontFamily = fontFamily,
                     color = bodyColor,
                     textDirection = textDirection,
@@ -158,7 +190,6 @@ fun typo(
                     textDirection = textDirection,
                     textAlign = textAlign,
                 ),
-            // ...
         )
     return typo
 }

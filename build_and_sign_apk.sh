@@ -107,7 +107,7 @@ for APK_PATH in $APK_PATHS; do
   RELEASE_NAME=$(basename "${APK_PATH/-unsigned/}")
   RELEASE_NAME="${RELEASE_NAME/app-/}"
   RELEASE_NAME="${RELEASE_NAME/$MODULE-/}"
-  SIGNED_APK_PATH="$SIGNED_APK_OUTPUT_DIR/SimpMusic-$BUILD_VARIANT$NAME_SUFFIX-$(basename "$RELEASE_NAME")"
+  SIGNED_APK_PATH="$SIGNED_APK_OUTPUT_DIR/AyushMuzic-$BUILD_VARIANT$NAME_SUFFIX-$(basename "$RELEASE_NAME")"
 
   echo "[Step 4] Aligning the APK: $APK_PATH..."
   if [ ! -f "$ZIPALIGN" ]; then

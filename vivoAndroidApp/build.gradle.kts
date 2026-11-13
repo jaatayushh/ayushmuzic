@@ -93,8 +93,18 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("ayushmuzic.jks")
+            storePassword = "ayushmuzic"
+            keyAlias = "ayushmuzic"
+            keyPassword = "ayushmuzic"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -103,6 +113,7 @@ android {
             )
         }
         debug {
+            signingConfig = signingConfigs.getByName("release")
             // No ".dev" suffix: vivo matches the exact package, and a debug build is how this is tried on a vivo phone.
             isMinifyEnabled = false
         }
