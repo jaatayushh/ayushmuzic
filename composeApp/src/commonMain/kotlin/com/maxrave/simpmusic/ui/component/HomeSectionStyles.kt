@@ -47,6 +47,10 @@ import com.maxrave.simpmusic.expect.ui.HorizontalScrollBar
 import com.maxrave.simpmusic.extension.mouseDragScroll
 import com.maxrave.simpmusic.extension.smoothScrimBrush
 import com.maxrave.simpmusic.getPlatform
+import com.maxrave.simpmusic.ui.navigation.destination.list.AlbumDestination
+import com.maxrave.simpmusic.ui.navigation.destination.list.ArtistDestination
+import com.maxrave.simpmusic.ui.navigation.destination.list.PlaylistDestination
+import com.maxrave.simpmusic.ui.navigation.destination.list.PodcastDestination
 import com.maxrave.simpmusic.ui.theme.ForceDarkContent
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.viewModel.HomeViewModel
@@ -106,9 +110,32 @@ fun HomeDiscoverSection(
             ) { index ->
                 val song = songs[index]
                 val info = carouselItemDrawInfo
-                // A neighbour is only brought to the middle; the middle card is the one that plays.
+                // A neighbour is only brought to the middle; the middle card is the one that plays or opens.
                 val play: () -> Unit = {
-                    if (info.isHero()) song.playRadio(homeViewModel) else scope.launch { state.animateScrollToItem(index) }
+                    if (info.isHero()) {
+                        val videoId = song.videoId
+                        val playlistId = song.playlistId
+                        val browseId = song.browseId
+                        if (!videoId.isNullOrEmpty()) {
+                            song.playRadio(homeViewModel)
+                        } else if (!playlistId.isNullOrEmpty()) {
+                            if (playlistId.startsWith("UC")) {
+                                navController.navigate(ArtistDestination(channelId = playlistId))
+                            } else {
+                                navController.navigate(PlaylistDestination(playlistId = playlistId))
+                            }
+                        } else if (!browseId.isNullOrEmpty()) {
+                            if (browseId.startsWith("UC")) {
+                                navController.navigate(ArtistDestination(channelId = browseId))
+                            } else if (browseId.startsWith("MPSP")) {
+                                navController.navigate(PodcastDestination(podcastId = browseId))
+                            } else {
+                                navController.navigate(AlbumDestination(browseId = browseId))
+                            }
+                        }
+                    } else {
+                        scope.launch { state.animateScrollToItem(index) }
+                    }
                 }
                 val (hoverModifier, hovered) = rememberCardHover(enabled = true)
                 Box(
@@ -118,7 +145,11 @@ fun HomeDiscoverSection(
                         .maskClip(RoundedCornerShape(28.dp))
                         .combinedClickable(
                             onClick = play,
-                            onLongClick = { sheetTrack = song.toTrack() },
+                            onLongClick = {
+                                if (!song.videoId.isNullOrEmpty()) {
+                                    sheetTrack = song.toTrack()
+                                }
+                            },
                         ),
                 ) {
                     AsyncImage(

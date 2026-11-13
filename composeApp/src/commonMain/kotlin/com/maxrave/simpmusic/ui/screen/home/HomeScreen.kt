@@ -935,90 +935,88 @@ fun HomeScreen(
                                 )
                             }
                         }
-                        if (homeListState == ListState.PAGINATION_EXHAUST) {
-                            items(newRelease, key = { it.hashCode() }) {
-                                AnimatedVisibility(
-                                    visible = newRelease.isNotEmpty(),
+                        items(newRelease, key = { it.hashCode() }) {
+                            AnimatedVisibility(
+                                visible = newRelease.isNotEmpty(),
+                            ) {
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .padding(horizontal = 15.dp),
                                 ) {
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .padding(horizontal = 15.dp),
-                                    ) {
-                                        HomeItem(
+                                    HomeItem(
+                                        navController = navController,
+                                        data = it,
+                                    )
+                                }
+                            }
+                        }
+                        item {
+                            AnimatedVisibility(
+                                visible = moodMomentAndGenre != null,
+                            ) {
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .padding(horizontal = 15.dp),
+                                ) {
+                                    moodMomentAndGenre?.let {
+                                        MoodMomentAndGenre(
+                                            mood = it,
                                             navController = navController,
-                                            data = it,
                                         )
                                     }
                                 }
                             }
-                            item {
-                                AnimatedVisibility(
-                                    visible = moodMomentAndGenre != null,
-                                ) {
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .padding(horizontal = 15.dp),
-                                    ) {
-                                        moodMomentAndGenre?.let {
-                                            MoodMomentAndGenre(
-                                                mood = it,
-                                                navController = navController,
+                        }
+                        item {
+                            Column(
+                                Modifier
+                                    .padding(vertical = 10.dp)
+                                    .padding(horizontal = 15.dp),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                ChartTitle()
+                                Spacer(modifier = Modifier.height(5.dp))
+                                Crossfade(targetState = regionChart) {
+                                    if (it != null) {
+                                        DropdownButton(
+                                            items = CHART_SUPPORTED_COUNTRY.itemsData.toList(),
+                                            defaultSelected =
+                                                CHART_SUPPORTED_COUNTRY.itemsData.getOrNull(
+                                                    CHART_SUPPORTED_COUNTRY.items.indexOf(it),
+                                                )
+                                                    ?: CHART_SUPPORTED_COUNTRY.itemsData[1],
+                                        ) {
+                                            viewModel.exploreChart(
+                                                CHART_SUPPORTED_COUNTRY.items[
+                                                    CHART_SUPPORTED_COUNTRY.itemsData.indexOf(
+                                                        it,
+                                                    ),
+                                                ],
                                             )
                                         }
                                     }
                                 }
-                            }
-                            item {
-                                Column(
-                                    Modifier
-                                        .padding(vertical = 10.dp)
-                                        .padding(horizontal = 15.dp),
-                                    verticalArrangement = Arrangement.SpaceBetween,
-                                ) {
-                                    ChartTitle()
-                                    Spacer(modifier = Modifier.height(5.dp))
-                                    Crossfade(targetState = regionChart) {
-                                        if (it != null) {
-                                            DropdownButton(
-                                                items = CHART_SUPPORTED_COUNTRY.itemsData.toList(),
-                                                defaultSelected =
-                                                    CHART_SUPPORTED_COUNTRY.itemsData.getOrNull(
-                                                        CHART_SUPPORTED_COUNTRY.items.indexOf(it),
-                                                    )
-                                                        ?: CHART_SUPPORTED_COUNTRY.itemsData[1],
-                                            ) {
-                                                viewModel.exploreChart(
-                                                    CHART_SUPPORTED_COUNTRY.items[
-                                                        CHART_SUPPORTED_COUNTRY.itemsData.indexOf(
-                                                            it,
-                                                        ),
-                                                    ],
-                                                )
-                                            }
-                                        }
-                                    }
-                                    Spacer(modifier = Modifier.height(5.dp))
-                                    Crossfade(
-                                        targetState = chartLoading,
-                                        label = "Chart",
-                                    ) { loading ->
-                                        if (!loading) {
-                                            chart?.let {
-                                                ChartData(
-                                                    chart = it,
-                                                    navController = navController,
-                                                )
-                                            }
-                                        } else {
-                                            CenterLoadingBox(
-                                                modifier =
-                                                    Modifier
-                                                        .fillMaxWidth()
-                                                        .height(400.dp),
+                                Spacer(modifier = Modifier.height(5.dp))
+                                Crossfade(
+                                    targetState = chartLoading,
+                                    label = "Chart",
+                                ) { loading ->
+                                    if (!loading) {
+                                        chart?.let {
+                                            ChartData(
+                                                chart = it,
+                                                navController = navController,
                                             )
                                         }
+                                    } else {
+                                        CenterLoadingBox(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(400.dp),
+                                        )
                                     }
                                 }
                             }
@@ -1355,14 +1353,15 @@ private fun AccountAvatar(
 // column stretched across the whole screen, so every row there is capped instead.
 private val LandscapeGridItemMaxWidth = 400.dp
 
-// A card shelf of songs only that leads to no page of its own ("Your daily discover"). List shelves
-// (Quick picks, Heard in Shorts) carry itemsPerColumn and keep their own look; a shelf with a More
-// page (Listen again can be all songs) keeps its cards; videos draw as wide cards, so never match.
+// A card shelf (songs, recommendations, listen again, etc.) that renders as the Hero Carousel.
+// List shelves (Quick picks with itemsPerColumn) keep their own multi-row grid look;
+// 16:9 widescreen video shelves keep their wide video cards.
 private fun HomeItem.isSongCardShelf(): Boolean =
     itemsPerColumn == null &&
-        moreEndpoint == null &&
         contents.isNotEmpty() &&
-        contents.all { it != null && !it.videoId.isNullOrEmpty() && it.homeCardAspectRatio() == 1f }
+        contents.filterNotNull().let { list ->
+            list.isNotEmpty() && list.none { it.thumbnails.firstOrNull()?.let { t -> t.width != t.height } == true }
+        }
 
 @ExperimentalFoundationApi
 @Composable

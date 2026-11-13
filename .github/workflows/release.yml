@@ -100,6 +100,9 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "App version: $VERSION"
 
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
       - name: Fetch MPV Natives
         run: .\gradlew.bat :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace
 
@@ -111,28 +114,31 @@ jobs:
         run: |
           mkdir -p win-output
           VERSION="${{ steps.version.outputs.version }}"
-          
+
+          # Stage MSI installer
           MSI_FILE=$(find desktopApp/build/compose/binaries -name "*.msi" | head -1)
           if [ -n "$MSI_FILE" ]; then
             echo "Found MSI: $MSI_FILE"
             cp "$MSI_FILE" "win-output/AyushMuzic-v${VERSION}-Setup.msi"
           fi
-          
-          EXE_FILE=$(find desktopApp/build/compose/binaries -name "*.exe" | head -1)
-          if [ -n "$EXE_FILE" ]; then
-            echo "Found EXE: $EXE_FILE"
-            cp "$EXE_FILE" "win-output/AyushMuzic-v${VERSION}-Setup.exe"
-          fi
-          
-          APP_DIR=$(find desktopApp/build/compose/binaries -type d -path "*/app/*" | head -1)
+
+          # Find the app directory containing the full bundle (AyushMuzic.exe + runtime + app)
+          APP_DIR=$(find desktopApp/build/compose/binaries -type d -path "*/app/AyushMuzic" | head -1)
           if [ -z "$APP_DIR" ]; then
             APP_DIR=$(find desktopApp/build/compose/binaries -type d -name "AyushMuzic" | head -1)
           fi
+
           if [ -n "$APP_DIR" ]; then
             echo "Found App Directory: $APP_DIR"
+            
+            # Build full Inno Setup EXE installer
+            echo "Compiling full Windows Setup.exe installer via Inno Setup..."
+            "/c/Program Files (x86)/Inno Setup 6/ISCC.exe"               "/DAppVersion=$VERSION"               "/DSourceDir=$(pwd)/$APP_DIR"               "/DOutputDir=$(pwd)/win-output"               "/DIconFile=$(pwd)/composeApp/icon/circle_app_icon.ico"               "scripts/windows/installer.iss" || iscc               "/DAppVersion=$VERSION"               "/DSourceDir=$(pwd)/$APP_DIR"               "/DOutputDir=$(pwd)/win-output"               "/DIconFile=$(pwd)/composeApp/icon/circle_app_icon.ico"               "scripts/windows/installer.iss" || echo "Inno Setup compilation skipped"
+            
+            # Build portable ZIP with 7-Zip
             PARENT_DIR=$(dirname "$APP_DIR")
             DIR_NAME=$(basename "$APP_DIR")
-            (cd "$PARENT_DIR" && tar -czf "$GITHUB_WORKSPACE/win-output/AyushMuzic-v${VERSION}-windows-x64.zip" "$DIR_NAME") || true
+            (cd "$PARENT_DIR" && 7z a "$GITHUB_WORKSPACE/win-output/AyushMuzic-v${VERSION}-windows-x64.zip" "$DIR_NAME") || true
           fi
 
           ls -lh win-output/
