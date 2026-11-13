@@ -1,249 +1,121 @@
-<div align="center"> <img src="https://raw.githubusercontent.com/maxrave-dev/SimpMusic/dev/fastlane/metadata/android/en-US/images/featureGraphic.png"> <h1>SimpMusic</h1>  
-A FOSS YouTube Music client for Android and Desktop with many features from<br>Spotify, SponsorBlock, ReturnYouTubeDislike using Compose Multiplatform to develop.
-<br> 
-<br>
-<a href="https://github.com/maxrave-dev/SimpMusic/releases"><img src="https://img.shields.io/github/v/release/maxrave-dev/SimpMusic"></a> <a href="https://github.com/maxrave-dev/SimpMusic/releases"><img src="https://img.shields.io/github/downloads/maxrave-dev/SimpMusic/total"></a> <br> <br> <a href="https://trendshift.io/repositories/13482" target="_blank"><img src="https://trendshift.io/api/badge/repositories/13482" alt="maxrave-dev%2FSimpMusic | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-<br>
-<br>
-<a href="https://www.producthunt.com/products/simpmusic/reviews?utm_source=badge-product_rating&utm_medium=badge&utm_source=badge-simpmusic" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/product_rating.svg?product_id=903836&theme=dark" alt="SimpMusic - A&#0032;FOSS&#0032;YouTube&#0032;Music&#0032;client&#0032;for&#0032;Android&#0032;with&#0032;many&#0032;features | Product Hunt" style="width: 242px; height: 108px;" width="242" height="108" /></a>
-<br> 
-<h4>Download</h4>  
-<a href="https://apt.izzysoft.de/packages/com.maxrave.simpmusic/"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="200"></a> 
-<a href="https://f-droid.org/en/packages/com.maxrave.simpmusic/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" width="200"></a> 
-<a href="https://www.openapk.net/simpmusic/com.maxrave.simpmusic/"><img src="https://www.openapk.net/images/openapk-badge.png" width="200"></a> 
-<a href="https://github.com/maxrave-dev/SimpMusic/releases"><img src="https://raw.githubusercontent.com/NeoApplications/Neo-Backup/034b226cea5c1b30eb4f6a6f313e4dadcbb0ece4/badge_github.png" width="200"></a> 
-<br><sub>On vivo phones, install <code>SimpMusic-full-vivo-*.apk</code> from <a href="https://github.com/maxrave-dev/SimpMusic/releases">Releases</a> for Origin Island and the music widget. It installs as a separate app and can't sit next to Spotify.</sub>
-<h4>Nightly Build</h4>  
-<a href="https://www.simpmusic.org/download/nightly"><img src="https://github.com/maxrave-dev/SimpMusic/actions/workflows/android.yml/badge.svg"></a><br/> <a href="https://www.simpmusic.org/download/nightly"><img src="https://raw.githubusercontent.com/NeoApplications/Neo-Backup/034b226cea5c1b30eb4f6a6f313e4dadcbb0ece4/badge_github.png" width="200"></a> 
-</div>  
+<div align="center">
+  <img src="composeApp/icon/circle_app_icon.png" width="140" alt="AyushMuzic Logo" style="border-radius: 28px;" />
+  <h1>AyushMuzic</h1>
+  <p><b>A modern, high-performance, ad-free YouTube Music client for Android, Windows, macOS, and Linux built with Compose Multiplatform.</b></p>
 
-> SimpMusic is available on Desktop now!
->
-> [kotlin-footguns](https://github.com/maxrave-dev/kotlin-footguns) — the Kotlin, Compose Multiplatform and desktop JVM traps this project ran into the hard way. Star it if it saves you a night.
-
-[![Sponsor](https://readme.cash/i/janwgx1dnp.svg)](https://readme.cash/c/janwgx1dnp)
-  
-## Features ✨️    
-- Play music from YouTube Music or YouTube for free, without ads and in the background
-- Recognize the song playing near you, then find it in SimpMusic (Android) (NEW)
-- Add your own synced lyrics, line by line or word by word, to songs that have none (NEW)
-- Read YouTube comments in Now Playing, and post, reply or like them when signed in (NEW)
-- Your library sidebar on Desktop with your playlists, albums, artists and podcasts (NEW)
-- Three Now Playing styles: Classic, Material 3 Expressive and a redesigned Apple Music player with Apple Music-style lyrics (NEW)
-- Ten-band equalizer with presets and AutoEq headphone profiles, plus Delay and Reverb effects, or your phone's system equalizer on Android (NEW)
-- Pick the speaker, headphones or Cast device SimpMusic plays on, without moving other apps' audio (NEW)
-- SimpMusic Wrapped: your year in music, plus monthly recap playlists (NEW)
-- On-device listening analytics: charts, period history, listening clock and a shareable listening receipt (NEW)
-- Word-by-word Apple Music-style lyrics, romanization for 12 languages, share lyrics as an image, landscape fullscreen lyrics and a timing offset (NEW)
-- Home screen widgets: turntable, playlists and listening insights (NEW)
-- Send your sign-ins from Android to Desktop by scanning a QR code (NEW)
-- Preferred audio language for videos with several audio tracks (NEW)
-- High quality up-to 256kbps stream (Opus or AAC) for YouTube Music Premium users
-- Browsing Home, Charts, Podcast, Moods & Genre with YouTube Music data at high speed    
-- Search everything on YouTube    
-- Spotify Canvas and Animated Album Art supported (NEW)
-- Power your experience with SimpMusic Chart (https://chart.simpmusic.org/)
-- Play 1080p video option with subtitle    
-- Play YouTube Music live stations (NEW)
-- AI song suggestions and an AI reading of your music taste (NEW)
-- Import playlists converted from Spotify and other apps
-- Customize your playlist, synced with YouTube Music
-- Notifications from followed artists    
-- Caching and offline playback support, plus Smart downloads of the songs you play most (Android) (NEW)    
-- Crossfade with DJ-style like Apple Music
-- Customizing THEME (Light, Dark, Color, etc)
-- Synced lyrics from SimpMusic Lyrics, LRCLIB, BetterLyrics, Spotify (require login) and YouTube Transcript - AI lyrics translation (BETA) (\*)  
-- Personalize data (\**) and multi-YouTube-account support    
-- Dislike songs on YouTube Music so it recommends them less (NEW)
-- Last.fm scrobbling (Full version)
-- Supports SponsorBlock and Return YouTube Dislike
-- Sleep Timer    
-- Android Auto with online content, feature rich UI/UX
-- Discord Rich Presence support
-- Listen Together: shared rooms that play in sync with friends, compatible with Metrolist (NEW)
-- And many more!    
-  
-> (\*) Use your OpenAI or Gemini API key    
-> (\**) For users who chose "Send back to Google" feature    
-    
-> **Warning**    
- > This app is in the beta stage, so it may have many bugs and make it crash. If you find any bugs,      
-> please create an issue or contact me via email or Discord server.   
-> Because of depending on YouTube Music, the player error will happen and it's normally, please don't ask me about the stable state of this app.
-    
-## Screenshots    
- <p align="center">          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/01.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/02.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/03.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/04.png?raw=true" width="200" /> </p> <p align="center">          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/05.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/06.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/07.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/08.png?raw=true" width="200" /> </p> <p align="center">          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/09.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/10.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/11.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/12.png?raw=true" width="200" /> </p> <p align="center">          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/13.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/14.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/15.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/16.png?raw=true" width="200" /> </p> <p align="center">          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/17.png?raw=true" width="200" />          
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/18.png?raw=true" width="200" /> </p> <p align="center">  
-   <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/screenshot/19.png?raw=true" width="800" />  
-</p>
-
- #### More [screenshots](https://photos.app.goo.gl/AbieoXG5ctDrpwzp7) here.
- 
- ## Data    
-- This app uses hidden API from YouTube Music with some tricks to get data from YouTube Music.    
-- Use Spotify Web API and some tricks to get Spotify Canvas and Lyrics    
-- Thanks to [InnerTune](https://github.com/z-huang/InnerTune/) for the idea to get data from YouTube Music. This repo is my inspiration to create this app.    
-- Special thanks to [SmartTube](https://github.com/yuliskov/SmartTube). This repo help me to extract the streaming URL of YouTube Music.    
-- My app is using [SponsorBlock](https://sponsor.ajay.app/) to skip sponsor in YouTube videos.    
-- ReturnYouTubeDislike for getting information on votes 
-- Main lyrics data from SimpMusic Lyrics
-- Alternative lyrics data from LRCLIB. More information [LRCLIB](https://lrclib.net/)    
-- Song recognition by Shazam, with the recognizer ported from [Metrolist](https://github.com/MetrolistGroup/Metrolist)
- 
- ## Privacy    
- SimpMusic doesn't have any tracker or third-party server for collecting user data in FOSS version. If YouTube      
-logged-in users enable "Send back to Google" feature, SimpMusic only uses YouTube Music Tracking API to send listening history and listening record of video to Google for better recommendations and      
-supporting artist or YouTube Creator (For API reference,      
-see [this](https://github.com/maxrave-dev/core/blob/master/service/kotlinYtmusicScraper/src/commonMain/kotlin/com/maxrave/kotlinytmusicscraper/Ytmusic.kt)).
-
-We collect crash data in the Full version to improve the app.
-   
-## Full or FOSS version
-I use [Sentry](http://sentry.io) crashlytics to catch all crashes in the Full version. [Sentry](https://github.com/getsentry/sentry) is the open-source project.
- If you don't want to be collected crash data, you must use FOSS version.
- 
-## Desktop app
-
-### Which file should I download?
-- For Windows: Download `SimpMusic-Windows-installer.zip`, unzip it and run `install.bat`.
-- For macOS (macOS 15 or newer): Download the file with extension `.dmg`.
-- For Linux: Download the file with extension `.AppImage` (all Linux distributions)
-
-### Log in guide: https://www.simpmusic.org/blogs/en/how-to-log-in-on-desktop-app
-#### Discord login guide: https://gist.github.com/MarvNC/e601f3603df22f36ebd3102c501116c6
-
-### Some limitations on Desktop app:
-- Some Linux distributions may have stability issues (upstream JetBrains issue).
-- ARM64 on Windows and Linux: use the x64 build.
-
-Please report issues on our Discord server if you find any bugs.
- 
-## Translation    
-[![Crowdin](https://badges.crowdin.net/simpmusic/localized.svg)](https://crowdin.com/project/simpmusic)
-<br/>
-You can help me translate this app into your language by using Crowdin [SimpMusic on Crowdin](https://crowdin.com/project/simpmusic)    
- #### Special thanks to all translators on Crowdin ❤️    
- ## FAQ    
- #### 1. Wrong Lyrics?    
- Lyrics are provided by LRCLIB and other sources. Sometimes lyrics may not match perfectly with the YouTube `videoId` parameter. So I need to use some "String Matcher" and "Duration" to search lyrics. So sometimes, some songs or videos get the wrong lyrics.    
-    
-#### 2. Why the name or brand is "SimpMusic"?    
- Simply, because I love the name. It's a combination of 'Simple' and 'Music'. But SimpMusic is not a simple app, it's all you need for a powerful music streaming app.    
-  
-#### More FAQ, join [my Discord channel](https://discord.com/channels/1136988323819298856/1349800418745778196)  
-
-## Contributing
-
-Contributions are welcome — the full guide lives in [CONTRIBUTING.md](CONTRIBUTING.md). The short version:
-
-1. **Start from an issue.** Every PR needs an accepted issue behind it — open one first so the change is agreed before the code exists.
-2. **Fork and branch from `dev`** (`main` tracks releases), and fill in the whole PR template — one checkbox is machine-checked.
-3. **AI policy.** AI-*assisted* work is welcome; AI-*driven* work is not:
-   - A human must have written or personally reviewed **every line** and be able to answer review comments about it.
-   - Unattended agent submissions (Jules, Devin, and friends) are **closed automatically** by the triage bot, on sight.
-   - Commits carrying AI co-author trailers (`Co-Authored-By: Claude/Copilot/…`) or "Generated with …" markers are rejected the same way — squash them out first.
-   - Repeat offenders are blocked.
-4. **Translations** go through [Crowdin](https://crowdin.com/project/simpmusic), never PRs editing the string files directly.
-
-## Legal Disclaimer & Terms of Use
-
-### 1. 100% Free, Open-Source & Strictly Non-Commercial
-SimpMusic is a fully open-source project (FOSS) created purely for educational purposes and personal use. **We do not sell this application, nor do we monetize it in any way.** There are no advertisements, no premium features, no subscriptions, and no hidden fees within the app. This project has absolutely no commercial value or financial intent. 
-
-### 2. A Custom Browser with Content Filtering
-SimpMusic acts strictly as a specialized, third-party web browser and client. It simply parses the publicly available website content and APIs of YouTube and YouTube Music, rendering them in a custom user interface. The ad-free experience it provides is fundamentally no different from using a standard web browser (like Chrome, Firefox, or Brave) equipped with a common ad-blocking extension (such as uBlock Origin). 
-
-### 3. Support Content Creators
-We deeply respect the hard work of artists, musicians, and content creators. **We strongly encourage all users to subscribe to [YouTube Premium](https://www.youtube.com/premium).** Purchasing a Premium subscription is the best way to financially support the creators you listen to and ensure the continued growth of the platform. SimpMusic is built as a proof-of-concept for developers and enthusiasts, not to harm creators' revenues.
-
-### 4. No Hosting of Copyrighted Material
-We do not host, upload, distribute, or store any audio, video, or copyrighted media files on our own servers. All content accessed through this application is stored entirely on Google's/YouTube's servers and remains the property of their respective copyright owners. The app merely acts as a conduit to stream publicly accessible links.
-
-### 5. User Responsibility & Legal Contact
-The software is provided "AS IS", without warranty of any kind. The developers of SimpMusic do not encourage or condone piracy. Users are solely responsible for ensuring their usage of this app complies with their local copyright laws and the Terms of Service of the platforms they access. 
-
-Because we do not host any media files, we cannot process DMCA takedown requests for audio or video content. However, if you represent a copyright holder or have legal concerns regarding the open-source code itself, please contact us via email at: **ndtminh2608@gmail.com**
-
-  ## Contribute
-We're looking for more contributors, all contributions are welcome!
-See our [CODE OF CONDUCT](https://github.com/maxrave-dev/SimpMusic/blob/main/CODE_OF_CONDUCT.md)
-
-Thanks for all my contributors:
-
-<a href="https://github.com/maxrave-dev/SimpMusic/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=maxrave-dev/SimpMusic" />
-</a>
-
- ## Showcase
-This project is following clean architecture and MVVM pattern (in UI, app module).
-
- ### Dependencies graph
-  <p float="left">        
-  <img src="https://github.com/maxrave-dev/SimpMusic/blob/main/asset/dependencies_graph.svg?raw=true" width="800"> 
+  <p>
+    <a href="https://github.com/jaatayushh/ayushmuzic/releases"><img src="https://img.shields.io/github/v/release/jaatayushh/ayushmuzic?color=blue&style=flat-square" alt="Latest Release" /></a>
+    <a href="https://github.com/jaatayushh/ayushmuzic/releases"><img src="https://img.shields.io/github/downloads/jaatayushh/ayushmuzic/total?color=success&style=flat-square" alt="Downloads" /></a>
+    <a href="https://github.com/jaatayushh/ayushmuzic/stargazers"><img src="https://img.shields.io/github/stars/jaatayushh/ayushmuzic?style=flat-square" alt="Stars" /></a>
+    <a href="https://github.com/jaatayushh/ayushmuzic/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-GPLv3-green.svg?style=flat-square" alt="License" /></a>
   </p>
 
- ## Support & Donations 
- #### Special thanks to all supporter ❤️    
- <div align="left"> 
- <a href="https://simpmusic.org/"><img alt="Visit the website" height="50" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/documentation/website_vector.svg"></a> &nbsp;        
-<a href="https://discord.gg/Rq5tWVM9Hg"><img alt="Discord Server" height="50" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/social/discord-plural_vector.svg"></a> &nbsp;        
-<br> <a href="https://www.buymeacoffee.com/maxrave"><img alt="Buy me a Coffee" height="50" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/donate/buymeacoffee-singular_vector.svg"></a> &nbsp;        
-<a href="https://liberapay.com/maxrave/"><img alt="liberapay" height="50"        
-src="https://raw.githubusercontent.com/liberapay/liberapay.com/master/www/assets/liberapay/logo-v2_black-on-yellow.svg"></a> 
+  <h3><a href="https://github.com/jaatayushh/ayushmuzic/releases/latest">🚀 Download Latest Release (v1.0.9)</a></h3>
 </div>
-    
- ### MOMO or Vietnamese banking    
- <p float="left">        
- <img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/52770992.jpg?raw=true" width="300"> 
- </p>
 
-## SimpMusic is sponsored by:
-<br />
-<a href="https://crowdin.com">
-<img src="https://support.crowdin.com/assets/logos/plate/png/crowdin-logo-with-plate.png" width="300"/>
-</a>
-<br>
-<a href="https://sentry.io">
-<img src="https://github.com/maxrave-dev/SimpMusic/blob/dev/asset/sentry.svg?raw=true" width="300"/>
-</a>
-<br>
-<br>
+---
 
-Crowdin and Sentry both have a free enterprise plan for Open-source projects. Follow the URLs: 
-- [Open Source License Request Form | Crowdin](https://crowdin.com/page/open-source-project-setup-request)
-- [Sentry for Open Source | Sentry](https://sentry.io/for/open-source/)
+## ✨ Features
 
-## Past sponsored:
-<br />
-<a href="https://vercel.com/oss">
-  <img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" />
-</a>
-<br />
-<br />
+- 🎧 **Stream YouTube & YouTube Music**: Play any song, album, playlist, podcast, or music video without advertisements and in the background.
+- 🎤 **Word-by-Word Synced Lyrics**: Real-time Apple Music-style animated lyrics with multi-provider synchronization (AyushMuzic Lyrics, LRCLIB, BetterLyrics, Spotify) and accurate Hindi/regional transliteration filtering.
+- 🎨 **Apple SF Pro Design**: Native Apple SF Pro typography across every screen, dialog, and control for an ultra-clean, modern aesthetic.
+- 🎠 **Dynamic Hero Carousel**: Beautiful curved cards for "Listen again", quick picks, and personalized recommendations, seamlessly integrated whether logged in or browsing as a guest.
+- 🎚️ **10-Band Studio Equalizer**: Includes AutoEq headphone profiles, Bass Boost, Virtualizer, Reverb, Delay effects, and seamless support for phone system audio effects.
+- 📴 **Offline Caching & Smart Downloads**: Download tracks and albums for offline listening anytime with flexible storage management.
+- 🔊 **Cross-Platform Audio**: Native audio engine powered by media3 (Android) and mpv (Desktop) with gapless playback, crossfade, and custom audio device output.
+- 📱 **Vivo Origin Island & Widgets**: Custom edition for Vivo/iQOO devices featuring interactive lockscreen/status bar Origin Island controls and interactive desktop widgets.
+- 🖥️ **Desktop Library Sidebar**: Dedicated desktop layout with library management, playlists, keyboard shortcuts, and tray minimization.
+- 🛡️ **SponsorBlock & Return YouTube Dislike**: Automatically skip sponsor segments, intros, and non-music interludes while seeing authentic community like/dislike ratios.
+- 🎮 **Discord Rich Presence**: Share what you are listening to in real time on Discord with cover art and progress timer.
+- ⏰ **Sleep Timer & Listen Together**: Set timers to gently stop music or create shared synchronized listening rooms with friends.
 
-Check out the Vercel open-source program:
-- https://vercel.com/open-source-program
+---
 
-This project is tested with BrowserStack
-- Checkout BrowserStack now: https://www.browserstack.com/
+## 📥 Downloads
 
-*This project is a part of SimpMusic.org Open-source project by me [maxrave-dev](https://github.com/maxrave-dev)*
+Grab the optimized package for your operating system from the **[Latest Release](https://github.com/jaatayushh/ayushmuzic/releases/latest)**:
 
-<!-- GitAds-Verify: 9788276LHF131ESPL12SWLJ8LACOJE89 -->
+### 📱 Android
+| Architecture / Target | Package | Description |
+| :--- | :--- | :--- |
+| **arm64-v8a (Recommended)** | `AyushMuzic-v1.0.9-arm64.apk` | Best performance and smallest size for modern Android phones (99% of devices). |
+| **Universal** | `AyushMuzic-v1.0.9-universal.apk` | All-in-one APK compatible with every Android device and architecture. |
+| **Vivo Origin Island** | `AyushMuzic-v1.0.9-vivo-arm64.apk` | Specialized build for Vivo/iQOO OriginOS with Origin Island and widget support. |
+| **armeabi-v7a** | `AyushMuzic-v1.0.9-armv7.apk` | For legacy 32-bit Android phones. |
+| **x86_64** | `AyushMuzic-v1.0.9-x86_64.apk` | For Android emulators and x86_64 tablets / Chromebooks. |
+
+### 💻 Desktop
+| Platform | Format | Description |
+| :--- | :--- | :--- |
+| **Windows** | `AyushMuzic-v1.0.9-Setup.exe` | Complete Inno Setup installer bundling runtime, start menu shortcuts, and mpv. |
+| **Windows MSI** | `AyushMuzic-v1.0.9-Setup.msi` | Native Windows Installer package for managed deployments. |
+| **Windows Portable** | `AyushMuzic-v1.0.9-windows-x64.zip` | Standalone portable folder — extract and run anywhere without installing. |
+| **Linux (.deb)** | `AyushMuzic-v1.0.9-linux.deb` | Debian / Ubuntu / Linux Mint / Pop!_OS package. |
+| **Linux (Portable)** | `AyushMuzic-v1.0.9-linux-x64.tar.gz` | Portable distribution for all Linux distributions. |
+| **macOS** | `AyushMuzic-v1.0.9-macOS.dmg` | macOS DMG package for Apple Silicon and Intel. |
+
+---
+
+## 🛠️ Building from Source
+
+### Prerequisites
+- **JDK 21** or later (Microsoft OpenJDK / Corretto recommended)
+- **Android SDK** (for Android builds) with platform tools and build-tools `35.0.0`
+- **Gradle 8.11+** (managed via `./gradlew`)
+- **Inno Setup 6** (for Windows `Setup.exe` installer builds)
+
+### Clone the Repository
+```bash
+git clone https://github.com/jaatayushh/ayushmuzic.git
+cd ayushmuzic
+```
+
+### Build Android APKs
+```bash
+./gradlew :androidApp:assembleRelease
+# Output: androidApp/build/outputs/apk/release/
+```
+
+### Build Windows Installer & Distributables
+```bash
+# Setup native MPV binaries
+.\gradlew.bat :composeApp:mpvSetupAll
+
+# Build MSI installer and standalone directory
+.\gradlew.bat :desktopApp:packageReleaseMsi :desktopApp:createReleaseDistributable
+
+# Compile Setup.exe via Inno Setup
+iscc /DAppVersion=1.0.9 /DSourceDir=desktopApp\build\compose\binaries\main\app\AyushMuzic /DOutputDir=win-output /DIconFile=composeApp\icon\circle_app_icon.ico scripts\windows\installer.iss
+```
+
+### Build Linux Packages
+```bash
+./gradlew :composeApp:mpvSetupAll
+./gradlew :desktopApp:packageReleaseDeb :desktopApp:createReleaseDistributable
+```
+
+---
+
+## 🔒 Privacy & Legal Disclaimer
+
+- **100% Free & Open-Source**: AyushMuzic is built purely for educational and personal use. It has zero advertisements, zero paywalls, and collects no tracking or analytics telemetry.
+- **Client-Side Parsing**: AyushMuzic functions as an open-source media player and browser interface that connects directly to YouTube Music's public endpoints.
+- **No Media Hosting**: AyushMuzic does not host, store, or redistribute any media or copyrighted audio files. All streams originate directly from Google/YouTube servers.
+- **Support Artists**: We strongly encourage users to purchase [YouTube Premium](https://www.youtube.com/premium) and support their favorite music creators.
+
+---
+
+## 👨‍💻 Developer & Credits
+
+- **Developer / Maintainer**: **jaatayushh** ([@jaatayushh](https://github.com/jaatayushh))
+- **Based on**: SimpMusic by [maxrave-dev](https://github.com/maxrave-dev)
+- **Lyrics Providers**: [LRCLIB](https://lrclib.net/), SimpMusic Lyrics, and Spotify
+- **Stream Extraction**: [SmartTube](https://github.com/yuliskov/SmartTube), [Brave NewPipe](https://github.com/brave/brave-core), and [PipePipe](https://github.com/PipePipe-App/PipePipe-Core)
+- **Community Tools**: [SponsorBlock](https://sponsor.ajay.app/) & [Return YouTube Dislike](https://returnyoutubedislike.com/)
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by <a href="https://github.com/jaatayushh">jaatayushh</a> using Compose Multiplatform & Kotlin.</sub>
+</div>
