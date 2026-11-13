@@ -19,7 +19,7 @@ import coil3.request.SuccessResult
 import coil3.request.allowHardware
 import coil3.toBitmap
 import com.maxrave.simpmusic.MainActivity
-import com.ayush.muzic.R
+import com.maxrave.simpmusic.R
 import com.maxrave.simpmusic.utils.ComposeResUtils
 import kotlinx.coroutines.runBlocking
 
@@ -33,7 +33,7 @@ object NotificationHandler {
         //  No back-stack when launched
         val action = Intent(context, MainActivity::class.java)
         action.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        action.data = "ayushmuzic://notification".toUri()
+        action.data = "simpmusic://notification".toUri()
         val pendingIntent =
             PendingIntent.getActivity(
                 context,

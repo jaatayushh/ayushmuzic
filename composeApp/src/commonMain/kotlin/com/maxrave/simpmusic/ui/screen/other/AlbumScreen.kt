@@ -68,6 +68,8 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kmpalette.rememberPaletteState
 import com.kyant.backdrop.highlight.Highlight
+import com.maxrave.simpmusic.expect.ui.DesktopMiniPlayerClearance
+import com.maxrave.simpmusic.expect.ui.VerticalScrollBar
 import com.maxrave.simpmusic.extension.barBlurStyle
 import com.maxrave.simpmusic.ui.component.DownloadingIndicator
 import com.maxrave.domain.data.entities.DownloadState
@@ -79,7 +81,8 @@ import com.maxrave.simpmusic.expect.ui.toImageBitmap
 import com.maxrave.simpmusic.extension.artworkScrimBrush
 import com.maxrave.simpmusic.extension.getColorFromPalette
 import com.maxrave.simpmusic.extension.getScreenSizeInfo
-import com.maxrave.simpmusic.extension.toImmersiveBackground
+import com.maxrave.simpmusic.extension.mouseDragScroll
+import com.maxrave.simpmusic.extension.rememberPaletteColor
 import com.maxrave.simpmusic.ui.component.AddToPlaylistModalBottomSheet
 import com.maxrave.simpmusic.ui.component.CenterLoadingBox
 import com.maxrave.simpmusic.ui.component.DescriptionView
@@ -105,6 +108,7 @@ import com.maxrave.simpmusic.ui.icon.Shuffle
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.navigation.destination.list.AlbumDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.ArtistDestination
+import com.maxrave.simpmusic.ui.theme.ArtworkShape
 import com.maxrave.simpmusic.ui.theme.seed
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.viewModel.AlbumViewModel
@@ -216,8 +220,8 @@ fun AlbumScreen(
     val screenInfo = getScreenSizeInfo()
     val isPortrait = screenInfo.wDP < screenInfo.hDP
     val dominantColor = uiState.colors.firstOrNull() ?: Color.Black
-    // Apple Music-style page background from the artwork's dominant tone (see UIExt.toImmersiveBackground).
-    val mutedPaletteBg = paletteState.palette.toImmersiveBackground()
+    // Apple Music-style page background from the artwork's dominant tone, held and faded (see UIExt.rememberPaletteColor).
+    val mutedPaletteBg = rememberPaletteColor(paletteState.palette)
 
     Crossfade(uiState.loadState) {
         when (it) {
@@ -268,7 +272,7 @@ fun AlbumScreen(
                                                             .memoryCachePolicy(CachePolicy.ENABLED)
                                                             .diskCacheKey(uiState.thumbnail)
                                                             .memoryCacheKey(uiState.thumbnail)
-                                                            .crossfade(false)
+                                                            .crossfade(550)
                                                             .build(),
                                                     placeholder = rememberHolderPainter(),
                                                     error = rememberHolderPainter(),
@@ -424,7 +428,7 @@ fun AlbumScreen(
                                                                 .memoryCachePolicy(CachePolicy.ENABLED)
                                                                 .diskCacheKey(uiState.thumbnail)
                                                                 .memoryCacheKey(uiState.thumbnail)
-                                                                .crossfade(false)
+                                                                .crossfade(550)
                                                                 .build(),
                                                         placeholder = rememberHolderPainter(),
                                                         error = rememberHolderPainter(),
@@ -436,7 +440,7 @@ fun AlbumScreen(
                                                         modifier =
                                                             Modifier
                                                                 .size(280.dp)
-                                                                .clip(RoundedCornerShape(8.dp)),
+                                                                .clip(ArtworkShape),
                                                     )
                                                     Column(
                                                         modifier = Modifier.weight(1f),
@@ -903,9 +907,11 @@ fun AlbumScreen(
                                             vertical = 8.dp,
                                         ),
                                 )
+                                val otherVersionRowState = rememberLazyListState()
                                 LazyRow(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 12.dp),
+                                    modifier = Modifier.padding(horizontal = 12.dp).mouseDragScroll(otherVersionRowState),
+                                    state = otherVersionRowState,
                                 ) {
                                     items(uiState.otherVersion) { album ->
                                         HomeItemContentPlaylist(
@@ -929,6 +935,10 @@ fun AlbumScreen(
                         EndOfPage()
                     }
                 }
+                VerticalScrollBar(
+                    scrollState = lazyState,
+                    modifier = Modifier.padding(bottom = DesktopMiniPlayerClearance),
+                )
                 AnimatedVisibility(
                     visible = shouldHideTopBar && !selectionState.isActive,
                     enter = fadeIn() + slideInVertically(),
@@ -1040,7 +1050,7 @@ fun AlbumScreen(
                 if (albumBottomSheetShow) {
                     PlaylistBottomSheet(
                         onDismiss = { albumBottomSheetShow = false },
-                        playlistId = browseId,
+                        playlistId = uiState.audioPlaylistId.ifEmpty { browseId },
                         playlistName = uiState.title,
                         isYourYouTubePlaylist = false,
                         onSaveToLocal = {},

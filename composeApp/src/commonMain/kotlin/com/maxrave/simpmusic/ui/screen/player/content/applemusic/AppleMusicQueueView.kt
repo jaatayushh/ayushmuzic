@@ -57,6 +57,7 @@ import com.maxrave.domain.mediaservice.handler.MediaPlayerHandler
 import com.maxrave.domain.mediaservice.handler.QueueData
 import com.maxrave.domain.mediaservice.handler.RepeatState
 import com.maxrave.simpmusic.expect.ui.DeviceVolumeController
+import com.maxrave.simpmusic.expect.ui.VerticalScrollBar
 import com.maxrave.simpmusic.ui.component.DraggableItem
 import com.maxrave.simpmusic.ui.component.SongFullWidthItems
 import com.maxrave.simpmusic.ui.component.rememberDragDropState
@@ -78,6 +79,7 @@ import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.continue_playing
 import simpmusic.composeapp.generated.resources.endless_queue
 import simpmusic.composeapp.generated.resources.now_playing
+import simpmusic.composeapp.generated.resources.radio_mix
 
 /**
  * The QUEUE body: compact header, [Info][PlaylistAdd][Shuffle][Repeat] pills, a "Continue
@@ -288,6 +290,10 @@ internal fun AppleMusicQueueView(
                     }
                 }
             }
+            VerticalScrollBar(
+                scrollState = lazyListState,
+                modifier = Modifier.padding(top = QUEUE_TOP_FADE, bottom = QUEUE_BOTTOM_FADE),
+            )
         }
 
         AppleMusicBottomCluster(
@@ -409,7 +415,7 @@ private fun AppleMusicContinuePlayingHeader(
             // printing an empty one.
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(Res.string.now_playing),
+                    text = stringResource(if (state.screenData.isRadioQueue) Res.string.radio_mix else Res.string.now_playing),
                     style = typography.queueSectionSubtitle,
                 )
                 val source = state.screenData.playlistName

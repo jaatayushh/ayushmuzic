@@ -137,7 +137,7 @@ fun ShareLyricsSheet(
     val fileName =
         remember(songTitle) {
             val stem = songTitle.ifBlank { "lyrics" }.take(32).map { if (it.isLetterOrDigit()) it else '_' }.joinToString("")
-            "AyushMuzic_${stem}_${Random.nextInt(100_000, 999_999)}.png"
+            "SimpMusic_${stem}_${Random.nextInt(100_000, 999_999)}.png"
         }
 
     // Saving is the only half that can be refused: sharing goes through the app's own cache, which

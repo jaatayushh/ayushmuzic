@@ -66,7 +66,7 @@ import com.maxrave.domain.data.type.RecentlyType
 import com.maxrave.domain.repository.CommonRepository
 import com.maxrave.domain.utils.toTrack
 import com.maxrave.simpmusic.MainActivity
-import com.ayush.muzic.R
+import com.maxrave.simpmusic.R
 import com.maxrave.simpmusic.extension.getColorFromPalette
 import com.maxrave.simpmusic.viewModel.SharedViewModel
 import com.maxrave.simpmusic.viewModel.UIEvent
@@ -380,7 +380,7 @@ private suspend fun RecentlyType.toTile(context: Context): PlaylistTile? =
                 PlaylistTile(
                     title = it.title,
                     cover = context.loadBitmap(it.thumbnails, "RS${it.videoId}", TILE_DECODE_PX),
-                    uri = "ayushmuzic://watch?v=${it.videoId}",
+                    uri = "simpmusic://watch?v=${it.videoId}",
                     song = it,
                 )
             }
@@ -390,7 +390,7 @@ private suspend fun RecentlyType.toTile(context: Context): PlaylistTile? =
                 PlaylistTile(
                     title = it.title,
                     cover = context.loadBitmap(it.thumbnails, "RA${it.browseId}", TILE_DECODE_PX),
-                    uri = "ayushmuzic://album?id=${it.browseId}",
+                    uri = "simpmusic://album?id=${it.browseId}",
                 )
             }
 
@@ -399,7 +399,7 @@ private suspend fun RecentlyType.toTile(context: Context): PlaylistTile? =
                 PlaylistTile(
                     title = it.title,
                     cover = context.loadBitmap(it.thumbnails, "RP${it.id}", TILE_DECODE_PX),
-                    uri = "ayushmuzic://playlist?list=${it.id}",
+                    uri = "simpmusic://playlist?list=${it.id}",
                 )
             }
 
@@ -408,7 +408,7 @@ private suspend fun RecentlyType.toTile(context: Context): PlaylistTile? =
                 PlaylistTile(
                     title = it.name,
                     cover = context.loadBitmap(it.thumbnails, "RAr${it.channelId}", TILE_DECODE_PX),
-                    uri = "ayushmuzic://channel/${it.channelId}",
+                    uri = "simpmusic://channel/${it.channelId}",
                 )
             }
     }

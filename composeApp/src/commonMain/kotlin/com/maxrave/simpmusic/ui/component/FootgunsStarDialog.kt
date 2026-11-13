@@ -33,11 +33,11 @@ import simpmusic.composeapp.generated.resources.footguns_promo_title
 import simpmusic.composeapp.generated.resources.give_a_star
 import simpmusic.composeapp.generated.resources.later
 
-private const val FOOTGUNS_REPO_URL = "https://github.com/jaatayushh/ayushmuzic"
+private const val FOOTGUNS_REPO_URL = "https://github.com/maxrave-dev/kotlin-footguns"
 
 // GitHub renders this on demand for any public repo - repo name, description, avatar and the LIVE
 // star count, so the banner sells itself and stays current without shipping an asset.
-private const val FOOTGUNS_SOCIAL_IMAGE_URL = "https://opengraph.githubassets.com/1/jaatayushh/ayushmuzic"
+private const val FOOTGUNS_SOCIAL_IMAGE_URL = "https://opengraph.githubassets.com/1/maxrave-dev/kotlin-footguns"
 
 // The rendered image is 1200x600.
 private const val SOCIAL_IMAGE_ASPECT_RATIO = 2f

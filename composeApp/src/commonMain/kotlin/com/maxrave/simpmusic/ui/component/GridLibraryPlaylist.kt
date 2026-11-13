@@ -5,12 +5,12 @@ import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.maxrave.domain.data.entities.AlbumEntity
@@ -51,6 +52,8 @@ import com.maxrave.domain.data.type.MonthlyRecapItem
 import com.maxrave.domain.data.type.PlaylistType
 import com.maxrave.domain.utils.LocalResource
 import com.maxrave.logger.Logger
+import com.maxrave.simpmusic.expect.ui.DesktopMiniPlayerClearance
+import com.maxrave.simpmusic.expect.ui.VerticalScrollBar
 import com.maxrave.simpmusic.extension.angledGradientBackground
 import com.maxrave.simpmusic.extension.isScrollingUp
 import com.maxrave.simpmusic.ui.icon.Add
@@ -67,6 +70,34 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.create
+import kotlin.math.roundToInt
+
+/**
+ * Columns for every grid built on [GridLibraryPlaylist] — the Library tabs, Wrapped and Mix for you.
+ *
+ * The count is whichever brings the artwork closest to 150dp, so every cell on a page is the same
+ * size and a wider window adds columns instead of stretching them. `Adaptive(minSize = 120.dp)`
+ * treated 120 as a floor instead, which on a 1404dp window meant eleven columns of ~108dp artwork.
+ *
+ * Never fewer than three: the column count must follow the window, not the device's density, and a
+ * 360–412dp phone would otherwise round down to two. Below 480dp this gives exactly the three columns
+ * `Adaptive(120.dp)` did, so phones keep the grid they have.
+ */
+internal object LibraryGridCells : GridCells {
+    // The artwork plus the 10dp start + 10dp end padding every item in these grids carries.
+    private val TargetCellWidth = 150.dp + 20.dp
+
+    override fun Density.calculateCrossAxisCellSizes(
+        availableSize: Int,
+        spacing: Int,
+    ): List<Int> {
+        val target = TargetCellWidth.roundToPx() + spacing
+        val count = ((availableSize + spacing).toFloat() / target).roundToInt().coerceAtLeast(3)
+        // The same split GridCells.Fixed makes: leftover pixels go one each to the first columns.
+        val usable = availableSize - spacing * (count - 1)
+        return List(count) { usable / count + if (it < usable % count) 1 else 0 }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,8 +160,7 @@ internal inline fun <reified T> GridLibraryPlaylist(
             // point of the tab must not fall through to the empty text and hide it.
             if ((data is LocalResource.Success && list.isNotEmpty()) || createNewPlaylist != null || header != null) {
                 LazyVerticalGrid(
-                    columns = GridCells.FixedSize(size = 132.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    columns = LibraryGridCells,
                     contentPadding = contentPadding,
                     state = state,
                 ) {
@@ -154,7 +184,7 @@ internal inline fun <reified T> GridLibraryPlaylist(
                                 ) {
                                     Box(
                                         Modifier
-                                            .size(132.dp)
+                                            .fillMaxWidth()
                                             .aspectRatio(1f)
                                             .clip(RoundedCornerShape(10.dp))
                                             .angledGradientBackground(
@@ -184,7 +214,7 @@ internal inline fun <reified T> GridLibraryPlaylist(
                                         maxLines = 1,
                                         modifier =
                                             Modifier
-                                                .width(132.dp)
+                                                .fillMaxWidth()
                                                 .wrapContentHeight(align = Alignment.CenterVertically)
                                                 .padding(top = 8.dp)
                                                 .basicMarquee(
@@ -272,6 +302,9 @@ internal inline fun <reified T> GridLibraryPlaylist(
                             },
                             data = item,
                             thumbSize = 132.dp,
+                            // The cell decides the width now, so the artwork follows it instead of
+                            // being pinned to thumbSize and cropped by a narrower cell.
+                            fillMaxWidth = true,
                         )
                     }
 
@@ -283,7 +316,7 @@ internal inline fun <reified T> GridLibraryPlaylist(
                                     vertical = 16.dp,
                                 ),
                             onClick = {
-                                uriHandler.openUri("https://github.com/jaatayushh/ayushmuzic")
+                                uriHandler.openUri("https://chart.simpmusic.org")
                             },
                         )
                     }
@@ -292,6 +325,10 @@ internal inline fun <reified T> GridLibraryPlaylist(
                         EndOfPage()
                     }
                 }
+                VerticalScrollBar(
+                    scrollState = state,
+                    modifier = Modifier.padding(top = contentPadding.calculateTopPadding(), bottom = DesktopMiniPlayerClearance),
+                )
             } else if (data is LocalResource.Loading) {
                 CenterLoadingBox(
                     Modifier.fillMaxSize(),

@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.maxrave.domain.extension.now
 import com.maxrave.simpmusic.expect.openUrl
+import com.maxrave.simpmusic.expect.ui.DesktopMiniPlayerClearance
+import com.maxrave.simpmusic.expect.ui.VerticalScrollBar
 import com.maxrave.simpmusic.extension.ultraThinBarStyle
 import com.maxrave.simpmusic.ui.component.RippleIconButton
 import com.maxrave.simpmusic.ui.icon.ArrowBackIosNew
@@ -67,13 +69,14 @@ fun CreditScreen(
     navController: NavController,
 ) {
     val hazeState = rememberHazeState()
+    val scrollState = rememberScrollState()
     Column(
         modifier =
             Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(top = 64.dp)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .hazeSource(state = hazeState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -149,7 +152,7 @@ fun CreditScreen(
             // Developer blog button
             TextButton(
                 onClick = {
-                    openUrl("https://maxrave.dev")
+                    openUrl("https://www.simpmusic.org/blogs")
                 },
                 modifier =
                     Modifier
@@ -169,7 +172,7 @@ fun CreditScreen(
             // GitHub button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/jaatayushh/ayushmuzic")
+                    openUrl("https://github.com/maxrave-dev/SimpMusic")
                 },
                 modifier =
                     Modifier
@@ -183,7 +186,7 @@ fun CreditScreen(
             // Issue tracker button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/jaatayushh/ayushmuzic/issues")
+                    openUrl("https://github.com/maxrave-dev/SimpMusic/issues")
                 },
                 modifier =
                     Modifier
@@ -249,6 +252,10 @@ fun CreditScreen(
         // Bottom spacing
         Spacer(modifier = Modifier.height(200.dp))
     }
+    VerticalScrollBar(
+        scrollState = scrollState,
+        modifier = Modifier.padding(top = paddingValues.calculateTopPadding() + 64.dp, bottom = DesktopMiniPlayerClearance),
+    )
     TopAppBar(
         modifier =
             Modifier

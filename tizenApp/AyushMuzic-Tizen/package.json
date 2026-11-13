@@ -1,0 +1,14 @@
+{
+  "name": "ayushmuzic-tizen",
+  "version": "1.0.0",
+  "description": "AyushMuzic for Samsung Tizen OS Smart TV",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "package": "python build-wgt.py"
+  },
+  "keywords": ["tizen", "samsung-tv", "smart-tv", "music"],
+  "author": "Ayush",
+  "license": "MIT"
+}

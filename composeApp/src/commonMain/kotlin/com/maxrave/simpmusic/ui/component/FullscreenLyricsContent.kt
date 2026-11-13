@@ -81,6 +81,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.kyant.backdrop.highlight.Highlight
 import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.simpmusic.Platform
 import com.maxrave.simpmusic.expect.toggleMiniPlayer
@@ -89,6 +90,7 @@ import com.maxrave.simpmusic.expect.ui.isLyricsBlurSupported
 import com.maxrave.simpmusic.expect.ui.layerBackdrop
 import com.maxrave.simpmusic.expect.ui.rememberBackdrop
 import com.maxrave.simpmusic.extension.KeepScreenOn
+import com.maxrave.simpmusic.extension.LeftToRight
 import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.extension.lengthLabel
 import com.maxrave.simpmusic.extension.getScreenSizeInfo
@@ -102,6 +104,7 @@ import com.maxrave.simpmusic.ui.icon.MoreVert
 import com.maxrave.simpmusic.ui.icon.PictureInPictureAlt
 import com.maxrave.simpmusic.ui.icon.QueueMusic
 import com.maxrave.simpmusic.ui.icon.Share
+import com.maxrave.simpmusic.ui.icon.AvTimer
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.icon.VolumeOff
 import com.maxrave.simpmusic.ui.icon.VolumeUp
@@ -117,6 +120,8 @@ import com.maxrave.simpmusic.ui.screen.player.content.NowPlayingTrackInfoRow
 import com.maxrave.simpmusic.ui.screen.player.content.SpotifyPlaybackControls
 import com.maxrave.simpmusic.ui.screen.player.content.applemusic.AppleMusicPlaybackControls
 import com.maxrave.simpmusic.ui.screen.player.content.applemusic.rememberAppleMusicTypography
+import com.maxrave.simpmusic.ui.theme.ArtworkShape
+import com.maxrave.simpmusic.ui.theme.LocalLiquidGlassEnabled
 import com.maxrave.simpmusic.ui.theme.seed
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.viewModel.NowPlayingScreenData
@@ -171,7 +176,7 @@ fun FullscreenLyricsContent(
     // the edge. This sheet's own 50dp then stacked on top of it, insetting the text by 70dp.
     val fullscreenLyricsStyle by sharedViewModel
         .getLyricsStyle()
-        .collectAsStateWithLifecycle(DataStoreManager.LYRICS_STYLE_APPLE_MUSIC)
+        .collectAsStateWithLifecycle(DataStoreManager.LYRICS_STYLE_CLASSIC)
     val fullscreenAppleLyrics =
         fullscreenLyricsStyle == DataStoreManager.LYRICS_STYLE_APPLE_MUSIC && isLyricsBlurSupported()
     val screenDataState by sharedViewModel.nowPlayingScreenData.collectAsStateWithLifecycle()
@@ -246,8 +251,8 @@ fun FullscreenLyricsContent(
         }
 
     val screenInfo = getScreenSizeInfo()
-    val isLandscape = screenInfo.wDP > screenInfo.hDP
     val isDesktop = getPlatform() == Platform.Desktop
+    val isLandscape = isDesktop && screenInfo.wDP > screenInfo.hDP
     // Glass source for the Desktop chrome. Each layout marks its own background with it, and the
     // pills are always drawn as siblings of that background — nesting them inside the source is
     // the render-feedback loop that crashes the RuntimeShader.
@@ -305,10 +310,11 @@ fun FullscreenLyricsContent(
                 label = "sliderCrossfadeColor",
             )
             Box(modifier = Modifier.fillMaxSize()) {
-                // Animated gradient background
+                // Animated gradient background. The glass source whenever glass is on: the Desktop
+                // chrome draws from it, and so does the lyrics timing button on both platforms.
                 AnimatedLyricsGradientBackground(
                     color = color,
-                    modifier = if (isDesktop) Modifier.layerBackdrop(backdrop) else Modifier,
+                    modifier = if (LocalLiquidGlassEnabled.current) Modifier.layerBackdrop(backdrop) else Modifier,
                 )
 
                 // ── Foreground content column ─────────────────────────────────────
@@ -358,7 +364,7 @@ fun FullscreenLyricsContent(
                             modifier =
                                 Modifier
                                     .size(45.dp)
-                                    .clip(RoundedCornerShape(8.dp)),
+                                    .clip(ArtworkShape),
                         )
 
                         Spacer(modifier = Modifier.width(12.dp))
@@ -491,247 +497,250 @@ fun FullscreenLyricsContent(
                             lyricsData = screenDataState.lyricsData,
                             sharedViewModel = sharedViewModel,
                             color = color,
+                            backdrop = backdrop,
                         )
                     }
 
                     // Progress Bar and Time - Always visible
-                    Column {
-                        // Real Slider
-                        Box(
-                            Modifier
-                                .padding(
-                                    top = 15.dp,
-                                ).padding(horizontal = 40.dp),
-                        ) {
+                    LeftToRight {
+                        Column {
+                            // Real Slider
                             Box(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(24.dp),
-                                contentAlignment = Alignment.Center,
+                                Modifier
+                                    .padding(
+                                        top = 15.dp,
+                                    ).padding(horizontal = 40.dp),
                             ) {
-                                Crossfade(timelineState.loading) {
-                                    if (it) {
-                                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                                            LinearProgressIndicator(
-                                                modifier =
-                                                    Modifier
-                                                        .fillMaxWidth()
-                                                        .height(4.dp)
-                                                        .padding(
-                                                            horizontal = 3.dp,
-                                                        ).clip(
-                                                            RoundedCornerShape(8.dp),
-                                                        ),
-                                                color = Color.Gray,
-                                                trackColor = Color.DarkGray,
-                                                strokeCap = StrokeCap.Round,
-                                            )
-                                        }
-                                    } else {
-                                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                                            LinearProgressIndicator(
-                                                progress = { timelineState.bufferedPercent.toFloat() / 100 },
-                                                modifier =
-                                                    Modifier
-                                                        .fillMaxWidth()
-                                                        .height(4.dp)
-                                                        .padding(
-                                                            horizontal = 3.dp,
-                                                        ).clip(
-                                                            RoundedCornerShape(8.dp),
-                                                        ),
-                                                color = Color.Gray,
-                                                trackColor = Color.DarkGray,
-                                                strokeCap = StrokeCap.Round,
-                                                drawStopIndicator = {},
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                                Slider(
-                                    // Fraction, not 0..100 — see the note in NowPlayingScreen:
-                                    // material3 alpha25 drops valueRange on its binary-compatibility
-                                    // overload.
-                                    value = sliderValue / 100f,
-                                    onValueChange = {
-                                        sharedViewModel.onUIEvent(
-                                            UIEvent.UpdateProgress(it * 100f),
-                                        )
-                                    },
+                                Box(
                                     modifier =
                                         Modifier
                                             .fillMaxWidth()
-                                            .padding(top = 3.dp)
-                                            .align(
-                                                Alignment.TopCenter,
-                                            ),
-                                    track = { sliderState ->
-                                        SliderDefaults.Track(
-                                            modifier =
-                                                Modifier
-                                                    .height(5.dp),
-                                            enabled = true,
-                                            sliderState = sliderState,
-                                            colors =
-                                                SliderDefaults.colors().copy(
-                                                    thumbColor = sliderTrackColor,
-                                                    activeTrackColor = sliderTrackColor,
-                                                    inactiveTrackColor = Color.Transparent,
-                                                ),
-                                            thumbTrackGapSize = 0.dp,
-                                            drawTick = { _, _ -> },
-                                            drawStopIndicator = null,
-                                        )
-                                    },
-                                    thumb = {
-                                        SliderDefaults.Thumb(
-                                            modifier =
-                                                Modifier
-                                                    .height(18.dp)
-                                                    .width(8.dp)
-                                                    .padding(
-                                                        vertical = 4.dp,
-                                                    ),
-                                            thumbSize = DpSize(8.dp, 8.dp),
-                                            interactionSource =
-                                                remember {
-                                                    MutableInteractionSource()
-                                                },
-                                            colors =
-                                                SliderDefaults.colors().copy(
-                                                    thumbColor = Color.White,
-                                                    activeTrackColor = Color.White,
-                                                    inactiveTrackColor = Color.Transparent,
-                                                ),
-                                            enabled = true,
-                                        )
-                                    },
-                                )
-                            }
-                        }
-                        LazyColumn {
-                            item {
-                                // Time Layout
-                                Row(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 40.dp),
+                                            .height(24.dp),
+                                    contentAlignment = Alignment.Center,
                                 ) {
-                                    Text(
-                                        text = if (timelineState.isLive) "" else formatDuration(timelineState.current),
-                                        style = typo().bodyMedium,
-                                        modifier = Modifier.weight(1f),
-                                        textAlign = TextAlign.Left,
-                                    )
-                                    AnimatedVisibility(
-                                        enter = fadeIn(),
-                                        exit = fadeOut(),
-                                        visible = timelineState.isCrossfading,
-                                    ) {
-                                        Text(
-                                            text = stringResource(Res.string.crossfading),
-                                            style = typo().bodyMedium,
-                                            modifier = Modifier.weight(1f),
-                                            textAlign = TextAlign.Center,
-                                        )
-                                    }
-                                    Text(
-                                        text = timelineState.lengthLabel(),
-                                        style = typo().bodyMedium,
-                                        modifier = Modifier.weight(1f),
-                                        textAlign = TextAlign.Right,
-                                    )
-                                }
-
-                                Spacer(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .height(5.dp),
-                                )
-                            }
-
-                            item {
-                                // Control Buttons - Animated visibility
-                                AnimatedVisibility(
-                                    visible = showControlButtons,
-                                    enter =
-                                        expandVertically(
-                                            tween(300),
-                                        ),
-                                    exit =
-                                        shrinkVertically(
-                                            tween(300),
-                                        ),
-                                ) {
-                                    PlayerControlLayout(controllerState) {
-                                        sharedViewModel.onUIEvent(it)
+                                    Crossfade(timelineState.loading) {
+                                        if (it) {
+                                            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                                                LinearProgressIndicator(
+                                                    modifier =
+                                                        Modifier
+                                                            .fillMaxWidth()
+                                                            .height(4.dp)
+                                                            .padding(
+                                                                horizontal = 3.dp,
+                                                            ).clip(
+                                                                RoundedCornerShape(8.dp),
+                                                            ),
+                                                    color = Color.Gray,
+                                                    trackColor = Color.DarkGray,
+                                                    strokeCap = StrokeCap.Round,
+                                                )
+                                            }
+                                        } else {
+                                            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                                                LinearProgressIndicator(
+                                                    progress = { timelineState.bufferedPercent.toFloat() / 100 },
+                                                    modifier =
+                                                        Modifier
+                                                            .fillMaxWidth()
+                                                            .height(4.dp)
+                                                            .padding(
+                                                                horizontal = 3.dp,
+                                                            ).clip(
+                                                                RoundedCornerShape(8.dp),
+                                                            ),
+                                                    color = Color.Gray,
+                                                    trackColor = Color.DarkGray,
+                                                    strokeCap = StrokeCap.Round,
+                                                    drawStopIndicator = {},
+                                                )
+                                            }
+                                        }
                                     }
                                 }
-                                AnimatedVisibility(
-                                    visible = showControlButtons,
-                                    enter =
-                                        expandVertically(
-                                            tween(300),
-                                        ),
-                                    exit =
-                                        shrinkVertically(
-                                            tween(300),
-                                        ),
-                                ) {
-                                    // List Bottom Buttons
-                                    Box(
+                                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                                    Slider(
+                                        // Fraction, not 0..100 — see the note in NowPlayingScreen:
+                                        // material3 alpha25 drops valueRange on its binary-compatibility
+                                        // overload.
+                                        value = sliderValue / 100f,
+                                        onValueChange = {
+                                            sharedViewModel.onUIEvent(
+                                                UIEvent.UpdateProgress(it * 100f),
+                                            )
+                                        },
                                         modifier =
                                             Modifier
-                                                .height(32.dp)
                                                 .fillMaxWidth()
-                                                .padding(horizontal = 40.dp),
+                                                .padding(top = 3.dp)
+                                                .align(
+                                                    Alignment.TopCenter,
+                                                ),
+                                        track = { sliderState ->
+                                            SliderDefaults.Track(
+                                                modifier =
+                                                    Modifier
+                                                        .height(5.dp),
+                                                enabled = true,
+                                                sliderState = sliderState,
+                                                colors =
+                                                    SliderDefaults.colors().copy(
+                                                        thumbColor = sliderTrackColor,
+                                                        activeTrackColor = sliderTrackColor,
+                                                        inactiveTrackColor = Color.Transparent,
+                                                    ),
+                                                thumbTrackGapSize = 0.dp,
+                                                drawTick = { _, _ -> },
+                                                drawStopIndicator = null,
+                                            )
+                                        },
+                                        thumb = {
+                                            SliderDefaults.Thumb(
+                                                modifier =
+                                                    Modifier
+                                                        .height(18.dp)
+                                                        .width(8.dp)
+                                                        .padding(
+                                                            vertical = 4.dp,
+                                                        ),
+                                                thumbSize = DpSize(8.dp, 8.dp),
+                                                interactionSource =
+                                                    remember {
+                                                        MutableInteractionSource()
+                                                    },
+                                                colors =
+                                                    SliderDefaults.colors().copy(
+                                                        thumbColor = Color.White,
+                                                        activeTrackColor = Color.White,
+                                                        inactiveTrackColor = Color.Transparent,
+                                                    ),
+                                                enabled = true,
+                                            )
+                                        },
+                                    )
+                                }
+                            }
+                            LazyColumn {
+                                item {
+                                    // Time Layout
+                                    Row(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 40.dp),
                                     ) {
-                                        IconButton(
+                                        Text(
+                                            text = if (timelineState.isLive) "" else formatDuration(timelineState.current),
+                                            style = typo().bodyMedium,
+                                            modifier = Modifier.weight(1f),
+                                            textAlign = TextAlign.Left,
+                                        )
+                                        AnimatedVisibility(
+                                            enter = fadeIn(),
+                                            exit = fadeOut(),
+                                            visible = timelineState.isCrossfading,
+                                        ) {
+                                            Text(
+                                                text = stringResource(Res.string.crossfading),
+                                                style = typo().bodyMedium,
+                                                modifier = Modifier.weight(1f),
+                                                textAlign = TextAlign.Center,
+                                            )
+                                        }
+                                        Text(
+                                            text = timelineState.lengthLabel(),
+                                            style = typo().bodyMedium,
+                                            modifier = Modifier.weight(1f),
+                                            textAlign = TextAlign.Right,
+                                        )
+                                    }
+
+                                    Spacer(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .height(5.dp),
+                                    )
+                                }
+
+                                item {
+                                    // Control Buttons - Animated visibility
+                                    AnimatedVisibility(
+                                        visible = showControlButtons,
+                                        enter =
+                                            expandVertically(
+                                                tween(300),
+                                            ),
+                                        exit =
+                                            shrinkVertically(
+                                                tween(300),
+                                            ),
+                                    ) {
+                                        PlayerControlLayout(controllerState) {
+                                            sharedViewModel.onUIEvent(it)
+                                        }
+                                    }
+                                    AnimatedVisibility(
+                                        visible = showControlButtons,
+                                        enter =
+                                            expandVertically(
+                                                tween(300),
+                                            ),
+                                        exit =
+                                            shrinkVertically(
+                                                tween(300),
+                                            ),
+                                    ) {
+                                        // List Bottom Buttons
+                                        Box(
                                             modifier =
                                                 Modifier
-                                                    .size(24.dp)
-                                                    .aspectRatio(1f)
-                                                    .align(Alignment.CenterStart)
-                                                    .clip(
-                                                        CircleShape,
-                                                    ),
-                                            onClick = {
-                                                showInfoBottomSheet = true
-                                                showControlButtons = true
-                                            },
+                                                    .height(32.dp)
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 40.dp),
                                         ) {
-                                            Icon(imageVector = SimpIcons.Info, tint = Color.White, contentDescription = "")
-                                        }
-                                        Row(
-                                            Modifier.align(Alignment.CenterEnd),
-                                        ) {
-                                            Spacer(modifier = Modifier.size(8.dp))
                                             IconButton(
                                                 modifier =
                                                     Modifier
                                                         .size(24.dp)
                                                         .aspectRatio(1f)
+                                                        .align(Alignment.CenterStart)
                                                         .clip(
                                                             CircleShape,
                                                         ),
                                                 onClick = {
-                                                    showQueueBottomSheet = true
+                                                    showInfoBottomSheet = true
                                                     showControlButtons = true
                                                 },
                                             ) {
-                                                Icon(
-                                                    imageVector = SimpIcons.QueueMusic,
-                                                    tint = Color.White,
-                                                    contentDescription = "",
-                                                )
+                                                Icon(imageVector = SimpIcons.Info, tint = Color.White, contentDescription = "")
+                                            }
+                                            Row(
+                                                Modifier.align(Alignment.CenterEnd),
+                                            ) {
+                                                Spacer(modifier = Modifier.size(8.dp))
+                                                IconButton(
+                                                    modifier =
+                                                        Modifier
+                                                            .size(24.dp)
+                                                            .aspectRatio(1f)
+                                                            .clip(
+                                                                CircleShape,
+                                                            ),
+                                                    onClick = {
+                                                        showQueueBottomSheet = true
+                                                        showControlButtons = true
+                                                    },
+                                                ) {
+                                                    Icon(
+                                                        imageVector = SimpIcons.QueueMusic,
+                                                        tint = Color.White,
+                                                        contentDescription = "",
+                                                    )
+                                                }
                                             }
                                         }
+                                        Spacer(modifier = Modifier.height(20.dp))
                                     }
-                                    Spacer(modifier = Modifier.height(20.dp))
                                 }
                             }
                         }
@@ -885,7 +894,7 @@ private fun FullscreenLyricsLandscape(
                                 Modifier
                                     .padding(horizontal = 20.dp)
                                     .size(artworkSize)
-                                    .clip(RoundedCornerShape(12.dp)),
+                                    .clip(ArtworkShape),
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         when (nowPlayingStyle) {
@@ -955,6 +964,7 @@ private fun FullscreenLyricsLandscape(
                     lyricsData = state.screenData.lyricsData,
                     sharedViewModel = sharedViewModel,
                     color = color,
+                    backdrop = backdrop,
                 )
             }
         }
@@ -1109,34 +1119,72 @@ private fun FullscreenLyricsList(
     lyricsData: NowPlayingScreenData.LyricsData?,
     sharedViewModel: SharedViewModel,
     color: Color,
+    backdrop: PlatformBackdrop,
 ) {
-    Crossfade(
-        targetState = lyricsData != null,
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        if (it) {
-            lyricsData?.let { lyrics ->
-                LyricsView(
-                    lyricsData = lyrics,
-                    timeLine = sharedViewModel.timeline,
-                    onLineClick = { f ->
-                        sharedViewModel.onUIEvent(UIEvent.UpdateProgress(f))
-                    },
+    val lyricsOffsetMs by sharedViewModel.getLyricsOffsetMs().collectAsStateWithLifecycle(0)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Crossfade(
+            targetState = lyricsData != null,
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            if (it) {
+                lyricsData?.let { lyrics ->
+                    LyricsView(
+                        lyricsData = lyrics,
+                        timeLine = sharedViewModel.timeline,
+                        onLineClick = { f ->
+                            sharedViewModel.onUIEvent(UIEvent.UpdateProgress(f))
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                        showScrollShadows = true,
+                        backgroundColor = color,
+                    )
+                }
+            } else {
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    showScrollShadows = true,
-                    backgroundColor = color,
-                )
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(Res.string.unavailable),
+                        style = typo().bodyMedium,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(Res.string.unavailable),
-                    style = typo().bodyMedium,
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
+        }
+        // Bottom-start, clear of the offset button at bottom-end; glass like the rest of this page's
+        // floating chrome. Shows only what the remote config places under the lyrics, and only over
+        // lyrics, as on the Apple Music player's Lyrics tab.
+        if (lyricsData != null) {
+            LyricsPromoLine(
+                backdrop = backdrop,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 12.dp, end = 72.dp, bottom = 12.dp),
+                sharedViewModel = sharedViewModel,
+            )
+        }
+        // Here rather than in either layout, so portrait, landscape and Desktop all get it. Bottom-end,
+        // over the dimmest lines. Glass, like the rest of this page's floating chrome.
+        if (lyricsData.hasTiming()) {
+            LyricsOffsetFloatingControl(
+                offsetMs = lyricsOffsetMs,
+                onOffsetChange = { sharedViewModel.setLyricsOffsetMs(it) },
+                backdrop = backdrop,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 12.dp),
+            ) { onClick ->
+                LiquidGlassIconButton(
+                    backdrop = backdrop,
+                    imageVector = SimpIcons.AvTimer,
+                    // A round button's rim, as on the Apple Music player's Desktop dismiss button.
+                    highlight = Highlight(width = 1.dp),
+                    onClick = onClick,
                 )
             }
         }

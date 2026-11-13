@@ -2,10 +2,10 @@ package com.maxrave.simpmusic.extension
 
 import com.eygraber.uri.Uri
 
-private const val APP_SCHEME = "ayushmuzic"
+private const val APP_SCHEME = "simpmusic"
 
 /**
- * Turn a pasted YouTube link into the `ayushmuzic://` deep link that already drives the app.
+ * Turn a pasted YouTube link into the `simpmusic://` deep link that already drives the app.
  *
  * Deliberately a *translation* rather than a second link handler: `App.kt` already knows what to do
  * with `watch` / `playlist` / `channel` — including that a `OLAK5uy_` list is an album and that a

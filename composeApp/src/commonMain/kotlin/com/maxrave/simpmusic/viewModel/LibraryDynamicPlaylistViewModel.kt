@@ -4,32 +4,42 @@ import androidx.lifecycle.viewModelScope
 import com.maxrave.common.Config
 import com.maxrave.common.Config.REMOVED_SONG_DATE_TIME
 import com.maxrave.domain.data.entities.ArtistEntity
+import com.maxrave.domain.data.entities.DownloadState
 import com.maxrave.domain.data.entities.SongEntity
 import com.maxrave.domain.extension.now
+import com.maxrave.domain.mediaservice.handler.DownloadHandler
 import com.maxrave.domain.mediaservice.handler.PlaylistType
 import com.maxrave.domain.mediaservice.handler.QueueData
 import com.maxrave.domain.repository.AnalyticsRepository
 import com.maxrave.domain.repository.ArtistRepository
+import com.maxrave.domain.repository.CacheRepository
 import com.maxrave.domain.repository.SongRepository
 import com.maxrave.domain.utils.toArrayListTrack
 import com.maxrave.domain.utils.toTrack
 import com.maxrave.simpmusic.ui.screen.home.analytics.monthFullNameResource
 import com.maxrave.simpmusic.ui.screen.library.LibraryDynamicPlaylistType
 import com.maxrave.simpmusic.viewModel.base.BaseViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.atTime
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import org.koin.core.component.inject
 import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.playlist
+import simpmusic.composeapp.generated.resources.removed_download
 import simpmusic.composeapp.generated.resources.wrapped_recap_month
 import simpmusic.composeapp.generated.resources.wrapped_recap_month_year
 
@@ -37,7 +47,10 @@ class LibraryDynamicPlaylistViewModel(
     private val songRepository: SongRepository,
     private val artistRepository: ArtistRepository,
     private val analyticsRepository: AnalyticsRepository,
+    private val cacheRepository: CacheRepository,
 ) : BaseViewModel() {
+    private val downloadUtils: DownloadHandler by inject()
+
     private val _listFavoriteSong: MutableStateFlow<List<SongEntity>> = MutableStateFlow(emptyList())
     val listFavoriteSong: StateFlow<List<SongEntity>> get() = _listFavoriteSong
 
@@ -79,6 +92,15 @@ class LibraryDynamicPlaylistViewModel(
     /** That artist's name for the header, or null when the artist was never stored. */
     private val _artistLikedName: MutableStateFlow<String?> = MutableStateFlow(null)
     val artistLikedName: StateFlow<String?> get() = _artistLikedName
+
+    /**
+     * Songs the player cache holds in full and that are not downloaded — what plays offline without
+     * having been downloaded. Loaded on demand like the recap: the player cache is no database
+     * table, so there is nothing to observe, and the screen reloads it each time it opens.
+     */
+    private val _listCachedSong: MutableStateFlow<List<SongEntity>> = MutableStateFlow(emptyList())
+    val listCachedSong: StateFlow<List<SongEntity>> get() = _listCachedSong
+    private var cachedSongJob: Job? = null
 
     init {
         getFavoriteSong()
@@ -180,6 +202,45 @@ class LibraryDynamicPlaylistViewModel(
         }
     }
 
+    fun getCachedSong() {
+        cachedSongJob?.cancel()
+        cachedSongJob =
+            viewModelScope.launch {
+                _listCachedSong.value = loadCachedSongs(cacheRepository, songRepository)
+            }
+    }
+
+    /**
+     * Removes the downloads behind the Downloaded list's multi-select action, the same way the
+     * song menu's Download toggle does.
+     *
+     * The rows leave the list first: [SongRepository.getDownloadedSongs] is read once rather than
+     * observed, so nothing else would take them off the screen.
+     */
+    fun removeDownloads(videoIds: List<String>) {
+        if (videoIds.isEmpty()) return
+        _listDownloadedSong.update { songs -> songs.filterNot { it.videoId in videoIds } }
+        viewModelScope.launch {
+            // Off the main thread: Desktop's removeDownload scans the downloads folder once per
+            // song, and a selection can hold 25 of them.
+            withContext(Dispatchers.IO) {
+                videoIds.forEach { videoId ->
+                    downloadUtils.removeDownload(videoId)
+                    songRepository.updateDownloadState(videoId, DownloadState.STATE_NOT_DOWNLOADED)
+                }
+            }
+            // One toast for the batch, as the other selection actions do.
+            makeToast(getString(Res.string.removed_download))
+        }
+    }
+
+    fun removeFromCache(videoId: String) {
+        viewModelScope.launch {
+            cacheRepository.removeCachedSong(videoId)
+            getCachedSong()
+        }
+    }
+
     /** "Recap January", or "Recap January 2025" once the year stops being obvious. */
     private suspend fun recapName(recap: LibraryDynamicPlaylistType.MonthlyRecap): String {
         val month =
@@ -219,6 +280,7 @@ class LibraryDynamicPlaylistViewModel(
             when (type) {
                 LibraryDynamicPlaylistType.Favorite -> listFavoriteSong.value to listFavoriteSong.value.find { it.videoId == videoId }
                 LibraryDynamicPlaylistType.Downloaded -> listDownloadedSong.value to listDownloadedSong.value.find { it.videoId == videoId }
+                LibraryDynamicPlaylistType.Cached -> listCachedSong.value to listCachedSong.value.find { it.videoId == videoId }
                 LibraryDynamicPlaylistType.Followed -> return
                 LibraryDynamicPlaylistType.MostPlayed -> listMostPlayedSong.value to listMostPlayedSong.value.find { it.videoId == videoId }
                 is LibraryDynamicPlaylistType.MonthlyRecap ->
@@ -249,6 +311,7 @@ class LibraryDynamicPlaylistViewModel(
         when (type) {
             LibraryDynamicPlaylistType.Favorite -> listFavoriteSong.value
             LibraryDynamicPlaylistType.Downloaded -> listDownloadedSong.value
+            LibraryDynamicPlaylistType.Cached -> listCachedSong.value
             LibraryDynamicPlaylistType.MostPlayed -> listMostPlayedSong.value
             is LibraryDynamicPlaylistType.MonthlyRecap -> listMonthlyRecapSong.value
             is LibraryDynamicPlaylistType.ArtistLiked -> listArtistLikedSong.value
@@ -301,4 +364,22 @@ class LibraryDynamicPlaylistViewModel(
         /** Songs a monthly recap holds. The ranking underneath already stops at 100. */
         private const val MONTHLY_RECAP_LIMIT = 50
     }
+}
+
+/**
+ * Songs the player cache holds in full and that are not downloaded, last played first — the
+ * "Cached" list, and the card in Library that previews it. A cached song whose row was swept by
+ * "clear listening history" has nothing to show, so it is left out.
+ */
+internal suspend fun loadCachedSongs(
+    cacheRepository: CacheRepository,
+    songRepository: SongRepository,
+): List<SongEntity> {
+    val ids = cacheRepository.getFullyCachedSongIds()
+    if (ids.isEmpty()) return emptyList()
+    return songRepository
+        .getSongsByListVideoId(ids)
+        .first()
+        .filter { it.downloadState != DownloadState.STATE_DOWNLOADED }
+        .sortedByDescending { it.inLibrary }
 }

@@ -19,8 +19,7 @@ import com.maxrave.logger.Logger
  */
 object WindowsProtocolRegistrar {
     private const val TAG = "WindowsProtocolRegistrar"
-    private const val SCHEME = "ayushmuzic"
-    private const val LEGACY_SCHEME = "simpmusic"
+    private const val SCHEME = "simpmusic"
 
     /**
      * The Last.fm auth callback. Its scheme is fixed by the callback URL registered on the Last.fm
@@ -38,9 +37,8 @@ object WindowsProtocolRegistrar {
             return
         }
 
-        register(SCHEME, "URL:AyushMuzic Protocol", exePath)
-        register(LEGACY_SCHEME, "URL:AyushMuzic Protocol", exePath)
-        register(LASTFM_SCHEME, "URL:AyushMuzic Last.fm Callback", exePath)
+        register(SCHEME, "URL:SimpMusic Protocol", exePath)
+        register(LASTFM_SCHEME, "URL:SimpMusic Last.fm Callback", exePath)
     }
 
     private fun register(
@@ -107,9 +105,8 @@ object WindowsProtocolRegistrar {
         }
 
         if (appDir != null) {
-            val exeFile = java.io.File(appDir, "AyushMuzic.exe").takeIf { it.exists() }
-                ?: java.io.File(appDir, "SimpMusic.exe").takeIf { it.exists() }
-            if (exeFile != null) {
+            val exeFile = java.io.File(appDir, "SimpMusic.exe")
+            if (exeFile.exists()) {
                 return exeFile.absolutePath
             }
         }

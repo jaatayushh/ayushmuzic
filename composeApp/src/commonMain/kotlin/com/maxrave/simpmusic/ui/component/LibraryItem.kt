@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -55,12 +55,14 @@ import com.maxrave.domain.data.type.RecentlyType
 import com.maxrave.domain.mediaservice.handler.QueueData
 import com.maxrave.domain.utils.connectArtists
 import com.maxrave.domain.utils.toTrack
+import com.maxrave.simpmusic.extension.mouseDragScroll
 import com.maxrave.simpmusic.ui.component.selection.SongSelectionState
 import com.maxrave.simpmusic.ui.navigation.destination.list.AlbumDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.ArtistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.LocalPlaylistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.PlaylistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.PodcastDestination
+import com.maxrave.simpmusic.ui.theme.ArtworkShape
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.viewModel.LibraryViewModel
 import com.maxrave.simpmusic.viewModel.SharedViewModel
@@ -162,7 +164,7 @@ fun LibraryItem(
                                                         listTracks = arrayListOf(item.toTrack()),
                                                         firstPlayedTrack = item.toTrack(),
                                                         playlistId = "RDAMVM${item.videoId}",
-                                                        playlistName = item.title,
+                                                        playlistName = "\"${item.title}\" ${runBlocking { getString(Res.string.radio) }}",
                                                         playlistType = DomainPlaylistType.RADIO,
                                                         continuation = null,
                                                     ),
@@ -238,10 +240,13 @@ fun LibraryItem(
                             }
                         }
                     } else if (state.type is LibraryItemType.CanvasSong) {
+                        val canvasRowState = rememberLazyListState()
                         LazyRow(
-                            Modifier.padding(
-                                top = 10.dp,
-                            ),
+                            Modifier
+                                .padding(
+                                    top = 10.dp,
+                                ).mouseDragScroll(canvasRowState),
+                            state = canvasRowState,
                         ) {
                             items(state.data) { item ->
                                 val song = item as? SongEntity ?: return@items
@@ -285,7 +290,7 @@ fun LibraryItem(
                                             Modifier
                                                 .fillMaxSize()
                                                 .clip(
-                                                    RoundedCornerShape(8.dp),
+                                                    ArtworkShape,
                                                 ),
                                     )
                                     Column(

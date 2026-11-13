@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AyushMuzic TV</title>
+    <link rel="stylesheet" href="css/tv-style.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                </div>
+                <div class="logo-text">AyushMuzic</div>
+            </div>
+
+            <div class="nav-menu">
+                <div class="nav-item focusable active" data-view="home" id="nav-home">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item focusable" data-view="search" id="nav-search">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <span>Search</span>
+                </div>
+                <div class="nav-item focusable" data-view="trending" id="nav-trending">
+                    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+                    <span>Trending</span>
+                </div>
+                <div class="nav-item focusable" id="nav-nowplaying">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                    <span>Player</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main id="main-content">
+            <!-- Home Section -->
+            <section id="view-home" class="view-section active">
+                <div class="section-header">
+                    <div>
+                        <div class="header-title">Recommended for TV</div>
+                        <div class="section-subtitle">Top hits, trending songs, and fresh releases</div>
+                    </div>
+                </div>
+                <div class="cards-grid" id="home-grid">
+                    <!-- Song Cards injected by JS -->
+                </div>
+            </section>
+
+            <!-- Search Section -->
+            <section id="view-search" class="view-section">
+                <div class="search-header-container">
+                    <div class="search-input-box focusable" id="search-box">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                        <input type="text" id="search-input" class="search-input-text" placeholder="Search songs, artists, albums..." readonly>
+                    </div>
+                </div>
+
+                <!-- Onscreen Virtual Keyboard for TV Remote -->
+                <div class="tv-keyboard" id="tv-keyboard">
+                    <div class="key-btn focusable" data-key="A">A</div>
+                    <div class="key-btn focusable" data-key="B">B</div>
+                    <div class="key-btn focusable" data-key="C">C</div>
+                    <div class="key-btn focusable" data-key="D">D</div>
+                    <div class="key-btn focusable" data-key="E">E</div>
+                    <div class="key-btn focusable" data-key="F">F</div>
+                    <div class="key-btn focusable" data-key="G">G</div>
+                    <div class="key-btn focusable" data-key="H">H</div>
+                    <div class="key-btn focusable" data-key="I">I</div>
+                    <div class="key-btn focusable" data-key="J">J</div>
+
+                    <div class="key-btn focusable" data-key="K">K</div>
+                    <div class="key-btn focusable" data-key="L">L</div>
+                    <div class="key-btn focusable" data-key="M">M</div>
+                    <div class="key-btn focusable" data-key="N">N</div>
+                    <div class="key-btn focusable" data-key="O">O</div>
+                    <div class="key-btn focusable" data-key="P">P</div>
+                    <div class="key-btn focusable" data-key="Q">Q</div>
+                    <div class="key-btn focusable" data-key="R">R</div>
+                    <div class="key-btn focusable" data-key="S">S</div>
+                    <div class="key-btn focusable" data-key="T">T</div>
+
+                    <div class="key-btn focusable" data-key="U">U</div>
+                    <div class="key-btn focusable" data-key="V">V</div>
+                    <div class="key-btn focusable" data-key="W">W</div>
+                    <div class="key-btn focusable" data-key="X">X</div>
+                    <div class="key-btn focusable" data-key="Y">Y</div>
+                    <div class="key-btn focusable" data-key="Z">Z</div>
+                    <div class="key-btn focusable" data-key="1">1</div>
+                    <div class="key-btn focusable" data-key="2">2</div>
+                    <div class="key-btn focusable" data-key="3">3</div>
+                    <div class="key-btn focusable" data-key="4">4</div>
+
+                    <div class="key-btn focusable wide-2" data-key="SPACE">SPACE</div>
+                    <div class="key-btn focusable wide-2" data-key="BACKSPACE">⌫ DEL</div>
+                    <div class="key-btn focusable wide-2" data-key="CLEAR">CLEAR</div>
+                    <div class="key-btn focusable wide-4" data-key="SEARCH" style="background: var(--accent);">SEARCH 🔍</div>
+                </div>
+
+                <div class="section-header">
+                    <div class="header-title">Search Results</div>
+                </div>
+                <div class="cards-grid" id="search-grid">
+                    <!-- Search Results Injected by JS -->
+                </div>
+            </section>
+
+            <!-- Trending Section -->
+            <section id="view-trending" class="view-section">
+                <div class="section-header">
+                    <div>
+                        <div class="header-title">Global Top Charts</div>
+                        <div class="section-subtitle">Most played music videos and tracks right now</div>
+                    </div>
+                </div>
+                <div class="cards-grid" id="trending-grid">
+                    <!-- Trending injected by JS -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Mini Player -->
+        <div id="mini-player">
+            <div class="mini-info">
+                <img id="mini-thumb" class="mini-thumb" src="icon.png" alt="Thumb">
+                <div class="mini-meta">
+                    <div id="mini-title" class="mini-title">No song playing</div>
+                    <div id="mini-artist" class="mini-artist">Select a song to start</div>
+                </div>
+            </div>
+
+            <div class="mini-controls">
+                <div class="ctrl-btn focusable" id="ctrl-prev">
+                    <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </div>
+                <div class="ctrl-btn focusable play-pause-btn" id="ctrl-play-pause">
+                    <svg id="ctrl-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+                <div class="ctrl-btn focusable" id="ctrl-next">
+                    <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </div>
+            </div>
+
+            <div class="mini-progress-box">
+                <span class="time-text" id="mini-current-time">0:00</span>
+                <div class="progress-bar-bg focusable" id="mini-progress">
+                    <div class="progress-bar-fill" id="mini-progress-fill"></div>
+                </div>
+                <span class="time-text" id="mini-total-time">0:00</span>
+            </div>
+        </div>
+
+        <!-- Fullscreen Now Playing Overlay -->
+        <div id="fullscreen-player">
+            <div class="player-backdrop" id="player-backdrop"></div>
+            <div class="player-back-btn focusable" id="player-close-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                <span>Back to TV (Return)</span>
+            </div>
+            <div class="player-content">
+                <div class="player-artwork-box">
+                    <img id="player-art" src="icon.png" alt="Cover">
+                </div>
+                <div class="player-meta-box">
+                    <div>
+                        <div class="player-song-title" id="player-title">Song Title</div>
+                        <div class="player-song-artist" id="player-artist">Artist Name</div>
+                    </div>
+
+                    <div class="mini-progress-box" style="width: 100%;">
+                        <span class="time-text" id="player-current-time" style="font-size: 18px;">0:00</span>
+                        <div class="progress-bar-bg focusable" id="player-progress-bar" style="height: 10px;">
+                            <div class="progress-bar-fill" id="player-progress-fill"></div>
+                        </div>
+                        <span class="time-text" id="player-total-time" style="font-size: 18px;">0:00</span>
+                    </div>
+
+                    <div class="player-controls-row">
+                        <div class="player-btn focusable" id="player-prev-btn">
+                            <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                        </div>
+                        <div class="player-btn primary focusable" id="player-play-btn">
+                            <svg id="player-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                        <div class="player-btn focusable" id="player-next-btn">
+                            <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                        </div>
+                        <div class="eq-bars" style="margin-left: 20px;">
+                            <div class="eq-bar"></div>
+                            <div class="eq-bar"></div>
+                            <div class="eq-bar"></div>
+                            <div class="eq-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="js/ytmusic.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

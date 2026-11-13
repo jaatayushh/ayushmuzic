@@ -114,6 +114,7 @@ import com.maxrave.logger.Logger
 import com.maxrave.simpmusic.Platform
 import com.maxrave.simpmusic.expect.toggleMiniPlayer
 import com.maxrave.simpmusic.expect.ui.PlatformBackdrop
+import com.maxrave.simpmusic.extension.LeftToRight
 import com.maxrave.simpmusic.extension.elapsedLabel
 import com.maxrave.simpmusic.extension.formatDuration
 import com.maxrave.simpmusic.getPlatform
@@ -134,6 +135,7 @@ import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.icon.VolumeOff
 import com.maxrave.simpmusic.ui.icon.VolumeUp
 import com.maxrave.simpmusic.ui.screen.player.content.toAudioQualityLabel
+import com.maxrave.simpmusic.ui.theme.ArtworkShape
 import com.maxrave.simpmusic.ui.theme.LocalIsDarkTheme
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.viewModel.SharedViewModel
@@ -174,11 +176,9 @@ fun MiniPlayer(
 
     val layer = rememberGraphicsLayer()
 
-    // The Desktop capsule is always liquid glass, so it needs the glass code paths whatever the
-    // setting says — both the luminance sampling loop that drives the glass and the theme-following
-    // text colour. Leaving them gated left the capsule with luminance stuck at 0: a 2dp blur and a
-    // 0.12 darken, which is why it looked like a smear rather than glass. The setting still governs
-    // the Android card below.
+    // Glass needs both the luminance sampling loop that drives it and the theme-following text
+    // colour; without the loop the glass sits at luminance 0, a 2dp blur and a 0.12 darken, which
+    // reads as a smear. The setting governs the Android card and the Desktop capsule alike.
     val useGlassSurface = isLiquidGlassEnabled == DataStoreManager.TRUE
     val luminance = rememberGlassLuminance(layer, enabled = useGlassSurface && isVisible)
 
@@ -423,7 +423,7 @@ fun MiniPlayer(
                                     modifier =
                                         Modifier
                                             .size(if (isFlat) 26.dp else 40.dp)
-                                            .clip(if (isFlat) CircleShape else RoundedCornerShape(4.dp)),
+                                            .clip(if (isFlat) CircleShape else ArtworkShape),
                                 )
                             }
                             Spacer(modifier = Modifier.width(10.dp))
@@ -569,21 +569,23 @@ fun MiniPlayer(
                                     horizontal = 10.dp,
                                 ).align(Alignment.BottomCenter),
                     ) {
-                        LinearProgressIndicator(
-                            progress = { animatedProgress },
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(
-                                        color = Color.Transparent,
-                                        shape = RoundedCornerShape(4.dp),
-                                    ),
-                            color = textColor,
-                            trackColor = Color.Transparent,
-                            strokeCap = StrokeCap.Round,
-                            drawStopIndicator = {},
-                        )
+                        LeftToRight {
+                            LinearProgressIndicator(
+                                progress = { animatedProgress },
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(
+                                            color = Color.Transparent,
+                                            shape = RoundedCornerShape(4.dp),
+                                        ),
+                                color = textColor,
+                                trackColor = Color.Transparent,
+                                strokeCap = StrokeCap.Round,
+                                drawStopIndicator = {},
+                            )
+                        }
                     }
                 }
             }
@@ -644,14 +646,19 @@ fun MiniPlayer(
         // Apple Music-style floating capsule: transport on the left, the track and its slim
         // progress slider in the middle, the action cluster on the right. Size and placement come
         // from the caller (App.kt), so the capsule keeps a fixed width and floats over content.
-        // Always liquid glass, not gated on the setting: the capsule IS the glass shape here, and
-        // falling back to a haze blur gives a dark smear instead of a floating pill.
+        // Without glass it is an opaque theme surface, the Android flat card's colour; a haze blur
+        // instead gives a dark smear rather than a floating pill.
         val capsuleShape = RoundedCornerShape(50)
         val density = LocalDensity.current
         Box(
             modifier
-                .liquidGlass(backdrop, layer, luminance, capsuleShape, blurScale = 1.2f)
-                .clip(capsuleShape)
+                .then(
+                    if (useGlassSurface) {
+                        Modifier.liquidGlass(backdrop, layer, luminance, capsuleShape, blurScale = 1.2f)
+                    } else {
+                        Modifier.background(MaterialTheme.colorScheme.surfaceContainer, capsuleShape)
+                    },
+                ).clip(capsuleShape)
                 .clickable {
                     onClick()
                 },
@@ -751,7 +758,7 @@ fun MiniPlayer(
                             modifier =
                                 Modifier
                                     .size(32.dp)
-                                    .clip(RoundedCornerShape(6.dp))
+                                    .clip(ArtworkShape)
                                     .hoverable(artworkInteraction),
                             contentAlignment = Alignment.Center,
                         ) {
@@ -1095,71 +1102,73 @@ fun MiniPlayer(
                                         modifier = Modifier.weight(1f).fillMaxWidth(),
                                         contentAlignment = Alignment.Center,
                                     ) {
-                                        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-                                            // A vertical Slider is a horizontal one rotated a quarter
-                                            // turn: graphicsLayer rotates the drawing AND the pointer
-                                            // input, so drag direction follows the visual.
-                                            Slider(
-                                                value = volumeValue,
-                                                onValueChangeFinished = {
-                                                    isVolumeSliding = false
-                                                    sharedViewModel.onUIEvent(
-                                                        UIEvent.UpdateVolume(volumeValue.coerceIn(0f, 1f)),
-                                                    )
-                                                },
-                                                onValueChange = {
-                                                    isVolumeSliding = true
-                                                    volumeValue = it
-                                                },
-                                                valueRange = 0f..1f,
-                                                modifier =
-                                                    Modifier
-                                                        .graphicsLayer {
-                                                            // transformOrigin(0, 0) and place(-width, 0) below are
-                                                            // a pair — they only work together. Dropping the origin
-                                                            // and centring the rotation leaves the slider drawn
-                                                            // outside its own node, where the popup's clip() eats
-                                                            // it and nothing shows at all.
-                                                            rotationZ = 270f
-                                                            transformOrigin = TransformOrigin(0f, 0f)
-                                                        }.layout { measurable, constraints ->
-                                                            val placeable =
-                                                                measurable.measure(
-                                                                    Constraints(
-                                                                        minWidth = constraints.minHeight,
-                                                                        maxWidth = constraints.maxHeight,
-                                                                        minHeight = constraints.minWidth,
-                                                                        maxHeight = constraints.maxWidth,
-                                                                    ),
-                                                                )
-                                                            layout(placeable.height, placeable.width) {
-                                                                placeable.place(-placeable.width, 0)
-                                                            }
-                                                        }.width(VOLUME_SLIDER_LENGTH),
-                                                track = { sliderState ->
-                                                    SliderDefaults.Track(
-                                                        modifier =
-                                                            Modifier
-                                                                .height(4.dp),
-                                                        enabled = true,
-                                                        sliderState = sliderState,
-                                                        colors =
-                                                            SliderDefaults.colors().copy(
-                                                                thumbColor = textColor,
-                                                                activeTrackColor = textColor,
-                                                                inactiveTrackColor = textColor.copy(alpha = 0.3f),
-                                                            ),
-                                                        thumbTrackGapSize = 0.dp,
-                                                        drawTick = { _, _ -> },
-                                                        drawStopIndicator = null,
-                                                    )
-                                                },
-                                                thumb = {
-                                                    // No thumb: it never sat visually centred on the rotated track, and the
-                                                    // slider drags the same without one — the active/inactive split marks the level.
-                                                    Spacer(Modifier.size(0.dp))
-                                                },
-                                            )
+                                        LeftToRight {
+                                            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                                                // A vertical Slider is a horizontal one rotated a quarter
+                                                // turn: graphicsLayer rotates the drawing AND the pointer
+                                                // input, so drag direction follows the visual.
+                                                Slider(
+                                                    value = volumeValue,
+                                                    onValueChangeFinished = {
+                                                        isVolumeSliding = false
+                                                        sharedViewModel.onUIEvent(
+                                                            UIEvent.UpdateVolume(volumeValue.coerceIn(0f, 1f)),
+                                                        )
+                                                    },
+                                                    onValueChange = {
+                                                        isVolumeSliding = true
+                                                        volumeValue = it
+                                                    },
+                                                    valueRange = 0f..1f,
+                                                    modifier =
+                                                        Modifier
+                                                            .graphicsLayer {
+                                                                // transformOrigin(0, 0) and place(-width, 0) below are
+                                                                // a pair — they only work together. Dropping the origin
+                                                                // and centring the rotation leaves the slider drawn
+                                                                // outside its own node, where the popup's clip() eats
+                                                                // it and nothing shows at all.
+                                                                rotationZ = 270f
+                                                                transformOrigin = TransformOrigin(0f, 0f)
+                                                            }.layout { measurable, constraints ->
+                                                                val placeable =
+                                                                    measurable.measure(
+                                                                        Constraints(
+                                                                            minWidth = constraints.minHeight,
+                                                                            maxWidth = constraints.maxHeight,
+                                                                            minHeight = constraints.minWidth,
+                                                                            maxHeight = constraints.maxWidth,
+                                                                        ),
+                                                                    )
+                                                                layout(placeable.height, placeable.width) {
+                                                                    placeable.place(-placeable.width, 0)
+                                                                }
+                                                            }.width(VOLUME_SLIDER_LENGTH),
+                                                    track = { sliderState ->
+                                                        SliderDefaults.Track(
+                                                            modifier =
+                                                                Modifier
+                                                                    .height(4.dp),
+                                                            enabled = true,
+                                                            sliderState = sliderState,
+                                                            colors =
+                                                                SliderDefaults.colors().copy(
+                                                                    thumbColor = textColor,
+                                                                    activeTrackColor = textColor,
+                                                                    inactiveTrackColor = textColor.copy(alpha = 0.3f),
+                                                                ),
+                                                            thumbTrackGapSize = 0.dp,
+                                                            drawTick = { _, _ -> },
+                                                            drawStopIndicator = null,
+                                                        )
+                                                    },
+                                                    thumb = {
+                                                        // No thumb: it never sat visually centred on the rotated track, and the
+                                                        // slider drags the same without one — the active/inactive split marks the level.
+                                                        Spacer(Modifier.size(0.dp))
+                                                    },
+                                                )
+                                            }
                                         }
                                     }
                                     Icon(
@@ -1206,7 +1215,7 @@ private fun CapsuleProgress(
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
     modifier: Modifier = Modifier,
-) {
+) = LeftToRight {
     Box(
         modifier = modifier.height(16.dp),
         contentAlignment = Alignment.Center,

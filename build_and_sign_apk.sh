@@ -9,11 +9,10 @@ BUILD_VARIANT="full"
 # --vivo builds vivoAndroidApp: the same app under a package vivo's Origin Island follows
 MODULE="androidApp"
 NAME_SUFFIX=""
-KEYSTORE_PATH="./simpmusic.jks"
-# Read passwords from environment variables or use default (for backward compatibility)
-KEYSTORE_PASSWORD="${KEYSTORE_PASSWORD}"
-KEY_ALIAS="${KEY_ALIAS}"
-KEY_PASSWORD="${KEY_PASSWORD}"
+KEYSTORE_PATH="./ayushmuzic.jks"
+KEYSTORE_PASSWORD="${KEYSTORE_PASSWORD:-ayushmuzic}"
+KEY_ALIAS="${KEY_ALIAS:-ayushmuzic}"
+KEY_PASSWORD="${KEY_PASSWORD:-ayushmuzic}"
 
 # Check if KEY_PASSWORD is set
 if [ -z "$KEY_PASSWORD" ]; then

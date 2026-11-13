@@ -9,6 +9,12 @@
     <string name="view_count">%1$s व्यूज़</string>
     <string name="clear_search_history">खोज इतिहास साफ़ करें</string>
     <string name="liked">पसंद किया</string>
+    <string name="liked_songs">पसंदीदा गाने</string>
+    <string name="liked_songs_by">%1$s द्वारा</string>
+    <plurals name="liked_songs_count">
+        <item quantity="one">%1$d गाना</item>
+        <item quantity="other">%1$d गाने</item>
+    </plurals>
     <string name="like">पसंद करें</string>
     <string name="hello_blank_fragment">हैलो खाली फ्रैगमेंट</string>
     <string name="download">डाउनलोड करें</string>
@@ -122,9 +128,9 @@
     <string name="version">संस्करण</string>
     <string name="github">गिट्हब</string>
     <string name="maxrave_dev">मैक्सरेव-देव</string>
+    <string name="follow_me_on_x">मुझे X पर फ़ॉलो करें</string>
     <string name="buy_me_a_coffee">मुझे एक कॉफी खरीदें</string>
     <string name="developer_blog">डेवलपर ब्लॉग</string>
-    <string name="blog_promo_message">मैंने अभी-अभी अपना व्यक्तिगत ब्लॉग maxrave.dev शुरू किया है — इसमें मैं AyushMuzic के पीछे की कहानी, संगीत-तकनीक से जुड़ी गहराई से की गई जानकारियाँ और अपने इंजीनियरिंग से जुड़े अनुभव व नोट्स साझा कर रहा हूँ। अगर आपको ऐसी चीज़ों के बारे में जानना पसंद है, तो एक बार ज़रूर पढ़िए ✨</string>
     <string name="paypal">पेयपाल</string>
     <string name="title">शीर्षक</string>
     <string name="album">एल्बम</string>
@@ -141,7 +147,7 @@
     <string name="albums_inArtist">एल्बम</string>
     <string name="singles_inArtist">सिंगल्स</string>
     <string name="fans_might_also_like_inArtist">प्रशंसकों को यह भी पसंद आ सकता है</string>
-    <string name="crash_log">आयुषम्यूज़िक क्रैश हो गया। इस समस्या के लिए खेद है।\nक्रैश-लॉग डेवलपर को भेजें</string>
+    <string name="crash_log">सिम्पम्यूजिक क्रैश हो गया। इस समस्या के लिए खेद है।\nक्रैश-लॉग डेवलपर को भेजें</string>
     <string name="crash">क्रैश</string>
     <string name="send">भेजें</string>
     <string name="mail_subject">क्रैश रिपोर्ट</string>
@@ -196,12 +202,12 @@
     <string name="what_segments_will_be_skipped">कौन से सेगमेंट छोड़े जाएंगे</string>
     <string name="save">सहेजें</string>
     <string name="saved">सहेजा गया</string>
-    <string name="sponsor_block_intro">स्पॉन्सरब्लॉक यूट्यूब वीडियो के परेशान करने वाले हिस्सों को छोड़ने की एक सामूहिक प्रणाली है।\nअधिक जानकारी: https://sponsor.ajay.app/\nआयुषम्यूज़िक में, स्पॉन्सरब्लॉक केवल डिवाइस ऑनलाइन होने पर उपलब्ध है</string>
+    <string name="sponsor_block_intro">स्पॉन्सरब्लॉक यूट्यूब वीडियो के परेशान करने वाले हिस्सों को छोड़ने की एक सामूहिक प्रणाली है।\nअधिक जानकारी: https://sponsor.ajay.app/\nसिम्पम्यूजिक में, स्पॉन्सरब्लॉक केवल डिवाइस ऑनलाइन होने पर उपलब्ध है</string>
     <string name="skip_sponsor_part_of_video">वीडियो के प्रायोजक भाग को छोड़ें</string>
     <string name="customactivityoncrash_error_activity_error_occurred_explanation">एक अप्रत्याशित त्रुटि हुई। क्षमा करें।</string>
     <string name="customactivityoncrash_error_activity_restart_app">ऐप पुनः प्रारंभ करें</string>
-    <string name="help_build_lyrics_database">आयुषम्यूज़िक गीत को गीत डेटाबेस बनाने में सहायता करें</string>
-    <string name="help_build_lyrics_database_description">अपने सहेजे गए गीत आयुषम्यूज़िक गीत डेटाबेस में भेजें</string>
+    <string name="help_build_lyrics_database">सिम्पम्यूजिक गीत को गीत डेटाबेस बनाने में सहायता करें</string>
+    <string name="help_build_lyrics_database_description">अपने सहेजे गए गीत सिम्पम्यूजिक गीत डेटाबेस में भेजें</string>
     <string name="customactivityoncrash_error_activity_close_app">ऐप बंद करें</string>
     <string name="customactivityoncrash_error_activity_error_details">त्रुटि विवरण</string>
     <string name="customactivityoncrash_error_activity_error_details_title">त्रुटि विवरण</string>
@@ -236,7 +242,7 @@
     <string name="saved_to_local_playlist">स्थानीय प्लेलिस्ट में सहेजा गया</string>
     <string name="if_you_want_to_unsync_this_playlist_please_go_to_local_playlist">यदि आप इस प्लेलिस्ट को असिंक करना चाहते हैं, कृपया स्थानीय प्लेलिस्ट पर जाएं</string>
     <string name="log_in_to_get_YouTube_playlist">यूट्यूब प्लेलिस्ट पाने के लिए लॉग इन करें</string>
-    <string name="sync_playlist_warning">आयुषम्यूज़िक स्वचालित रूप से एक यूट्यूब म्यूजिक प्लेलिस्ट बनाएगा। क्या आप सुनिश्चित हैं?</string>
+    <string name="sync_playlist_warning">सिम्पम्यूजिक स्वचालित रूप से एक यूट्यूब म्यूजिक प्लेलिस्ट बनाएगा। क्या आप सुनिश्चित हैं?</string>
     <string name="syncing">सिंक हो रहा है</string>
     <string name="unsync_playlist_warning">"इस प्लेलिस्ट को असिंक करें? यह प्लेलिस्ट यूट्यूब म्यूजिक से नहीं हटाई जाएगी"</string>
     <string name="unsyncing">असिंक हो रहा है</string>
@@ -253,7 +259,7 @@
     <string name="email">ईमेल</string>
     <string name="password">पासवर्ड</string>
     <string name="please_enter_your_email_and_password">कृपया अपना ईमेल और पासवर्ड दर्ज करें</string>
-    <string name="translation_language_message">भाषा कोड टाइप करें (उदा: hi) (2 अक्षर)। यदि आप आयुषम्यूज़िक की भाषा के समान सेट करना चाहते हैं, कृपया एडिट बॉक्स खाली छोड़ दें।</string>
+    <string name="translation_language_message">भाषा कोड टाइप करें (उदा: hi) (2 अक्षर)। यदि आप सिम्पम्यूजिक की भाषा के समान सेट करना चाहते हैं, कृपया एडिट बॉक्स खाली छोड़ दें।</string>
     <string name="invalid_language_code">अमान्य भाषा कोड</string>
     <string name="lyrics_provider_youtube">गीत यूट्यूब द्वारा प्रदान किए गए</string>
     <string name="lyrics_provider_betterlyrics">Lyrics उपलब्ध कराने के लिए BetterLyrics का धन्यवाद</string>
@@ -272,7 +278,7 @@
     <string name="older_first">पुराने पहले</string>
     <string name="newer_first">नए पहले</string>
     <string name="added_date">जोड़ने की तिथि</string>
-    <string name="credit_app">बैकएंड के लिए YouTube Music का उपयोग करने वाला एक सरल संगीत ऐप \n\nAyushMuzic YouTube और YouTube Music से बिना विज्ञापनों और ट्रैकिंग के संगीत स्ट्रीम करने के लिए एक ओपन सोर्स प्रोजेक्ट है। AyushMuzic कई सुविधाएं प्रदान करता है:\n\n - संगीत स्ट्रीमिंग \n - सिंक किए गए गाने के बोल\n - व्यक्तिगत डेटा\n - और बहुत कुछ… \n\nAyushMuzic हमेशा मुफ्त और बिना विज्ञापनों के है\n\nतुआन मिन्ह न्गुयेन डक (maxrave-dev) द्वारा ❤️ से बनाया गया</string>
+    <string name="credit_app">बैकएंड के लिए YouTube Music का उपयोग करने वाला एक सरल संगीत ऐप \n\nSimpMusic YouTube और YouTube Music से बिना विज्ञापनों और ट्रैकिंग के संगीत स्ट्रीम करने के लिए एक ओपन सोर्स प्रोजेक्ट है। SimpMusic कई सुविधाएं प्रदान करता है:\n\n - संगीत स्ट्रीमिंग \n - सिंक किए गए गाने के बोल\n - व्यक्तिगत डेटा\n - और बहुत कुछ… \n\nSimpMusic हमेशा मुफ्त और बिना विज्ञापनों के है\n\nतुआन मिन्ह न्गुयेन डक (maxrave-dev) द्वारा ❤️ से बनाया गया</string>
     <string name="issue_tracker">समस्या ट्रैकर</string>
     <string name="featured_playlists">विशेष प्लेलिस्ट</string>
     <string name="featured_inArtist">पर प्रदर्शित</string>
@@ -311,7 +317,7 @@
     <string name="enable_spotify_lyrics">Spotify लिरिक्स सक्षम करें</string>
     <string name="spotify_lyrícs_info">बिना अनुवाद के अधिक गीत</string>
     <string name="enable_canvas">कैनवास सक्षम करें</string>
-    <string name="canvas_info">AyushMuzic में Spotify कैनवास दिखाएं</string>
+    <string name="canvas_info">SimpMusic में Spotify कैनवास दिखाएं</string>
     <string name="spotify_lyrics_provider">गीत Spotify द्वारा प्रदान किए गए</string>
     <string name="offline_mode">ऑफ़लाइन मोड</string>
     <string name="added_to_youtube_liked">YouTube पसंदीदा में जोड़ा गया</string>
@@ -340,8 +346,6 @@
     <string name="repeat_off">दोहराना बंद</string>
     <string name="youtube_transcript">YouTube ट्रांसक्रिप्ट</string>
     <string name="user_interface">इंटरफ़ेस</string>
-    <string name="translucent_bottom_navigation_bar">पारदर्शी बॉटम नेविगेशन बार</string>
-    <string name="you_can_see_the_content_below_the_bottom_bar">आप बॉटम बार के नीचे सामग्री देख सकते हैं</string>
     <string name="donation">यदि आपको मेरा काम पसंद है, तो मुझे एक कॉफी दें</string>
     <string name="relax">आराम</string>
     <string name="sleep">नींद</string>
@@ -360,7 +364,7 @@
     <string name="loading">लोड हो रहा है</string>
     <string name="updating">अपडेट हो रहा है</string>
     <string name="go_to_log_in_page">लॉग इन पेज पर जाएं</string>
-    <string name="log_in_warning">अब YouTube Music को संगीत स्ट्रीम करने के लिए आपको लॉग इन करने की आवश्यकता है, Piped इंस्टेंस कभी-कभी काम नहीं कर सकता है। आपको AyushMuzic के साथ बेहतर अनुभव प्राप्त करने के लिए YouTube में लॉग इन करना चाहिए।</string>
+    <string name="log_in_warning">अब YouTube Music को संगीत स्ट्रीम करने के लिए आपको लॉग इन करने की आवश्यकता है, Piped इंस्टेंस कभी-कभी काम नहीं कर सकता है। आपको SimpMusic के साथ बेहतर अनुभव प्राप्त करने के लिए YouTube में लॉग इन करना चाहिए।</string>
     <string name="spotify_canvas_cache">स्पॉटिफाए कैनवास कैश</string>
     <string name="clear_canvas_cache">कैनवास कैश साफ़ करें</string>
     <string name="proxy">प्रॉक्सी</string>
@@ -395,8 +399,8 @@
     <string name="other_version">अन्य वर्ज़न</string>
     <string name="later">बाद में</string>
     <string name="give_a_star">एक सितारा दें</string>
-    <string name="enjoying_simpmusic">आयुषम्यूज़िक का आनंद ले रहे हैं</string>
-    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">यदि आपको आयुषम्यूज़िक का उपयोग करना अच्छा लगता है, तो गिटहब पर आयुषम्यूज़िक को स्टार करें या समीक्षा लिखें</string>
+    <string name="enjoying_simpmusic">सिम्पम्यूजिक का आनंद ले रहे हैं</string>
+    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">यदि आपको सिम्पम्यूजिक का उपयोग करना अच्छा लगता है, तो गिटहब पर सिम्पम्यूजिक को स्टार करें या समीक्षा लिखें</string>
     <string name="if_you_love_my_work_consider">"अगर आपको मेरा काम पसंद आए, तो "</string>
     <string name="buying_me_a_coffee">मुझे एक कॉफ़ी देकर समर्थन करें।</string>
     <string name="fade_audio_effect">ऑडियो प्रभाव फीका करें</string>
@@ -417,7 +421,7 @@
     <string name="ai_api_key">आपकी एआई एपीआई कुंजी</string>
     <string name="invalid_api_key">अमान्य एपीआई कुंजी</string>
     <string name="custom_ai_model_id">कस्टम एआई मॉडल आईडी</string>
-    <string name="default_models">डिफ़ॉल्ट मॉडल \"gemini-2.0-flash\" और \"gpt-4o\" हैं</string>
+    <string name="default_models">डिफ़ॉल्ट मॉडल "gemini-2.0-flash" और "gpt-4o" हैं</string>
     <string name="invalid">अमान्य</string>
     <string name="custom_model_id_messages">कृपया अपने एआई प्रदाता से सटीक मॉडल आईडी दर्ज करें।</string>
     <string name="favorite_podcasts">पसंदीदा पॉडकास्ट</string>
@@ -439,8 +443,8 @@
     <string name="use_anonymous">अनाम नाम से योगदान करें</string>
     <string name="contributor_name">योगदानकर्ता नाम</string>
     <string name="anonymous">अनाम</string>
-    <string name="simpmusic_lyrics">गीत AyushMuzic Lyrics द्वारा प्रदान किए गए</string>
-    <string name="lyrics_provider_simpmusic">गीत के बोल आयुषम्यूज़िक लिरिक्स द्वारा प्रदान किए गए</string>
+    <string name="simpmusic_lyrics">गीत SimpMusic Lyrics द्वारा प्रदान किए गए</string>
+    <string name="lyrics_provider_simpmusic">गीत के बोल सिम्पम्यूज़िक लिरिक्स द्वारा प्रदान किए गए</string>
     <string name="backup_in_progress">बैकप चल रहा है</string>
     <string name="restore_in_progress">पुनर्स्थापना प्रगति पर है</string>
     <string name="backup_downloaded">डाउनलोड किए गए डेटा का बैकअप लें</string>

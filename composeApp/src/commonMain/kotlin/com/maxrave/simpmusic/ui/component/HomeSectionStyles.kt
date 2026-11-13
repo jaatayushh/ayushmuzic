@@ -1,0 +1,208 @@
+package com.maxrave.simpmusic.ui.component
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.carousel.CarouselDefaults
+import androidx.compose.material3.carousel.CarouselItemDrawInfo
+import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
+import androidx.compose.material3.carousel.rememberCarouselState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import com.maxrave.domain.data.model.browse.album.Track
+import com.maxrave.domain.data.model.home.HomeItem
+import com.maxrave.domain.utils.connectArtists
+import com.maxrave.domain.utils.toListName
+import com.maxrave.domain.utils.toSongEntity
+import com.maxrave.domain.utils.toTrack
+import com.maxrave.simpmusic.Platform
+import com.maxrave.simpmusic.expect.ui.HorizontalScrollBar
+import com.maxrave.simpmusic.extension.mouseDragScroll
+import com.maxrave.simpmusic.extension.smoothScrimBrush
+import com.maxrave.simpmusic.getPlatform
+import com.maxrave.simpmusic.ui.theme.ForceDarkContent
+import com.maxrave.simpmusic.ui.theme.typo
+import com.maxrave.simpmusic.viewModel.HomeViewModel
+import kotlinx.coroutines.launch
+
+// The large card's target width. Fixed rather than a share of the row, so a wider row fits more
+// large cards instead of the same two stretched wider.
+private val HERO_TARGET_WIDTH = 360.dp
+
+/**
+ * "Your daily discover" as ArchiveTune's hero carousel: large cards in the middle, narrow
+ * neighbours, and the song's name on the art over a scrim. The carousel fits as many large cards
+ * of about [HERO_TARGET_WIDTH] as the row holds (Material's hero keylines pick the count closest to
+ * the target), so a phone shows one and a desktop window more as it widens.
+ * Tapping a neighbour brings it to the middle; tapping the middle card starts the song's radio, a
+ * long press opens the song menu, and on a pointer device the card's play button shows on hover.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+fun HomeDiscoverSection(
+    data: HomeItem,
+    navController: NavController,
+    homeViewModel: HomeViewModel,
+) {
+    val songs = remember(data.contents) { data.contents.filterNotNull() }
+    if (songs.isEmpty()) return
+    var sheetTrack by remember { mutableStateOf<Track?>(null) }
+    sheetTrack?.let { track ->
+        NowPlayingBottomSheet(
+            onDismiss = { sheetTrack = null },
+            song = track.toSongEntity(),
+            navController = navController,
+        )
+    }
+    val state = rememberCarouselState { songs.size }
+    // The carousel's own default, named so a mouse drag released on Desktop advances the same one card.
+    val flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state = state)
+    val scope = rememberCoroutineScope()
+    Column {
+        HomeSectionHeader(data = data, navController = navController, onPlayAll = { homeViewModel.playAll(data) })
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // A phone narrower than two targets still gets one large card with neighbours beside it.
+            val heroWidth = (maxWidth * 0.74f).coerceAtMost(HERO_TARGET_WIDTH)
+            HorizontalCenteredHeroCarousel(
+                state = state,
+                maxItemWidth = heroWidth,
+                itemSpacing = 8.dp,
+                flingBehavior = flingBehavior,
+                contentPadding = PaddingValues(horizontal = 10.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        // The gap other shelves get from their cards' own 10dp top padding.
+                        .padding(top = 10.dp)
+                        .height(320.dp)
+                        .mouseDragScroll(state, flingBehavior),
+            ) { index ->
+                val song = songs[index]
+                val info = carouselItemDrawInfo
+                // A neighbour is only brought to the middle; the middle card is the one that plays.
+                val play: () -> Unit = {
+                    if (info.isHero()) song.playRadio(homeViewModel) else scope.launch { state.animateScrollToItem(index) }
+                }
+                val (hoverModifier, hovered) = rememberCardHover(enabled = true)
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .then(hoverModifier)
+                        .maskClip(RoundedCornerShape(28.dp))
+                        .combinedClickable(
+                            onClick = play,
+                            onLongClick = { sheetTrack = song.toTrack() },
+                        ),
+                ) {
+                    AsyncImage(
+                        model =
+                            ImageRequest
+                                .Builder(LocalPlatformContext.current)
+                                .data(song.thumbnails.lastOrNull()?.url)
+                                .diskCachePolicy(CachePolicy.ENABLED)
+                                .diskCacheKey(song.thumbnails.lastOrNull()?.url)
+                                .crossfade(550)
+                                .build(),
+                        contentDescription = null,
+                        placeholder = rememberHolderPainter(),
+                        error = rememberHolderPainter(),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize().hoverZoom(hovered),
+                    )
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                smoothScrimBrush(
+                                    from = MaterialTheme.colorScheme.scrim.copy(alpha = 0f),
+                                    to = MaterialTheme.colorScheme.scrim.copy(alpha = 0.78f),
+                                    startFraction = 0.45f,
+                                ),
+                            ),
+                    )
+                    // The scrim is dark in either theme, so the text takes the app's force-dark styles.
+                    // Both colours are named: force-dark typo() paints headlineMedium and bodyMedium in its
+                    // #A8A8A8 body grey, which sinks into the scrim over a bright sleeve.
+                    ForceDarkContent {
+                        Column(
+                            Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(start = 20.dp, end = 64.dp, bottom = 20.dp),
+                        ) {
+                            Text(
+                                text = song.title,
+                                // The size of Home's section titles (HomeSectionHeader).
+                                style = typo().headlineMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                text =
+                                    listOfNotNull(
+                                        song.artists
+                                            .toListName()
+                                            .connectArtists()
+                                            .takeIf { it.isNotBlank() },
+                                        song.album?.name?.takeIf { it.isNotBlank() },
+                                    ).joinToString(" • "),
+                                style = typo().bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                    HoverPlayButton(visible = hovered && info.isHero(), onClick = play)
+                }
+            }
+        }
+        if (getPlatform() == Platform.Desktop) {
+            HorizontalScrollBar(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        // The cards end flush with the carousel, so the gap other shelves get from their
+                        // cards' own bottom padding is added here.
+                        .padding(start = 16.dp, top = 10.dp, end = 16.dp),
+                scrollState = state,
+                itemCount = songs.size,
+            )
+        }
+    }
+}
+
+// 0 while the item sits in a narrow neighbour slot, 1 once it is the full-size middle card.
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CarouselItemDrawInfo.heroFraction(): Float =
+    if (maxSize <= minSize) 1f else ((size - minSize) / (maxSize - minSize)).coerceIn(0f, 1f)
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CarouselItemDrawInfo.isHero(): Boolean = heroFraction() > 0.9f

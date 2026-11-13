@@ -130,7 +130,7 @@ tasks.named<hydraulic.conveyor.gradle.WriteConveyorConfigTask>("writeConveyorCon
             """
             |app.fsname = ayushmuzic
             |app.display-name = AyushMuzic
-            |app.rdns-name = com.ayush.muzic
+            |app.rdns-name = com.maxrave.simpmusic
             |
             |// Override the Gradle-detected classpath with the ProGuard'd
             |// jar directory. Conveyor expands a directory entry to every
@@ -158,18 +158,11 @@ compose.desktop {
                     .isMacOsX
             ) {
                 listTarget.addAll(
-                    listOf(TargetFormat.Dmg),
-                )
-            } else if (org.gradle.internal.os.OperatingSystem
-                    .current()
-                    .isWindows
-            ) {
-                listTarget.addAll(
-                    listOf(TargetFormat.Msi),
+                    listOf(TargetFormat.Dmg, TargetFormat.Msi),
                 )
             } else {
                 listTarget.addAll(
-                    listOf(TargetFormat.Deb, TargetFormat.AppImage),
+                    listOf(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.AppImage),
                 )
             }
             targetFormats(*listTarget.toTypedArray())
@@ -185,7 +178,7 @@ compose.desktop {
                     }
                 includeAllModules = true
                 packageVersion = formatedDate
-                iconFile.set(rootDir.resolve("composeApp/icon/circle_app_icon.icns"))
+                iconFile.set(rootDir.resolve("composeApp/icon/rounded_app_icon.icns"))
                 val macExtraPlistKeys =
                     """
                     <key>LSApplicationCategoryType</key>
@@ -206,7 +199,6 @@ compose.desktop {
                             <key>CFBundleURLSchemes</key>
                             <array>
                                 <string>simpmusic</string>
-                                <string>ayushmuzic</string>
                             </array>
                         </dict>
                     </array>
@@ -222,7 +214,6 @@ compose.desktop {
                         .get()
                         .removeSuffix("-hf")
                 iconFile.set(rootDir.resolve("composeApp/icon/circle_app_icon.ico"))
-                menuGroup = "AyushMuzic"
             }
             linux {
                 includeAllModules = true
@@ -231,10 +222,6 @@ compose.desktop {
                         .get()
                         .removeSuffix("-hf")
                 iconFile.set(rootDir.resolve("composeApp/icon/circle_app_icon.png"))
-                debMaintainer = "jaatayushh@users.noreply.github.com"
-                menuGroup = "AyushMuzic"
-                appCategory = "AudioVideo"
-                shortcut = true
             }
         }
 
@@ -259,6 +246,13 @@ afterEvaluate {
         // that names the library that died. Without an explicit path the JVM writes it to whatever
         // directory the daemon happened to start in, where it is effectively lost.
         jvmArgs("-XX:ErrorFile=${rootProject.layout.buildDirectory.get().asFile}/hs_err_pid%p.log")
+
+        // Marks a dev run, so the app reads remote-config-dev.json instead of the one real users get.
+        systemProperty("simpmusic.dev", "true")
+
+        // Skiko's frame counter: prints "[timestamp] FPS avg (min-max)" to the console every 2 s.
+        // Temporary, to measure what liquid glass costs per frame on Desktop.
+        systemProperty("skiko.fps.enabled", "true")
 
         // Pass the bundled natives path to the runtime for `./gradlew desktopApp:run`.
         val osArch = System.getProperty("os.arch").lowercase()
@@ -297,6 +291,12 @@ afterEvaluate {
             jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
             jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
             jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
+        }
+
+        // forceLinuxWmClass() in Main.kt needs this to rename the window "SimpMusic"; without it
+        // the dock falls back to the class name. Packaged builds get it from conveyor.conf.
+        if (System.getProperty("os.name").contains("Linux")) {
+            jvmArgs("--add-opens", "java.desktop/sun.awt.X11=ALL-UNNAMED")
         }
     }
 }
@@ -345,7 +345,7 @@ tasks.register("packageConveyorAppImage") {
     )
 
     doLast {
-        val appName = "AyushMuzic"
+        val appName = "SimpMusic"
         val conveyorOutput = rootDir.resolve("output")
         if (!conveyorOutput.exists()) {
             throw GradleException(
@@ -409,13 +409,13 @@ tasks.register("packageConveyorAppImage") {
             """[Desktop Entry]
             |Type=Application
             |Version=1.0
-            |Name=AyushMuzic
-            |Comment=AyushMuzic v$versionName - FOSS YouTube Music Client
+            |Name=SimpMusic
+            |Comment=SimpMusic v$versionName - FOSS YouTube Music Client
             |Exec=bin/simpmusic %u
             |Icon=simpmusic
             |Terminal=false
             |Categories=Audio;AudioVideo;
-            |StartupWMClass=AyushMuzic
+            |StartupWMClass=SimpMusic
             |MimeType=x-scheme-handler/simpmusic;x-scheme-handler/wordbyword;
             |
             """.trimMargin(),

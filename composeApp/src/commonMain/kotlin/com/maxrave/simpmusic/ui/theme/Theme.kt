@@ -1,6 +1,7 @@
 package com.maxrave.simpmusic.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalContentColor
@@ -15,6 +16,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicColorScheme
 import com.maxrave.domain.manager.DataStoreManager
@@ -54,6 +56,9 @@ private val LightAppColors =
 
 val LocalAppColors = staticCompositionLocalOf { DarkAppColors }
 
+/** The one corner every rounded artwork takes — covers, thumbnails, sleeves — as Spotify's 4dp. */
+val ArtworkShape = RoundedCornerShape(4.dp)
+
 /** True in dark theme. Provided by [AppTheme] so platform glass (blur/tint) can adapt reliably. */
 val LocalIsDarkTheme = staticCompositionLocalOf { true }
 
@@ -64,7 +69,7 @@ val LocalIsDarkTheme = staticCompositionLocalOf { true }
  * composed outside [AppTheme] keep today's look. The setting row is Android-only, so Desktop always
  * provides true — its capsule player and detail-screen buttons are glass by design, with no switch.
  */
-val LocalLiquidGlassEnabled = staticCompositionLocalOf { false }
+val LocalLiquidGlassEnabled = staticCompositionLocalOf { true }
 
 /**
  * The dark scheme to use for immersive screens while the app itself is on the light theme.
@@ -90,8 +95,8 @@ fun parseThemeColorHex(hex: String): Color? {
  * the Material 3 stance) rather than pure white: a full-bleed #FFFFFF expanse glares on a large
  * desktop window, and even Apple — who pins systemBackground to white — puts #F2F2F7 behind
  * list pages. Pure white is kept for surfaceBright/surfaceContainerLowest so cards and sheets
- * still have a brighter-than-page tier to lift onto. Dark stays pure-black AMOLED: black does
- * not glare and saves OLED.
+ * still have a brighter-than-page tier to lift onto. Dark keeps the generated neutrals (a tone-6
+ * page), not AMOLED pure black.
  */
 private fun ColorScheme.withNeutralLightSurfaces(): ColorScheme =
     copy(
@@ -121,7 +126,7 @@ fun AppTheme(
     themeMode: String = DataStoreManager.THEME_MODE_DARK,
     themeColorSource: String = DataStoreManager.THEME_COLOR_DEFAULT,
     customThemeColor: Color? = null,
-    liquidGlassEnabled: Boolean = false,
+    liquidGlassEnabled: Boolean = true,
     content:
         @Composable()
         () -> Unit,
@@ -139,14 +144,13 @@ fun AppTheme(
         } else {
             seed
         }
-    // Symmetric base: dark pins background/surface to pure black via isAmoled; light pins them to
-    // pure white with a neutral-grey ramp (the seed otherwise tints the light neutrals warm/cream).
+    // Light pins the neutrals to a neutral-grey ramp (the seed otherwise tints them warm/cream);
+    // dark keeps the generated neutrals as they are.
     val colorScheme =
         wallpaperScheme
             ?: rememberDynamicColorScheme(
                 seedColor = seedColor,
                 isDark = isDark,
-                isAmoled = isDark,
                 style = PaletteStyle.TonalSpot,
                 modifyColorScheme = { cs -> if (isDark) cs else cs.withNeutralLightSurfaces() },
             )
@@ -159,7 +163,6 @@ fun AppTheme(
             rememberDynamicColorScheme(
                 seedColor = seedColor,
                 isDark = true,
-                isAmoled = true,
                 style = PaletteStyle.TonalSpot,
             )
         }

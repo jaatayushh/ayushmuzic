@@ -106,6 +106,9 @@ kotlin {
             implementation(libs.camera.lifecycle)
             implementation(libs.camera.view)
             implementation(libs.zxing.core)
+
+            // Login WebViews: startUpWebView moves Chromium startup off the main thread
+            implementation(libs.androidx.webkit)
         }
         commonMain.dependencies {
             implementation(libs.runtime)
@@ -136,6 +139,8 @@ kotlin {
             } else {
                 api(projects.lastfmEmpty)
             }
+            // `api` for the same reason: :androidApp hands it the Discord application id at startup.
+            api(projects.discord)
 
             // Navigation Compose
             implementation(libs.navigation.compose)
@@ -196,6 +201,8 @@ kotlin {
             implementation(libs.native.tray)
             implementation(libs.nucleus.core.runtime)
             implementation(projects.mediaJvmUi)
+            // macOS: hand window drags to the Window Server (ui/component/MacWindowDrag.kt)
+            implementation(libs.jna)
             // Login sync QR code
             implementation(libs.zxing.core)
         }
@@ -758,7 +765,7 @@ val mpvBundleAll by tasks.registering {
  */
 val mpvNativesChecksums =
     mapOf(
-        "linux-x64" to "8c44b22cebdaf07af6a48a6021412fd654831e11d7a7fe4bd919730d4ccf22a5",
+        "linux-x64" to "f2f56dc629b2b6f4a7face7361eb749b26416df4ea5fabe0cb50aaf3506745b0",
         "macos-arm64" to "e527daac8f6cc196324ea6f0ce54d119d04450af9795ff2856c1891806c1d5e0",
         "macos-x64" to "95170ea54e1f637fdee148a9efd97993c305a92e233b8478d3764fbecce3eb02",
         "windows-x64" to "256f17cf402c7583b8684d5a7cf585ad1b59695469219671f4887b9d8d272a99",
@@ -858,11 +865,17 @@ buildkonfig {
                     "lastfmSecret",
                     properties.getProperty("LASTFM_SECRET") ?: "",
                 )
+                buildConfigField(
+                    STRING,
+                    "discordClientId",
+                    properties.getProperty("DISCORD_CLIENT_ID") ?: "",
+                )
             } catch (e: Exception) {
                 println("Failed to load secrets from local.properties: ${e.message}")
                 buildConfigField(STRING, "sentryDsn", "")
                 buildConfigField(STRING, "lastfmApiKey", "")
                 buildConfigField(STRING, "lastfmSecret", "")
+                buildConfigField(STRING, "discordClientId", "")
             }
         } else {
             buildConfigField(STRING, "sentryDsn", "")
@@ -870,6 +883,8 @@ buildkonfig {
             // the feature hides itself. The stub module is linked in this flavour anyway.
             buildConfigField(STRING, "lastfmApiKey", "")
             buildConfigField(STRING, "lastfmSecret", "")
+            // No Discord application either, so Rich Presence keeps going through kizzy.
+            buildConfigField(STRING, "discordClientId", "")
         }
     }
 }

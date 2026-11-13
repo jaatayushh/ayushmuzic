@@ -7,6 +7,7 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.withInfiniteAnimationFrameNanos
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,7 +47,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.maxrave.domain.manager.DataStoreManager
+import com.maxrave.domain.data.model.lyrics.RomanizationDictionaryState
 import com.maxrave.domain.data.model.lyrics.RomanizationLanguage
 import com.maxrave.domain.repository.LyricsRomanizerRepository
 import com.maxrave.simpmusic.expect.ui.isLyricsBlurSupported
@@ -77,6 +78,7 @@ import com.maxrave.simpmusic.ui.screen.player.content.stripRichSyncTimestamps
 import org.koin.compose.koinInject
 import androidx.navigation.NavController
 import com.maxrave.domain.data.model.streams.TimeLine
+import com.maxrave.simpmusic.extension.LyricsStagger
 import com.maxrave.simpmusic.extension.ParsedRichSyncLine
 import com.maxrave.simpmusic.extension.animateScrollAndAnchorItemTop
 import com.maxrave.simpmusic.extension.animateScrollAndCentralizeItem
@@ -458,7 +460,7 @@ fun LyricsView(
     // would be four copies of the same lookup. Re-checked against isLyricsBlurSupported() even
     // though Settings hides the option below Android 12 — a DataStore restored from a backup, or
     // carried to another device, can still hold APPLE_MUSIC on a phone that cannot draw it.
-    val lyricsStyle by dataStoreManager.lyricsStyle.collectAsStateWithLifecycle(DataStoreManager.LYRICS_STYLE_APPLE_MUSIC)
+    val lyricsStyle by dataStoreManager.lyricsStyle.collectAsStateWithLifecycle(DataStoreManager.LYRICS_STYLE_CLASSIC)
     val appleStyle = lyricsStyle == DataStoreManager.LYRICS_STYLE_APPLE_MUSIC && isLyricsBlurSupported()
 
     // Read here for the same reason the style is: all four call sites want the user's one choice,
@@ -468,6 +470,23 @@ fun LyricsView(
     val romanizationStored by dataStoreManager.romanizationLanguages.collectAsStateWithLifecycle("")
     val romanizationLanguages =
         remember(romanizationStored) { RomanizationLanguage.parse(romanizationStored) }
+    // Lyrics on screen with Japanese selected is when the dictionary pack is needed, so a missing
+    // one is fetched from here: after a reinstall that restored a backup the selection is back but
+    // the pack is not, and before this only the settings dialog ever started a download. Keyed on
+    // the lyrics too, so a failed attempt is tried again on a later song (the repository spaces
+    // those retries out).
+    LaunchedEffect(romanizationLanguages, lyricsData.lyrics) {
+        if (RomanizationLanguage.JAPANESE in romanizationLanguages) romanizer.ensureJapaneseDictionary()
+    }
+    // A Japanese line read before the pack is on disk comes back null, and the remember on each
+    // line would keep that null for as long as the line stays on screen. Keyed on this, the
+    // visible lines are read again the moment the pack lands — usually with these lyrics open,
+    // since the effect above is what started the download. Derived, so the other state changes
+    // (downloading, failed) do not touch the lines at all.
+    val japaneseDictionaryState by romanizer.japaneseDictionaryState.collectAsStateWithLifecycle()
+    val japaneseDictionaryReady by remember {
+        derivedStateOf { japaneseDictionaryState == RomanizationDictionaryState.READY }
+    }
 
     // One text row plus the padding that separates two lyric items — the exact amount of the
     // previous line that stays on screen above the sung one.
@@ -536,7 +555,11 @@ fun LyricsView(
                 thresholdMs = 1000L,
             )
         }
-    LaunchedEffect(currentLineIndex, lyricsData.lyrics.syncType, appleStyle) {
+    // The Apple Music handover: rows set off one behind another instead of as one block. Per sheet,
+    // so a new song's first line counts as the next line rather than as a jump.
+    val stagger = remember(displayLines) { LyricsStagger() }
+
+    LaunchedEffect(currentLineIndex, lyricsData.lyrics.syncType, appleStyle, stagger) {
         if (currentLineIndex > -1 &&
             (lyricsData.lyrics.syncType == "LINE_SYNCED" || lyricsData.lyrics.syncType == "RICH_SYNCED")
         ) {
@@ -547,7 +570,7 @@ fun LyricsView(
                 // lyric that wraps is one item spanning two or three rows, so the entire wrapped
                 // block hung above the sung line. Anchoring the sung line itself and backing off by
                 // one row's height is row-accurate no matter how the previous line wrapped.
-                listState.animateScrollAndAnchorItemTop(currentLineIndex, -exposedRowPx)
+                listState.animateScrollAndAnchorItemTop(currentLineIndex, -exposedRowPx, stagger)
             } else {
                 listState.animateScrollAndCentralizeItem(currentLineIndex)
             }
@@ -603,7 +626,7 @@ fun LyricsView(
                         if (isInterlude || romanizationLanguages.isEmpty()) {
                             null
                         } else {
-                            remember(words, romanizationLanguages) {
+                            remember(words, romanizationLanguages, japaneseDictionaryReady) {
                                 val source =
                                     if (lyricsData.lyrics.syncType == "RICH_SYNCED") words.stripRichSyncTimestamps() else words
                                 romanizer.romanize(source, romanizationLanguages)
@@ -733,6 +756,10 @@ fun LyricsView(
                         Column(
                             modifier =
                                 Modifier
+                                    // Trails the list while a handover runs (LyricsStagger). A
+                                    // translation only — no clip — so the blur and the glow below
+                                    // still spill past the line's own box.
+                                    .graphicsLayer { translationY = stagger.lagPx(index) }
                                     // background(colour, shape), NOT clip(shape) + background().
                                     // clip() cuts everything that leaves this line's box — which is
                                     // exactly what blur and glow are supposed to do. It sliced the
@@ -791,6 +818,9 @@ fun LyricsView(
                         Box(
                             modifier =
                                 Modifier
+                                    // The row after the last line: it trails with the lines, or
+                                    // the lines would run into it while they catch up.
+                                    .graphicsLayer { translationY = stagger.lagPx(displayLines.lines.size) }
                                     .padding(horizontal = AppleMusicLyricPaddingX)
                                     .alpha(FOOTER_ALPHA),
                         ) {
@@ -895,7 +925,7 @@ private fun rememberSmoothPlayhead(
         // the interpolation can accumulate error for at most one tick before being corrected.
         var baseNanos = -1L
         while (true) {
-            withFrameNanos { frameNanos ->
+            withInfiniteAnimationFrameNanos { frameNanos ->
                 if (baseNanos < 0L) baseNanos = frameNanos
                 val elapsedMs = (frameNanos - baseNanos) / 1_000_000L
                 playhead.longValue = rawMs + elapsedMs.coerceIn(0L, PLAYHEAD_TICK_MS)

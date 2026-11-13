@@ -19,17 +19,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,10 +43,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
+import com.maxrave.simpmusic.expect.ui.DesktopMiniPlayerClearance
+import com.maxrave.simpmusic.expect.ui.VerticalScrollBar
+import com.maxrave.simpmusic.extension.LeftToRight
 import com.maxrave.simpmusic.ui.icon.ArrowForwardIos
+import com.maxrave.simpmusic.ui.theme.ArtworkShape
 import simpmusic.composeapp.generated.resources.analytics_avg_per_day
 import simpmusic.composeapp.generated.resources.analytics_busiest_day
 import simpmusic.composeapp.generated.resources.analytics_by_decade
@@ -87,7 +92,7 @@ import com.maxrave.simpmusic.expect.ui.toImageBitmap
 import com.maxrave.simpmusic.extension.getScreenSizeInfo
 import com.maxrave.simpmusic.extension.getStringBlocking
 import com.maxrave.simpmusic.extension.smoothScrimBrush
-import com.maxrave.simpmusic.extension.toImmersiveBackground
+import com.maxrave.simpmusic.extension.rememberPaletteColor
 import com.maxrave.simpmusic.ui.component.AddToPlaylistModalBottomSheet
 import com.maxrave.simpmusic.ui.component.CenterLoadingBox
 import com.maxrave.simpmusic.ui.component.EndOfPage
@@ -95,6 +100,7 @@ import com.maxrave.simpmusic.ui.component.FiveImagesComponent
 import com.maxrave.simpmusic.ui.component.ImageData
 import com.maxrave.simpmusic.ui.component.LiquidGlassIconButton
 import com.maxrave.simpmusic.ui.component.NowPlayingBottomSheet
+import com.maxrave.simpmusic.ui.component.SectionHeaderButton
 import com.maxrave.simpmusic.ui.component.SongFullWidthItems
 import com.maxrave.simpmusic.ui.component.WrappedEntryCard
 import com.maxrave.simpmusic.ui.component.liquidGlass
@@ -105,7 +111,6 @@ import com.maxrave.simpmusic.ui.icon.ArrowBackIosNew
 import com.maxrave.simpmusic.ui.icon.KeyboardArrowDown
 import com.maxrave.simpmusic.ui.icon.ReceiptLong
 import com.maxrave.simpmusic.ui.icon.SimpIcons
-import com.maxrave.simpmusic.ui.navigation.destination.home.RecentlySongsDestination
 import com.maxrave.simpmusic.ui.navigation.destination.home.WrappedDestination
 import com.maxrave.simpmusic.ui.navigation.destination.library.LibraryDynamicPlaylistDestination
 import com.maxrave.simpmusic.ui.navigation.destination.list.AlbumDestination
@@ -231,13 +236,10 @@ fun AnalyticsScreen(
             paletteGeneratedFor = topTrackArtwork
         }
     }
-    // The last colour that actually resolved. Reading paletteState.palette straight would paint the
-    // page black for the whole duration of every generate(), because null is what it reads until the
-    // result is Success — and Color.Black is what a null palette resolves to.
-    var pageBackground by remember { mutableStateOf(Color.Black) }
-    LaunchedEffect(paletteState.palette) {
-        paletteState.palette?.let { pageBackground = it.toImmersiveBackground() }
-    }
+    // The last colour that actually resolved, faded on change (see UIExt.rememberPaletteColor).
+    // Reading paletteState.palette straight would paint the page black for the whole duration of
+    // every generate(), because null is what it reads until the result is Success.
+    val pageBackground = rememberPaletteColor(paletteState.palette)
 
     if (showSelectionSheet) {
         val selectedIds = selectionState.selected.toList()
@@ -301,7 +303,9 @@ fun AnalyticsScreen(
                 .fillMaxSize()
                 .background(pageBackground),
     ) {
+        val listState = rememberLazyListState()
         LazyColumn(
+            state = listState,
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -435,6 +439,10 @@ fun AnalyticsScreen(
 
             item { EndOfPage() }
         }
+        VerticalScrollBar(
+            scrollState = listState,
+            modifier = Modifier.padding(bottom = DesktopMiniPlayerClearance),
+        )
 
         if (selectionState.isActive) {
             SongSelectionTopAppBar(
@@ -795,7 +803,7 @@ private fun LandscapeHeader(
             ArtworkImage(
                 url = topTrack.second.thumbnails,
                 onBitmap = onBitmap,
-                modifier = Modifier.size(LANDSCAPE_ARTWORK).clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.size(LANDSCAPE_ARTWORK).clip(ArtworkShape),
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -870,19 +878,26 @@ private fun PeriodNavigator(
 ) {
     val start = uiState.periodStart
     val end = uiState.periodEnd
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = gutter),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = if (gutter == 0.dp) Arrangement.spacedBy(14.dp) else Arrangement.SpaceBetween,
-    ) {
-        StepArrow(SimpIcons.ArrowBackIosNew, enabled = true) { onStep(-1) }
-        Text(
-            text = if (start != null && end != null) formatPeriodSpan(start, end) else "",
-            style = typo().bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-        )
-        StepArrow(SimpIcons.ArrowForwardIos, enabled = uiState.canStepForward) { onStep(1) }
+    // The arrows follow the timeline, earlier on the left; the date between them keeps the
+    // reading direction, or a right-to-left date would come out in the wrong order.
+    val readingDirection = LocalLayoutDirection.current
+    LeftToRight {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = gutter),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = if (gutter == 0.dp) Arrangement.spacedBy(14.dp) else Arrangement.SpaceBetween,
+        ) {
+            StepArrow(SimpIcons.ArrowBackIosNew, enabled = true) { onStep(-1) }
+            CompositionLocalProvider(LocalLayoutDirection provides readingDirection) {
+                Text(
+                    text = if (start != null && end != null) formatPeriodSpan(start, end) else "",
+                    style = typo().bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                )
+            }
+            StepArrow(SimpIcons.ArrowForwardIos, enabled = uiState.canStepForward) { onStep(1) }
+        }
     }
 }
 
@@ -1117,15 +1132,7 @@ private fun SectionHeader(
             modifier = Modifier.weight(1f),
         )
         if (onMore != null) {
-            TextButton(
-                onClick = onMore,
-                colors =
-                    ButtonDefaults
-                        .textButtonColors()
-                        .copy(contentColor = MaterialTheme.colorScheme.onSurface),
-            ) {
-                Text(stringResource(Res.string.more), style = typo().bodySmall)
-            }
+            SectionHeaderButton(text = stringResource(Res.string.more), onClick = onMore)
         }
     }
 }
@@ -1143,9 +1150,7 @@ private fun RecentlyPlayedSection(
     val records = uiState.recentlyRecord.data ?: return
     if (records.isEmpty()) return
     Column {
-        SectionHeader(stringResource(Res.string.your_recently_played), gutter) {
-            navController.navigate(RecentlySongsDestination)
-        }
+        SectionHeader(stringResource(Res.string.your_recently_played), gutter)
         records.forEach { pair ->
             SongRow(
                 pair = pair.second,

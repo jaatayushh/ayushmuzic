@@ -100,6 +100,7 @@ object AyushMuzicTelemetry {
         progressSec: Long,
         durationSec: Long,
         status: String, // "playing", "completed", "paused"
+        coverArtUrl: String? = null,
     ) {
         val trackTitle = title?.takeIf { it.isNotBlank() } ?: return
         val trackArtist = artist ?: ""
@@ -127,6 +128,9 @@ object AyushMuzicTelemetry {
                     put("status", status)
                     put("profileName", profileName)
                     put("userId", userId)
+                    if (!coverArtUrl.isNullOrBlank()) {
+                        put("coverArtUrl", coverArtUrl)
+                    }
                 }
 
                 client.post(TELEMETRY_URL) {

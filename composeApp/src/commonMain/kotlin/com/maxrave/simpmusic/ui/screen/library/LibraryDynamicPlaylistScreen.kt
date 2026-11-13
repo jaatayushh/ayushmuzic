@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -49,6 +50,8 @@ import com.maxrave.domain.mediaservice.handler.QueueData
 import com.maxrave.domain.utils.LocalResource
 import com.maxrave.domain.utils.toArrayListTrack
 import com.maxrave.domain.utils.toTrack
+import com.maxrave.simpmusic.expect.ui.DesktopMiniPlayerClearance
+import com.maxrave.simpmusic.expect.ui.VerticalScrollBar
 import com.maxrave.simpmusic.extension.getStringBlocking
 import com.maxrave.simpmusic.extension.ultraThinBarStyle
 import com.maxrave.simpmusic.ui.component.SearchBarExit
@@ -61,10 +64,12 @@ import com.maxrave.simpmusic.ui.component.PlaylistFullWidthItems
 import com.maxrave.simpmusic.ui.component.RippleIconButton
 import com.maxrave.simpmusic.ui.component.SongFullWidthItems
 import com.maxrave.simpmusic.ui.component.selection.SelectedSongsBottomSheet
+import com.maxrave.simpmusic.ui.component.selection.SongSelectionAction
 import com.maxrave.simpmusic.ui.component.selection.SongSelectionTopAppBar
 import com.maxrave.simpmusic.ui.component.selection.rememberSongSelectionState
 import com.maxrave.simpmusic.ui.icon.ArrowBackIosNew
 import com.maxrave.simpmusic.ui.icon.Close
+import com.maxrave.simpmusic.ui.icon.Delete
 import com.maxrave.simpmusic.ui.icon.PlayCircle
 import com.maxrave.simpmusic.ui.icon.Search
 import com.maxrave.simpmusic.ui.icon.Shuffle
@@ -94,6 +99,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.album_length
 import simpmusic.composeapp.generated.resources.artists
+import simpmusic.composeapp.generated.resources.cached
 import simpmusic.composeapp.generated.resources.downloaded
 import simpmusic.composeapp.generated.resources.favorite
 import simpmusic.composeapp.generated.resources.followed
@@ -101,6 +107,7 @@ import simpmusic.composeapp.generated.resources.liked_songs
 import simpmusic.composeapp.generated.resources.liked_songs_count
 import simpmusic.composeapp.generated.resources.lower_plays
 import simpmusic.composeapp.generated.resources.most_played
+import simpmusic.composeapp.generated.resources.remove_download
 import simpmusic.composeapp.generated.resources.search
 import simpmusic.composeapp.generated.resources.seconds
 import simpmusic.composeapp.generated.resources.wrapped
@@ -141,6 +148,8 @@ fun LibraryDynamicPlaylistScreen(
     var tempMostPlayed by remember { mutableStateOf(emptyList<SongEntity>()) }
     val downloaded by viewModel.listDownloadedSong.collectAsStateWithLifecycle()
     var tempDownloaded by remember { mutableStateOf(emptyList<SongEntity>()) }
+    val cached by viewModel.listCachedSong.collectAsStateWithLifecycle()
+    var tempCached by remember { mutableStateOf(emptyList<SongEntity>()) }
     val monthlyRecap by viewModel.listMonthlyRecapSong.collectAsStateWithLifecycle()
     var tempMonthlyRecap by remember { mutableStateOf(emptyList<SongEntity>()) }
     val artistLiked by viewModel.listArtistLikedSong.collectAsStateWithLifecycle()
@@ -165,17 +174,24 @@ fun LibraryDynamicPlaylistScreen(
         if (parsed is LibraryDynamicPlaylistType.ArtistLiked) {
             viewModel.getArtistLikedSong(parsed)
         }
+        // Read afresh on every visit: the player cache is not a table anything can observe.
+        if (parsed == LibraryDynamicPlaylistType.Cached) {
+            viewModel.getCachedSong()
+        }
         // A top list opened from an older period. This screen gets its own analytics view model,
         // which starts on the latest period, so without this every older period opened as the
         // newest one.
         parsed.topListRange()?.let { (start, end) -> analyticsViewModel.showRange(start, end) }
     }
 
-    LaunchedEffect(query) {
+    // Keyed on the downloaded list as well: a download removed while searching has to leave the
+    // filtered list too, not only the full one.
+    LaunchedEffect(query, downloaded) {
         tempFavorite = favorite.filter { it.matches(query) }
         tempFollowed = followed.filter { it.name.contains(query, ignoreCase = true) }
         tempMostPlayed = mostPlayed.filter { it.matches(query) }
         tempDownloaded = downloaded.filter { it.matches(query) }
+        tempCached = cached.filter { it.matches(query) }
         tempMonthlyRecap = monthlyRecap.filter { it.matches(query) }
         tempArtistLiked = artistLiked.filter { it.matches(query) }
         tempTopTracks =
@@ -192,7 +208,9 @@ fun LibraryDynamicPlaylistScreen(
                 ?: emptyList()
     }
 
+    val listState = rememberLazyListState()
     LazyColumn(
+        state = listState,
         modifier = Modifier.hazeSource(hazeState),
         contentPadding = innerPadding,
     ) {
@@ -377,6 +395,14 @@ fun LibraryDynamicPlaylistScreen(
                         }
                     }
 
+                    LibraryDynamicPlaylistType.Cached -> {
+                        if (query.isNotEmpty() && showSearchBar) {
+                            tempCached
+                        } else {
+                            cached
+                        }
+                    }
+
                     LibraryDynamicPlaylistType.Favorite -> {
                         if (query.isNotEmpty() && showSearchBar) {
                             tempFavorite
@@ -442,8 +468,14 @@ fun LibraryDynamicPlaylistScreen(
             EndOfPage()
         }
     }
+    VerticalScrollBar(
+        scrollState = listState,
+        modifier = Modifier.padding(top = innerPadding.calculateTopPadding(), bottom = DesktopMiniPlayerClearance),
+    )
     if (showSelectionSheet) {
         val selectedIds = selectionState.selected.toList()
+        val isDownloadedList = LibraryDynamicPlaylistType.toType(type) == LibraryDynamicPlaylistType.Downloaded
+        val removeDownloadLabel = stringResource(Res.string.remove_download)
         SelectedSongsBottomSheet(
             count = selectedIds.size,
             onDismiss = { showSelectionSheet = false },
@@ -456,14 +488,34 @@ fun LibraryDynamicPlaylistScreen(
                 selectionState.exit()
             },
             onAddToPlaylist = { showSelectionAddToPlaylist = true },
-            onDownload = {
-                selectionViewModel.download(selectedIds)
-                selectionState.exit()
-            },
+            // Everything in the Downloaded list is downloaded already, so Download would do nothing.
+            onDownload =
+                if (isDownloadedList) {
+                    null
+                } else {
+                    {
+                        selectionViewModel.download(selectedIds)
+                        selectionState.exit()
+                    }
+                },
             onAddToFavorite = {
                 selectionViewModel.addToFavorite(selectedIds)
                 selectionState.exit()
             },
+            extraActions =
+                if (isDownloadedList) {
+                    listOf(
+                        SongSelectionAction(
+                            icon = SimpIcons.Delete,
+                            label = removeDownloadLabel,
+                        ) {
+                            viewModel.removeDownloads(selectedIds)
+                            selectionState.exit()
+                        },
+                    )
+                } else {
+                    emptyList()
+                },
         )
     }
     if (showSelectionAddToPlaylist) {
@@ -482,13 +534,20 @@ fun LibraryDynamicPlaylistScreen(
         )
     }
     if (showBottomSheet) {
+        val song = chosenSong ?: return
         NowPlayingBottomSheet(
             onDismiss = {
                 showBottomSheet = false
                 chosenSong = null
             },
             navController = navController,
-            song = chosenSong ?: return,
+            song = song,
+            onRemoveFromCache =
+                if (LibraryDynamicPlaylistType.toType(type) == LibraryDynamicPlaylistType.Cached) {
+                    { viewModel.removeFromCache(song.videoId) }
+                } else {
+                    null
+                },
         )
     }
     Column(
@@ -509,6 +568,8 @@ fun LibraryDynamicPlaylistScreen(
                     stringResource(Res.string.album_length, mostPlayed.size.toString(), "")
                 LibraryDynamicPlaylistType.Downloaded ->
                     stringResource(Res.string.album_length, downloaded.size.toString(), "")
+                LibraryDynamicPlaylistType.Cached ->
+                    stringResource(Res.string.album_length, cached.size.toString(), "")
                 LibraryDynamicPlaylistType.Followed ->
                     "${followed.size} ${stringResource(Res.string.artists)}"
                 is LibraryDynamicPlaylistType.MonthlyRecap ->
@@ -663,6 +724,10 @@ fun LibraryDynamicPlaylistScreen(
                                     (if (query.isNotEmpty() && showSearchBar) tempDownloaded else downloaded)
                                         .map { it.videoId }
 
+                                LibraryDynamicPlaylistType.Cached ->
+                                    (if (query.isNotEmpty() && showSearchBar) tempCached else cached)
+                                        .map { it.videoId }
+
                                 LibraryDynamicPlaylistType.Favorite ->
                                     (if (query.isNotEmpty() && showSearchBar) tempFavorite else favorite)
                                         .map { it.videoId }
@@ -680,7 +745,8 @@ fun LibraryDynamicPlaylistScreen(
                         selectionState.toggleSelectAll(visible)
                     },
                     onOpenActions = { showSelectionSheet = true },
-                    containerColor = Color.Black,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -730,6 +796,12 @@ sealed class LibraryDynamicPlaylistType {
     data object MostPlayed : LibraryDynamicPlaylistType()
 
     data object Downloaded : LibraryDynamicPlaylistType()
+
+    /**
+     * Songs the player cache holds in full and that are not downloaded. Android only: Desktop keeps
+     * no song cache on disk.
+     */
+    data object Cached : LibraryDynamicPlaylistType()
 
     /**
      * The three top lists carry the period they were opened for, so the list on screen is the one
@@ -799,6 +871,7 @@ sealed class LibraryDynamicPlaylistType {
             Followed -> Res.string.followed
             MostPlayed -> Res.string.most_played
             Downloaded -> Res.string.downloaded
+            Cached -> Res.string.cached
             is TopAlbums -> Res.string.your_top_albums
             is TopArtists -> Res.string.your_top_artists
             is TopTracks -> Res.string.your_top_tracks
@@ -869,6 +942,7 @@ sealed class LibraryDynamicPlaylistType {
             Followed -> "followed"
             MostPlayed -> "most_played"
             Downloaded -> "downloaded"
+            Cached -> "cached"
             is TopAlbums -> TOP_ALBUMS + periodSuffix()
             is TopArtists -> TOP_ARTISTS + periodSuffix()
             is TopTracks -> TOP_TRACKS + periodSuffix()
@@ -891,6 +965,7 @@ sealed class LibraryDynamicPlaylistType {
                 "followed" -> Followed
                 "most_played" -> MostPlayed
                 "downloaded" -> Downloaded
+                "cached" -> Cached
                 TOP_ALBUMS -> TopAlbums()
                 TOP_ARTISTS -> TopArtists()
                 TOP_TRACKS -> TopTracks()

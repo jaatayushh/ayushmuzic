@@ -1,6 +1,5 @@
 *.iml
-.gradle/
-**/.gradle/
+.gradle
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -9,8 +8,7 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-build/
-**/build/
+/build
 /captures
 .externalNativeBuild
 .cxx
@@ -35,6 +33,7 @@ sentry.properties
 /.claude/settings.local.json
 /androidApp/build/
 /androidApp/cache/
+/vivoAndroidApp/build/
 /lastfm/build/
 /lastfm-empty/build/
 # libmpv native libraries (downloaded by `./gradlew :composeApp:mpvSetupAll`)
@@ -48,14 +47,3 @@ sentry.properties
 /desktopApp/generated.conveyor.conf
 # Conveyor output directory
 /output/
-
-# Binary releases, packages and archives
-*.apk
-*.msi
-*.exe
-*.zip
-AyushMuzic*.apk
-AyushMuzic*.msi
-AyushMuzic*.zip
-AyushMuzic-Windows-Portable/
-

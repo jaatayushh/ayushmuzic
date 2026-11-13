@@ -20,9 +20,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.maxrave.simpmusic.extension.angledGradientBackground
+import com.maxrave.simpmusic.ui.theme.ArtworkShape
 import com.maxrave.simpmusic.ui.theme.typo
 import org.jetbrains.compose.resources.painterResource
 import simpmusic.composeapp.generated.resources.Res
@@ -58,7 +60,9 @@ fun MoodCategoryCard(
                     // square. This one is 2:1, so the same fractions would double it — anchor on
                     // the height instead to keep the badge the size the eye expects.
                     val radius = size.height * 0.09f
-                    val centerX = size.width - radius * 2f
+                    // The corner opposite the title, which starts on the right in a right-to-left
+                    // language; drawn at a fixed right corner, the badge sat on top of the title.
+                    val centerX = if (layoutDirection == LayoutDirection.Rtl) radius * 2f else size.width - radius * 2f
                     val centerY = radius * 2f
                     drawCircle(
                         center = Offset(centerX, centerY),
@@ -90,7 +94,7 @@ fun MoodCategoryCard(
                         .offset(x = 8.dp, y = 12.dp)
                         .size(64.dp)
                         .rotate(25f)
-                        .clip(RoundedCornerShape(2.dp)),
+                        .clip(ArtworkShape),
             )
         }
         Text(

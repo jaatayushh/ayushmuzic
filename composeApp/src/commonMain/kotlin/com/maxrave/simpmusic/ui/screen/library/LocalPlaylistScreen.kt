@@ -49,6 +49,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import com.maxrave.simpmusic.expect.ui.DesktopMiniPlayerClearance
+import com.maxrave.simpmusic.expect.ui.VerticalScrollBar
 import com.maxrave.simpmusic.extension.barBlurStyle
 import com.maxrave.simpmusic.ui.component.DownloadingIndicator
 import com.maxrave.simpmusic.ui.icon.Search
@@ -125,7 +127,7 @@ import com.maxrave.simpmusic.extension.artworkScrimBrush
 import com.maxrave.simpmusic.extension.displayNameRes
 import com.maxrave.simpmusic.extension.getColorFromPalette
 import com.maxrave.simpmusic.extension.getScreenSizeInfo
-import com.maxrave.simpmusic.extension.toImmersiveBackground
+import com.maxrave.simpmusic.extension.rememberPaletteColor
 import com.maxrave.simpmusic.getPlatform
 import com.maxrave.simpmusic.ui.component.SearchBarExit
 import com.maxrave.simpmusic.ui.component.SearchBarEnter
@@ -160,6 +162,7 @@ import com.maxrave.simpmusic.ui.icon.Shuffle
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.icon.Sort
 import com.maxrave.simpmusic.ui.icon.TipsAndUpdates
+import com.maxrave.simpmusic.ui.theme.ArtworkShape
 import com.maxrave.simpmusic.ui.theme.LocalIsDarkTheme
 import com.maxrave.simpmusic.ui.theme.seed
 import com.maxrave.simpmusic.ui.theme.typo
@@ -407,22 +410,15 @@ fun LocalPlaylistScreen(
     // AsyncImage shows the title placeholder and onSuccess never fires, so the palette stays
     // null; in that case we fall back to the SAME deterministic title gradient the placeholder
     // draws, so the background still matches the thumbnail. Darkened slightly for readability.
-    val mutedPaletteBg =
-        run {
-            val palette = paletteState.palette
-            if (palette != null) {
-                palette.toImmersiveBackground()
-            } else {
-                val titleColors = playlistTitleGradient(uiState.title)
-                val base =
-                    if (titleColors.size >= 2) {
-                        lerp(titleColors[0], titleColors[1], 0.5f)
-                    } else {
-                        titleColors.firstOrNull() ?: Color.Black
-                    }
-                lerp(base, Color.Black, 0.3f)
-            }
+    // Held and faded (see UIExt.rememberPaletteColor).
+    val titleColors = playlistTitleGradient(uiState.title)
+    val titleBase =
+        if (titleColors.size >= 2) {
+            lerp(titleColors[0], titleColors[1], 0.5f)
+        } else {
+            titleColors.firstOrNull() ?: Color.Black
         }
+    val mutedPaletteBg = rememberPaletteColor(paletteState.palette, fallback = lerp(titleBase, Color.Black, 0.3f))
 
     // Loading dialog
     val showLoadingDialog by viewModel.showLoadingDialog.collectAsStateWithLifecycle()
@@ -547,7 +543,7 @@ fun LocalPlaylistScreen(
                                                 .memoryCachePolicy(CachePolicy.ENABLED)
                                                 .diskCacheKey(uiState.thumbnail)
                                                 .memoryCacheKey(uiState.thumbnail)
-                                                .crossfade(false)
+                                                .crossfade(550)
                                                 .build(),
                                         placeholder = painterPlaylistThumbnail(uiState.title, style = typo().labelMedium, 250.dp to 250.dp),
                                         error = painterPlaylistThumbnail(uiState.title, style = typo().labelMedium, 250.dp to 250.dp),
@@ -746,7 +742,7 @@ fun LocalPlaylistScreen(
                                                     .memoryCachePolicy(CachePolicy.ENABLED)
                                                     .diskCacheKey(uiState.thumbnail)
                                                     .memoryCacheKey(uiState.thumbnail)
-                                                    .crossfade(false)
+                                                    .crossfade(550)
                                                     .build(),
                                             placeholder = painterPlaylistThumbnail(uiState.title, style = typo().labelMedium, 250.dp to 250.dp),
                                             error = painterPlaylistThumbnail(uiState.title, style = typo().labelMedium, 250.dp to 250.dp),
@@ -759,7 +755,7 @@ fun LocalPlaylistScreen(
                                             modifier =
                                                 Modifier
                                                     .size(280.dp)
-                                                    .clip(RoundedCornerShape(8.dp)),
+                                                    .clip(ArtworkShape),
                                         )
                                         Column(
                                             modifier = Modifier.weight(1f),
@@ -1431,6 +1427,10 @@ fun LocalPlaylistScreen(
             EndOfPage()
         }
     }
+    VerticalScrollBar(
+        scrollState = lazyState,
+        modifier = Modifier.padding(bottom = DesktopMiniPlayerClearance),
+    )
     AnimatedVisibility(
         visible = selectionState.isActive,
         enter = fadeIn() + slideInVertically(),
