@@ -552,7 +552,9 @@
     <string name="other_version">Other version</string>
     <string name="later">Later</string>
     <string name="give_a_star">Give a star</string>
+    <string name="enjoying_simpmusic">Enjoying AyushMuzic</string>
     <string name="enjoying_AyushMuzic">Enjoying AyushMuzic</string>
+    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">If you enjoy using AyushMuzic, star AyushMuzic on GitHub or leave a review on</string>
     <string name="if_you_enjoy_using_AyushMuzic_star_AyushMuzic_on_github_or_leave_a_review_on">If you enjoy using AyushMuzic, star AyushMuzic on GitHub or leave a review on</string>
     <string name="if_you_love_my_work_consider">"If you love my work, consider "</string>
     <string name="buying_me_a_coffee">buying me a coffee.</string>
@@ -623,7 +625,9 @@
     <string name="contributor_name">Contributor name</string>
     <string name="contributor_email">Contributor email</string>
     <string name="anonymous">Anonymous</string>
+    <string name="simpmusic_lyrics">AyushMuzic Lyrics</string>
     <string name="AyushMuzic_lyrics">AyushMuzic Lyrics</string>
+    <string name="lyrics_provider_simpmusic">Lyrics provided by AyushMuzic Lyrics</string>
     <string name="lyrics_provider_AyushMuzic">Lyrics provided by AyushMuzic Lyrics</string>
     <string name="backup_in_progress">Backup in progress</string>
     <string name="restore_in_progress">Restore in progress</string>
@@ -757,6 +761,7 @@
     <string name="local_tracking_description">Log your listening history to local database</string>
     <string name="blog_notification_title">Blog post notifications</string>
     <string name="blog_notification_description">Get notified when a new blog post is published</string>
+    <string name="simpmusic_charts">AyushMuzic Charts</string>
     <string name="AyushMuzic_charts">AyushMuzic Charts</string>
     <string name="crossfading">Crossfading</string>
     <string name="your_320kbps_url">Your 320kbps URL</string>
