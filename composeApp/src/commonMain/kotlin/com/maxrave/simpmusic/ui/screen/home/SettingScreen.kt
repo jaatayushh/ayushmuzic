@@ -2848,7 +2848,7 @@ fun SettingScreen(
                     title = stringResource(Res.string.author),
                     subtitle = stringResource(Res.string.maxrave_dev),
                     onClick = {
-                        uriHandler.openUri("https://github.com/maxrave-dev")
+                        uriHandler.openUri("https://github.com/jaatayushh")
                     },
                 )
                 SettingItem(
@@ -2862,7 +2862,7 @@ fun SettingScreen(
                     title = stringResource(Res.string.developer_blog),
                     subtitle = stringResource(Res.string.developer_blog_tagline),
                     onClick = {
-                        uriHandler.openUri("https://www.simpmusic.org/blogs")
+                        uriHandler.openUri("https://github.com/jaatayushh/AyushMuzic")
                     },
                 )
                 if (getPlatform() == Platform.Android) {
