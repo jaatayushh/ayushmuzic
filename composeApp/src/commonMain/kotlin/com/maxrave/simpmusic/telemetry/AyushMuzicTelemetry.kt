@@ -41,7 +41,7 @@ object AyushMuzicTelemetry {
     private var accountRepository: AccountRepository? = null
     private var appIdentity: AppIdentity? = null
     private var cachedUserId: String? = null
-    private var defaultProfileName: String = "Ayush"
+    private var defaultProfileName: String = "Guest"
 
     fun init(
         dataStoreManager: DataStoreManager? = null,

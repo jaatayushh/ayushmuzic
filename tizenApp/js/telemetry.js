@@ -23,7 +23,7 @@ const AyushMuzicTelemetry = {
                 if (u && (u.name || u.email)) return u.name || u.email;
             }
         } catch (e) {}
-        return 'Ayush';
+        return 'Guest';
     },
 
     sendAsync(url, payload) {
