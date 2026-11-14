@@ -1,20 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:tizen="http://tizen.org/ns/widgets"
-        id="http://ayushmuzic.com/tizen/AyushMuzic"
+        id="http://ayushmuzic.app"
         version="1.0.9"
-        viewmodes="maximized">
-    <tizen:application id="AyushMuzic.AyushMuzic" package="AyushMuzic" exec="index.html" screen-orientation="landscape" context-menu="disable" background-support="enable"/>
-    <name>AyushMuzic</name>
-    <tizen:profile name="tv"/>
-    <icon src="icon.png"/>
-    <author email="jaatayushh@users.noreply.github.com" href="https://github.com/jaatayushh">Ayush</author>
-    <description>AyushMuzic - YouTube Music Client for Samsung Smart TV</description>
-    <!-- Public privileges only — no Partner cert needed -->
+        viewmodes="fullscreen">
+
+    <tizen:application id="AyushMuzic.app"
+                       package="AyushMuzic"
+                       required_version="3.0"
+                       launch_mode="single"/>
+
+    <content src="index.html"/>
+
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
-    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+    <tizen:privilege name="http://tizen.org/privilege/network.get"/>
+    <tizen:privilege name="http://tizen.org/privilege/storage"/>
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
-    <tizen:setting screen-orientation="landscape" context-menu="disable" background-support="enable" encryption="disable" install-location="auto"/>
+    <tizen:privilege name="http://tizen.org/privilege/download"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+
+    <!-- Allow all network communication -->
     <access origin="*" subdomains="true"/>
-    <tizen:metadata key="http://samsung.com/tv/metadata/use.multiscreen" value="false"/>
+    <tizen:allow-navigation href="*"/>
+
+    <tizen:setting screen-orientation="landscape"
+                   context-menu="disable"
+                   background-support="enable"
+                   encryption="disable"
+                   install-location="auto"
+                   hw-key-event="enable"/>
+
+    <name>AyushMuzic</name>
+    <description>AyushMuzic - YouTube Music Client for Samsung Smart TV</description>
+    <author href="https://github.com/jaatayushh">Ayush</author>
+
+    <icon src="icon.png"/>
 </widget>
