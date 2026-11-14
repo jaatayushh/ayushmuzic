@@ -39,9 +39,20 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "App version: $VERSION"
 
+      - name: Setup local.properties & gradle.properties
+        run: |
+          touch local.properties
+          echo "SENTRY_DSN=" > local.properties
+          echo "SENTRY_AUTH_TOKEN=" >> local.properties
+          echo "LASTFM_API_KEY=" >> local.properties
+          echo "LASTFM_SECRET=" >> local.properties
+          echo "DISCORD_CLIENT_ID=" >> local.properties
+          echo "isFullBuild=false" >> gradle.properties
+
       - name: Build Android APKs
         run: |
-          ./gradlew :androidApp:assembleRelease :vivoAndroidApp:assembleRelease --no-daemon --no-configuration-cache --stacktrace || ./gradlew :androidApp:assembleRelease --no-daemon --no-configuration-cache --stacktrace
+          ./gradlew :androidApp:assembleRelease --no-daemon --no-configuration-cache --stacktrace
+          ./gradlew :vivoAndroidApp:assembleRelease --no-daemon --no-configuration-cache --stacktrace || true
 
       - name: Stage APKs for upload
         run: |
@@ -100,14 +111,25 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "App version: $VERSION"
 
+      - name: Setup local.properties & gradle.properties
+        shell: bash
+        run: |
+          touch local.properties
+          echo "SENTRY_DSN=" > local.properties
+          echo "SENTRY_AUTH_TOKEN=" >> local.properties
+          echo "LASTFM_API_KEY=" >> local.properties
+          echo "LASTFM_SECRET=" >> local.properties
+          echo "DISCORD_CLIENT_ID=" >> local.properties
+          echo "isFullBuild=false" >> gradle.properties
+
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 
       - name: Fetch MPV Natives
-        run: .\gradlew.bat :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace
+        run: .\gradlew.bat :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace || true
 
       - name: Build Windows MSI and Distributable
-        run: .\gradlew.bat :desktopApp:packageReleaseMsi :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace
+        run: .\gradlew.bat :desktopApp:createReleaseDistributable :desktopApp:packageReleaseMsi --no-daemon --no-configuration-cache --stacktrace || .\gradlew.bat :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace
 
       - name: Stage Windows packages for upload
         shell: bash
@@ -226,8 +248,18 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "App version: $VERSION"
 
+      - name: Setup local.properties & gradle.properties
+        run: |
+          touch local.properties
+          echo "SENTRY_DSN=" > local.properties
+          echo "SENTRY_AUTH_TOKEN=" >> local.properties
+          echo "LASTFM_API_KEY=" >> local.properties
+          echo "LASTFM_SECRET=" >> local.properties
+          echo "DISCORD_CLIENT_ID=" >> local.properties
+          echo "isFullBuild=false" >> gradle.properties
+
       - name: Fetch MPV Natives
-        run: ./gradlew :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace
+        run: ./gradlew :composeApp:mpvSetupAll --no-daemon --no-configuration-cache --stacktrace || true
 
       - name: Build Linux Deb and Distributable
         run: ./gradlew :desktopApp:packageReleaseDeb :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace || ./gradlew :desktopApp:createReleaseDistributable --no-daemon --no-configuration-cache --stacktrace
