@@ -31,6 +31,9 @@
                    install-location="auto"
                    hw-key-event="enable"/>
 
+    <!-- Allow audio playback when screen is off or app is in background -->
+    <tizen:background-category value="media"/>
+
     <name>AyushMuzic</name>
     <description>AyushMuzic - Stream Ad-Free Music on Samsung Smart TV</description>
     <author href="https://github.com/jaatayushh">Ayush</author>

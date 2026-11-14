@@ -2309,7 +2309,7 @@ class SharedViewModel(
                 )
             }
             lyricsCanvasRepository
-                .voteAyushMuzicLyrics(
+                .voteSimpMusicLyrics(
                     lyricsId = simpMusicLyricsId,
                     upvote = upvote,
                 ).collectLatest { result ->
@@ -2364,7 +2364,7 @@ class SharedViewModel(
                 )
             }
             lyricsCanvasRepository
-                .voteAyushMuzicTranslatedLyrics(
+                .voteSimpMusicTranslatedLyrics(
                     translatedLyricsId = simpMusicLyricsId,
                     upvote = upvote,
                 ).collectLatest { result ->

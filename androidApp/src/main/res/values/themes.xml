@@ -11,6 +11,7 @@
         white flash on light-mode devices.
     -->
     <color name="simpmusic_cold_start_background">#FF131313</color>
+    <color name="ayushmuzic_cold_start_background">#FF131313</color>
 
     <style name="Theme.SimpMusic" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/ayushmuzic_cold_start_background</item>

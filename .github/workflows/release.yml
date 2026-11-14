@@ -313,7 +313,7 @@ jobs:
       - name: Package Tizen WGT
         run: |
           mkdir -p tizen-output
-          cd tizenApp && zip -r ../tizen-output/AyushMuzic-Tizen.wgt . && cd ..
+          cd tizenApp && zip -r ../tizen-output/AyushMuzic-Tizen.wgt config.xml index.html icon.png css js assets && cd ..
           ls -lh tizen-output/
 
       - name: Upload Tizen artifact

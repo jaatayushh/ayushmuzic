@@ -1,103 +1,110 @@
 /**
  * AyushMuzic Smart TV Core Engine
- * 100% 1:1 Parity with AyushMuzic Android App
- * Direct Unblockable Audio Engine, On-Screen TV Keyboard, Real-Time Search & Synced Lyrics
+ * 100% Native Pure Audio Engine (HTML5 <audio>)
+ * Background Audio & Screen-Off Playback on Samsung Smart TV
+ * Real-Time Search, Live Synced LRCLIB Lyrics, AMOLED UI & Full Remote Navigation
  */
 
 (function() {
   'use strict';
 
-  // 1. Initial Reference Tracks (100% Matching user_ss.jpg with verified instant playback streams)
+  // 1. Initial High-Fidelity Music Catalog (Popular Trending Hits — No Mismatches)
   const INITIAL_TRACKS = [
     {
-      videoId: 'kJQP7kiw5Fk',
-      title: 'Wake Up',
-      artist: 'Krish Rao',
-      album: 'Wake Up - Single',
-      duration: 167,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f9/ac/85/f9ac85bb-9e47-2f10-6981-b5ff19c7ca6b/26UM1IM28034.rgb.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f5/77/02/f5770234-aa9f-004b-311c-b747bb0248ae/mzaf_16317511395932772012.plus.aac.p.m4a'
+      id: 'BddP6PYo2gs',
+      title: 'Kesariya',
+      artist: 'Arijit Singh, Pritam',
+      album: 'Brahmāstra',
+      duration: 268,
+      thumbnail: 'https://i.ytimg.com/vi/BddP6PYo2gs/hqdefault.jpg'
     },
     {
-      videoId: 'JGwWNGJdvx8',
-      title: 'Soch (feat. Karan Aujla)',
-      artist: 'Intense',
-      album: 'Soch',
-      duration: 224,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/43/a7/61/43a76189-9afa-8509-3396-a9f320e1697e/859718001348_cover.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1c/60/26/1c6026dd-05c7-4eea-5489-4cfdb5253468/mzaf_5958227331736530086.plus.aac.p.m4a'
+      id: 'VAdGW7QDJUI',
+      title: 'Chaleya',
+      artist: 'Arijit Singh, Shilpa Rao, Anirudh',
+      album: 'Jawan',
+      duration: 200,
+      thumbnail: 'https://i.ytimg.com/vi/VAdGW7QDJUI/hqdefault.jpg'
     },
     {
-      videoId: 'OPf0YbXqDm0',
-      title: 'Piche Tere',
-      artist: 'Kunwarr',
-      album: 'Piche Tere',
-      duration: 120,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/18/a6/5c/18a65cc6-4b64-444e-3113-1a024fd5c4d2/8902633377431.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/17/ae/db/17aedb14-bd64-941a-32c6-431a7bc90ce1/mzaf_17178062549233223855.plus.aac.p.m4a'
-    },
-    {
-      videoId: 'DyHmNVKHoG8',
-      title: 'Mi Amor',
-      artist: 'Sharn',
-      album: 'Mi Amor',
-      duration: 203,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/63/37/23/633723fa-a095-d5ed-794b-a2351c33851e/199350505591.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/bf/51/4a/bf514ab7-c16e-5cac-e442-c2e75574c27d/mzaf_6648123659717255775.plus.aac.p.m4a'
-    },
-    {
-      videoId: '34Na4j8AVgA',
+      id: '34Na4j8AVgA',
       title: 'Starboy',
       artist: 'The Weeknd, Daft Punk',
       album: 'Starboy',
       duration: 230,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b5/92/bb/b592bb72-52e3-e756-9b26-9f56d08f47ab/16UMGIM67864.rgb.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a'
+      thumbnail: 'https://i.ytimg.com/vi/34Na4j8AVgA/hqdefault.jpg'
     },
     {
-      videoId: 'uelHwf8o7_U',
-      title: 'Tera Ban Jaunga',
-      artist: 'Akhil Sachdeva, Tulsi Kumar',
-      album: 'Kabir Singh',
-      duration: 236,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/f6/70/84/f6708434-0123-ff36-0ac3-7401e8cf0f94/8902894360807_cover.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8e/b7/b9/8eb7b96b-ce3b-98b8-4ed9-c0c9aff20960/mzaf_13167890250017028075.plus.aac.p.m4a'
-    },
-    {
-      videoId: '09R8_2nJtjg',
-      title: 'Woofer',
-      artist: 'Dr. Zeus, Zora Randhawa',
-      album: 'Woofer',
-      duration: 172,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/44/7a/0b/447a0bce-4814-d1a3-d92c-75a459e417b9/886446910741.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/79/16/79/791679a3-04d6-0b17-7971-729942d2f159/mzaf_15249635295154942822.plus.aac.p.m4a'
-    },
-    {
-      videoId: 'hT_nvWreIhg',
+      id: '4NRXx6U8ABQ',
       title: 'Blinding Lights',
       artist: 'The Weeknd',
       album: 'After Hours',
       duration: 200,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/b5/92/bb/b592bb72-52e3-e756-9b26-9f56d08f47ab/16UMGIM67864.rgb.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/71/d6/1171d6ad-3c96-e027-2af6-58028426588c/mzaf_15137631797407745471.plus.aac.p.m4a'
+      thumbnail: 'https://i.ytimg.com/vi/4NRXx6U8ABQ/hqdefault.jpg'
     },
     {
-      videoId: 'wyzBOrkxkFw',
-      title: 'Levitating',
-      artist: 'Dua Lipa',
-      album: 'Future Nostalgia',
-      duration: 204,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/6c/11/d6/6c11d681-aa3a-d59e-4c2e-f77e181026ab/190295092665.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/59/dc/4d/59dc4dda-93ff-8f1c-c536-f005f6ea6af5/mzaf_3066686759813252385.plus.aac.p.m4a'
+      id: 'ElZfdU54Cp8',
+      title: 'Apna Bana Le',
+      artist: 'Arijit Singh, Sachin-Jigar',
+      album: 'Bhediya',
+      duration: 261,
+      thumbnail: 'https://i.ytimg.com/vi/ElZfdU54Cp8/hqdefault.jpg'
     },
     {
-      videoId: 'DyDfgMOUjCI',
-      title: 'Believer',
-      artist: 'Imagine Dragons',
-      album: 'Evolve',
-      duration: 204,
-      thumbnail: 'https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/11/7a/b8/117ab805-6811-8929-18b9-0fad7baf0c25/17UMGIM98210.rgb.jpg/600x600bb.jpg',
-      previewUrl: 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c0/3f/36/c03f367a-b66b-fd0a-a54c-30f8250c4410/mzaf_12768434238801682952.plus.aac.p.m4a'
+      id: 'RLzC55ai0eo',
+      title: 'Heeriye',
+      artist: 'Jasleen Royal, Arijit Singh',
+      album: 'Heeriye - Single',
+      duration: 194,
+      thumbnail: 'https://i.ytimg.com/vi/RLzC55ai0eo/hqdefault.jpg'
+    },
+    {
+      id: '2g89sFz8p3o',
+      title: 'Pehle Bhi Main',
+      artist: 'Vishal Mishra, Raj Shekhar',
+      album: 'ANIMAL',
+      duration: 250,
+      thumbnail: 'https://i.ytimg.com/vi/2g89sFz8p3o/hqdefault.jpg'
+    },
+    {
+      id: 'syFZfO_wfMQ',
+      title: 'Night Changes',
+      artist: 'One Direction',
+      album: 'FOUR',
+      duration: 227,
+      thumbnail: 'https://i.ytimg.com/vi/syFZfO_wfMQ/hqdefault.jpg'
+    },
+    {
+      id: 'gvhmsuL86fE',
+      title: 'Husn',
+      artist: 'Anuv Jain',
+      album: 'Husn - Single',
+      duration: 217,
+      thumbnail: 'https://i.ytimg.com/vi/gvhmsuL86fE/hqdefault.jpg'
+    },
+    {
+      id: '8v-TWxPwi0o',
+      title: 'O Maahi',
+      artist: 'Arijit Singh, Pritam',
+      album: 'Dunki',
+      duration: 233,
+      thumbnail: 'https://i.ytimg.com/vi/8v-TWxPwi0o/hqdefault.jpg'
+    },
+    {
+      id: 'HrNRfltwXnE',
+      title: 'Satranga',
+      artist: 'Arijit Singh, Shreyas Puranik',
+      album: 'ANIMAL',
+      duration: 271,
+      thumbnail: 'https://i.ytimg.com/vi/HrNRfltwXnE/hqdefault.jpg'
+    },
+    {
+      id: 'AgX2II9si7w',
+      title: 'Tujhe Kitna Chahne Lage',
+      artist: 'Arijit Singh, Mithoon',
+      album: 'Kabir Singh',
+      duration: 284,
+      thumbnail: 'https://i.ytimg.com/vi/AgX2II9si7w/hqdefault.jpg'
     }
   ];
 
@@ -108,954 +115,803 @@
     currentSong: INITIAL_TRACKS[0],
     isPlaying: false,
     currentTime: 0,
-    duration: 167,
+    duration: 268,
+    isShuffle: false,
+    repeatMode: 0, // 0: off, 1: all, 2: one
     lyricsLines: [],
     favorites: new Set(),
-    activeScreen: 'viewHome'
+    activeScreen: 'viewHome',
+    searchQuery: '',
+    searchDebounceTimer: null,
+    nowPlayingOpen: false
   };
 
-  // 3. Audio & YouTube Full-Song Playback Engine
+  // 3. Native Audio Player Engine (100% Pure HTML5 — Zero Video, Zero Iframe, Screen-Off Safe)
   const audioEl = document.getElementById('html5AudioPlayer');
-  let ytPlayer = null;
-  let ytReady = false;
-
-  // Format mm:ss helper
-  function formatTime(sec) {
-    if (!sec || isNaN(sec)) return '0:00';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return m + ':' + (s < 10 ? '0' : '') + s;
+  
+  // Configure audio attributes for TV & background playback
+  if (audioEl) {
+    audioEl.preload = 'auto';
+    audioEl.crossOrigin = 'anonymous';
   }
 
-  // Initialize YouTube Full-Song Engine
-  window.onYouTubeIframeAPIReady = function() {
+  // 4. UI Elements
+  const UI = {
+    quickPicksContainer: document.getElementById('quickPicksContainer'),
+    listenAgainContainer: document.getElementById('listenAgainContainer'),
+    listenTogetherContainer: document.getElementById('listenTogetherContainer'),
+    trendingContainer: document.getElementById('trendingContainer'),
+    
+    // Mini Player
+    miniPlayer: document.getElementById('miniPlayerBar'),
+    miniCover: document.getElementById('miniCover'),
+    miniTitle: document.getElementById('miniTitle'),
+    miniArtist: document.getElementById('miniArtist'),
+    miniPlayBtn: document.getElementById('miniPlayBtn'),
+    miniNextBtn: document.getElementById('miniNextBtn'),
+    miniProgressBar: document.getElementById('miniProgressBar'),
+    miniHeartBtn: document.getElementById('miniHeartBtn'),
+
+    // Now Playing Modal
+    nowPlayingScreen: document.getElementById('nowPlayingScreen'),
+    npBgBlur: document.getElementById('npBgBlur'),
+    npCover: document.getElementById('npCover'),
+    npTitle: document.getElementById('npTitle'),
+    npArtist: document.getElementById('npArtist'),
+    npCurrentTime: document.getElementById('npCurrentTime'),
+    npDuration: document.getElementById('npDuration'),
+    npSeekSlider: document.getElementById('npSeekSlider'),
+    npPlayBtn: document.getElementById('npPlayBtn'),
+    npPrevBtn: document.getElementById('npPrevBtn'),
+    npNextBtn: document.getElementById('npNextBtn'),
+    npHeartBtn: document.getElementById('npHeartBtn'),
+    npShuffleBtn: document.getElementById('npShuffleBtn'),
+    npRepeatBtn: document.getElementById('npRepeatBtn'),
+    npCloseBtn: document.getElementById('npCloseBtn'),
+    npLyricsColumn: document.getElementById('npLyricsColumn'),
+    lyricsScrollBox: document.getElementById('lyricsScrollBox'),
+
+    // Navigation & Views
+    navHome: document.getElementById('navHome'),
+    navSearch: document.getElementById('navSearch'),
+    navLibrary: document.getElementById('navLibrary'),
+    viewHome: document.getElementById('viewHome'),
+    viewSearch: document.getElementById('viewSearch'),
+    viewLibrary: document.getElementById('viewLibrary'),
+
+    // Search
+    searchInput: document.getElementById('searchInput'),
+    searchClearBtn: document.getElementById('searchClearBtn'),
+    searchResultsContainer: document.getElementById('searchResultsContainer'),
+    virtualKeyboard: document.getElementById('virtualKeyboard'),
+
+    // Modals
+    headerSettingsBtn: document.getElementById('headerSettingsBtn'),
+    settingsModal: document.getElementById('settingsModal'),
+    closeSettingsBtn: document.getElementById('closeSettingsBtn'),
+    settingsModalBackdrop: document.getElementById('settingsModalBackdrop'),
+    headerAddBtn: document.getElementById('headerAddBtn'),
+    addModal: document.getElementById('addModal'),
+    closeAddBtn: document.getElementById('closeAddBtn'),
+    addModalBackdrop: document.getElementById('addModalBackdrop')
+  };
+
+  // ════════════════════════════════════════════════════════════════
+  // 5. STREAM RESOLUTION ENGINE (Multi-Tier Full Song Extractor)
+  // ════════════════════════════════════════════════════════════════
+  async function resolveAudioStream(song) {
+    if (song.streamUrl && !song.streamUrl.includes('apple.com')) {
+      return song.streamUrl;
+    }
+
+    const host = (window.location && window.location.origin && window.location.origin.startsWith('http'))
+      ? window.location.origin
+      : 'http://localhost:8080';
+
+    const query = `${song.title} ${song.artist}`.trim();
+
+    // TIER 1: Local Dev Server / yt-dlp High-Speed Audio Engine
     try {
-      ytPlayer = new YT.Player('ytPlayerFrame', {
-        height: '100%',
-        width: '100%',
-        videoId: INITIAL_TRACKS[0].videoId,
-        playerVars: {
-          autoplay: 0,
-          controls: 0,
-          disablekb: 1,
-          fs: 0,
-          playsinline: 1,
-          rel: 0,
-          modestbranding: 1
-        },
-        events: {
-          onReady: function() {
-            ytReady = true;
-            console.log('✓ AyushMuzic Full-Song YouTube Engine Ready');
-          },
-          onStateChange: function(e) {
-            // 1: PLAYING, 2: PAUSED, 0: ENDED, 3: BUFFERING
-            if (e.data === 1) {
-              setPlaybackState(true);
-            } else if (e.data === 2) {
-              setPlaybackState(false);
-            } else if (e.data === 0) {
-              playNext();
-            }
-          },
-          onError: function(err) {
-            console.warn('YouTube playback error, fallback to audio stream:', err);
-            if (State.currentSong && State.currentSong.previewUrl && audioEl) {
-              audioEl.src = State.currentSong.previewUrl;
-              audioEl.play().catch(() => {});
-            }
+      const endpoint = song.id
+        ? `${host}/api/stream?id=${encodeURIComponent(song.id)}`
+        : `${host}/api/stream?q=${encodeURIComponent(query)}`;
+
+      const res = await fetch(endpoint, { signal: AbortSignal.timeout(6000) });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && (data.streamUrl || data.proxyUrl)) {
+          const direct = data.streamUrl || `${host}${data.proxyUrl}`;
+          song.streamUrl = direct;
+          if (data.duration) song.duration = data.duration;
+          if (data.cover && !song.thumbnail) song.thumbnail = data.cover;
+          return direct;
+        }
+      }
+    } catch (e) {
+      console.log('Tier 1 stream error:', e);
+    }
+
+    // TIER 2: Direct High-Quality Cloud Saavn CDN Stream (320kbps / 160kbps AAC MP4)
+    try {
+      const sUrl = `https://jiosaavn-api-2.vercel.app/search/songs?query=${encodeURIComponent(query)}`;
+      const sRes = await fetch(sUrl, { signal: AbortSignal.timeout(5000) });
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        const results = sData.results || (sData.data && sData.data.results);
+        if (results && results.length > 0) {
+          const match = results[0];
+          const dls = match.downloadUrl || [];
+          if (dls.length > 0) {
+            const best = dls[dls.length - 1].link;
+            song.streamUrl = best;
+            if (match.duration) song.duration = parseInt(match.duration, 10);
+            return best;
           }
         }
-      });
+      }
     } catch (e) {
-      console.warn('YouTube Iframe init error:', e);
-    }
-  };
-
-  // High-precision 250ms Progress & Lyric Synchronizer
-  setInterval(() => {
-    if (!State.isPlaying) return;
-    let cur = 0;
-    let dur = State.duration || 180;
-
-    if (ytPlayer && ytReady && typeof ytPlayer.getCurrentTime === 'function') {
-      try {
-        cur = ytPlayer.getCurrentTime() || 0;
-        const d = ytPlayer.getDuration();
-        if (d && d > 10) dur = d;
-      } catch (e) {}
-    } else if (audioEl && !audioEl.paused) {
-      cur = audioEl.currentTime || 0;
-      dur = audioEl.duration || dur;
+      console.log('Tier 2 Saavn stream error:', e);
     }
 
-    State.currentTime = cur;
-    State.duration = dur;
-
-    const npCur = document.getElementById('npCurrentTime');
-    const npDur = document.getElementById('npDurationTime');
-    const npSeek = document.getElementById('npSeekBar');
-
-    if (npCur) npCur.textContent = formatTime(cur);
-    if (npDur) npDur.textContent = formatTime(dur);
-    if (npSeek && dur > 0) npSeek.value = (cur / dur) * 100;
-
-    updateLyricsHighlight(cur);
-  }, 250);
-
-  // Audio element event listeners (for AAC fallback)
-  if (audioEl) {
-    audioEl.addEventListener('play', () => setPlaybackState(true));
-    audioEl.addEventListener('pause', () => setPlaybackState(false));
-    audioEl.addEventListener('ended', () => playNext());
+    // TIER 3: Fallback Audio Preview
+    return song.previewUrl || '';
   }
 
-  // 4. Playback Controller (Full Song Mode)
-  function playSong(song) {
+  // ════════════════════════════════════════════════════════════════
+  // 6. AUDIO PLAYBACK CONTROLLER
+  // ════════════════════════════════════════════════════════════════
+  async function playTrack(song, newQueue = null) {
     if (!song) return;
+
+    if (newQueue) {
+      State.queue = [...newQueue];
+      State.currentIndex = State.queue.findIndex(s => (s.id === song.id || s.title === song.title));
+      if (State.currentIndex === -1) State.currentIndex = 0;
+    }
+
     State.currentSong = song;
-    State.duration = song.duration || 180;
-    State.currentTime = 0;
+    updateTrackMetadataUI(song);
 
-    // Update Mini Player UI
-    const mpTitle = document.getElementById('mpTitle');
-    const mpArtist = document.getElementById('mpArtist');
-    const mpThumb = document.getElementById('mpThumb');
-    if (mpTitle) mpTitle.textContent = song.title;
-    if (mpArtist) mpArtist.textContent = song.artist;
-    if (mpThumb) mpThumb.src = song.thumbnail || 'assets/starboy_square.jpg';
+    // Show loading state in mini progress bar
+    if (UI.miniProgressBar) {
+      UI.miniProgressBar.style.width = '20%';
+    }
 
-    // Update Now Playing UI
-    const npTitle = document.getElementById('npTitle');
-    const npArtist = document.getElementById('npArtist');
-    const npArtwork = document.getElementById('npArtwork');
-    const npHeaderAlbum = document.getElementById('npHeaderAlbum');
-    if (npTitle) npTitle.textContent = song.title;
-    if (npArtist) npArtist.textContent = song.artist;
-    if (npArtwork) npArtwork.src = song.thumbnail || 'assets/starboy_square.jpg';
-    if (npHeaderAlbum) npHeaderAlbum.textContent = song.album || 'AyushMuzic Full Stream';
-
-    // Update Favorite Buttons
-    updateFaveUI(State.favorites.has(song.videoId || song.title));
-
-    // Update Dynamic Mesh Backdrop
-    updateDynamicMesh(song.thumbnail);
-
-    // Load Synced Lyrics
-    loadLyrics(song);
-
-    // PLAY FULL SONG
-    if (song.videoId) {
-      if (audioEl) { audioEl.pause(); }
-      if (ytPlayer && ytReady && typeof ytPlayer.loadVideoById === 'function') {
-        ytPlayer.loadVideoById(song.videoId);
-        ytPlayer.playVideo();
-        setPlaybackState(true);
-      } else {
-        setTimeout(() => {
-          if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
-            ytPlayer.loadVideoById(song.videoId);
-            ytPlayer.playVideo();
-            setPlaybackState(true);
-          } else if (song.previewUrl && audioEl) {
-            audioEl.src = song.previewUrl;
-            audioEl.play().catch(() => {});
-          }
-        }, 400);
+    try {
+      const streamUrl = await resolveAudioStream(song);
+      if (!streamUrl) {
+        console.error('No audio stream available for:', song.title);
+        return;
       }
-    } else {
-      // Resolve videoId via local server API or query
-      const query = song.title + ' ' + song.artist;
-      fetch(`/api/yt_id?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.videoId) {
-            song.videoId = data.videoId;
-            if (ytPlayer && ytReady && typeof ytPlayer.loadVideoById === 'function') {
-              ytPlayer.loadVideoById(data.videoId);
-              ytPlayer.playVideo();
-              setPlaybackState(true);
-              return;
-            }
-          }
-          if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
-            ytPlayer.loadPlaylist({
-              listType: 'search',
-              list: query
-            });
-            setPlaybackState(true);
-          }
-        })
-        .catch(() => {
-          if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
-            ytPlayer.loadPlaylist({
-              listType: 'search',
-              list: query
-            });
-            setPlaybackState(true);
-          } else if (song.previewUrl && audioEl) {
-            audioEl.src = song.previewUrl;
-            audioEl.play().catch(() => {});
-          }
+
+      audioEl.src = streamUrl;
+      const playPromise = audioEl.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          State.isPlaying = true;
+          updatePlaybackStateUI(true);
+        }).catch(err => {
+          console.warn('Playback auto-play blocked or error:', err);
+          State.isPlaying = false;
+          updatePlaybackStateUI(false);
         });
+      }
+
+      // Fetch Synced Lyrics
+      fetchLyrics(song.title, song.artist, song.duration);
+
+    } catch (ex) {
+      console.error('Playback failed:', ex);
     }
   }
 
-  function setPlaybackState(playing) {
-    State.isPlaying = playing;
-    const playSvg = `<path d="M8 5v14l11-7z"/>`;
-    const pauseSvg = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+  function togglePlayPause() {
+    if (!audioEl.src) {
+      if (State.currentSong) playTrack(State.currentSong);
+      return;
+    }
 
-    const mpIcon = document.getElementById('mpPlayPauseSvg');
-    const npIcon = document.getElementById('npMainPlaySvg');
-
-    if (mpIcon) mpIcon.innerHTML = playing ? pauseSvg : playSvg;
-    if (npIcon) npIcon.innerHTML = playing ? pauseSvg : playSvg;
-  }
-
-  function togglePlay() {
-    if (ytPlayer && ytReady && typeof ytPlayer.getPlayerState === 'function') {
-      const pState = ytPlayer.getPlayerState();
-      if (pState === 1) { // playing
-        ytPlayer.pauseVideo();
-        setPlaybackState(false);
-      } else {
-        ytPlayer.playVideo();
-        setPlaybackState(true);
-      }
-    } else if (audioEl) {
-      if (audioEl.paused) {
-        audioEl.play().then(() => setPlaybackState(true)).catch(() => {});
-      } else {
-        audioEl.pause();
-        setPlaybackState(false);
-      }
+    if (audioEl.paused) {
+      audioEl.play().then(() => {
+        State.isPlaying = true;
+        updatePlaybackStateUI(true);
+      }).catch(console.error);
+    } else {
+      audioEl.pause();
+      State.isPlaying = false;
+      updatePlaybackStateUI(false);
     }
   }
 
   function playNext() {
     if (State.queue.length === 0) return;
-    State.currentIndex = (State.currentIndex + 1) % State.queue.length;
-    playSong(State.queue[State.currentIndex]);
+    if (State.repeatMode === 2) { // Repeat one
+      audioEl.currentTime = 0;
+      audioEl.play();
+      return;
+    }
+
+    if (State.isShuffle) {
+      State.currentIndex = Math.floor(Math.random() * State.queue.length);
+    } else {
+      State.currentIndex = (State.currentIndex + 1) % State.queue.length;
+    }
+    playTrack(State.queue[State.currentIndex]);
   }
 
-  function playPrev() {
+  function playPrevious() {
     if (State.queue.length === 0) return;
+    if (audioEl.currentTime > 4) {
+      audioEl.currentTime = 0;
+      return;
+    }
     State.currentIndex = (State.currentIndex - 1 + State.queue.length) % State.queue.length;
-    playSong(State.queue[State.currentIndex]);
+    playTrack(State.queue[State.currentIndex]);
   }
 
-  // 5. Dynamic Mesh Background Color Extraction
-  function updateDynamicMesh(imgUrl) {
-    const mesh = document.getElementById('dynamicMeshBackdrop');
-    if (!mesh) return;
-    const gradients = [
-      'radial-gradient(circle at 20% 20%, #4a0e4e, #0f2027 50%, #203a43 100%)',
-      'radial-gradient(circle at 80% 20%, #ff416c, #8a2387 50%, #111111 100%)',
-      'radial-gradient(circle at 30% 70%, #134e5e, #71b280 50%, #000000 100%)',
-      'radial-gradient(circle at 70% 80%, #654ea3, #eaafc8 50%, #1e1e24 100%)'
-    ];
-    mesh.style.background = gradients[Math.floor(Math.random() * gradients.length)];
+  function seekTo(seconds) {
+    if (audioEl && isFinite(seconds)) {
+      audioEl.currentTime = seconds;
+    }
   }
 
-  // 6. Synced Lyrics Engine (LRCLIB)
-  async function loadLyrics(song) {
-    const scrollBox = document.getElementById('lyricsScrollBox');
-    if (!scrollBox) return;
-    scrollBox.innerHTML = '<div class="lyrics-line-active">Searching synced lyrics...</div>';
+  // ════════════════════════════════════════════════════════════════
+  // 7. NATIVE AUDIO EVENT LISTENERS
+  // ════════════════════════════════════════════════════════════════
+  if (audioEl) {
+    audioEl.addEventListener('timeupdate', () => {
+      State.currentTime = audioEl.currentTime;
+      State.duration = audioEl.duration || State.currentSong.duration || 240;
+      updateProgressUI(State.currentTime, State.duration);
+      syncLyricsWithTime(State.currentTime);
+    });
+
+    audioEl.addEventListener('play', () => {
+      State.isPlaying = true;
+      updatePlaybackStateUI(true);
+    });
+
+    audioEl.addEventListener('pause', () => {
+      State.isPlaying = false;
+      updatePlaybackStateUI(false);
+    });
+
+    audioEl.addEventListener('ended', () => {
+      playNext();
+    });
+
+    audioEl.addEventListener('error', (e) => {
+      console.warn('HTML5 Audio encountered error:', e);
+      // Auto-skip or retry
+      setTimeout(playNext, 1200);
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 8. UI UPDATERS (Mini-Player & Full Now Playing)
+  // ════════════════════════════════════════════════════════════════
+  function formatTime(sec) {
+    if (isNaN(sec) || sec < 0) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  function updateTrackMetadataUI(song) {
+    const coverUrl = song.thumbnail || 'assets/starboy_square.jpg';
+    if (UI.miniCover) UI.miniCover.src = coverUrl;
+    if (UI.miniTitle) UI.miniTitle.textContent = song.title;
+    if (UI.miniArtist) UI.miniArtist.textContent = song.artist;
+
+    if (UI.npCover) UI.npCover.src = coverUrl;
+    if (UI.npTitle) UI.npTitle.textContent = song.title;
+    if (UI.npArtist) UI.npArtist.textContent = song.artist;
+    if (UI.npBgBlur) UI.npBgBlur.style.backgroundImage = `url('${coverUrl}')`;
+
+    updateFaveUI(State.favorites.has(song.id || song.title));
+  }
+
+  function updatePlaybackStateUI(playing) {
+    const playIconSvg = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    const pauseIconSvg = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
+    if (UI.miniPlayBtn) UI.miniPlayBtn.innerHTML = playing ? pauseIconSvg : playIconSvg;
+    if (UI.npPlayBtn) UI.npPlayBtn.innerHTML = playing ? pauseIconSvg : playIconSvg;
+  }
+
+  function updateProgressUI(current, duration) {
+    const pct = duration > 0 ? (current / duration) * 100 : 0;
+    if (UI.miniProgressBar) {
+      UI.miniProgressBar.style.width = `${pct}%`;
+    }
+    if (UI.npCurrentTime) UI.npCurrentTime.textContent = formatTime(current);
+    if (UI.npDuration) UI.npDuration.textContent = formatTime(duration);
+    if (UI.npSeekSlider) {
+      UI.npSeekSlider.value = pct;
+      UI.npSeekSlider.style.background = `linear-gradient(to right, #2bd3ff 0%, #2bd3ff ${pct}%, rgba(255,255,255,0.2) ${pct}%, rgba(255,255,255,0.2) 100%)`;
+    }
+  }
+
+  function updateFaveUI(isFaved) {
+    const color = isFaved ? '#ff3b30' : 'currentColor';
+    const fill = isFaved ? '#ff3b30' : 'none';
+    const heartSvg = `<svg viewBox="0 0 24 24" fill="${fill}" stroke="${color}" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+    if (UI.miniHeartBtn) UI.miniHeartBtn.innerHTML = heartSvg;
+    if (UI.npHeartBtn) UI.npHeartBtn.innerHTML = heartSvg;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 9. LRCLIB SYNCED LYRICS ENGINE
+  // ════════════════════════════════════════════════════════════════
+  async function fetchLyrics(trackName, artistName, duration) {
+    if (!UI.lyricsScrollBox) return;
+    UI.lyricsScrollBox.innerHTML = '<div class="lyrics-line-active">Searching lyrics...</div>';
+    State.lyricsLines = [];
 
     try {
-      const cleanTitle = song.title.replace(/\([^)]*\)|\[[^\]]*\]/g, '').trim();
-      const cleanArtist = song.artist.split(/[,&]/)[0].trim();
-      const res = await fetch(`https://lrclib.net/api/get?track_name=${encodeURIComponent(cleanTitle)}&artist_name=${encodeURIComponent(cleanArtist)}`);
-      
+      const cleanTitle = trackName.replace(/\(.*?\)|\[.*?\]|-.*$/g, '').trim();
+      const cleanArtist = artistName.replace(/,.*$/, '').trim();
+      const url = `https://lrclib.net/api/get?track_name=${encodeURIComponent(cleanTitle)}&artist_name=${encodeURIComponent(cleanArtist)}&duration=${Math.round(duration || 210)}`;
+
+      const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
       if (res.ok) {
         const data = await res.json();
         if (data.syncedLyrics) {
-          const lines = [];
-          const raw = data.syncedLyrics.split('\n');
-          for (const line of raw) {
-            const m = line.match(/\[(\d+):(\d+\.?\d*)\](.*)/);
-            if (m) {
-              const time = parseInt(m[1], 10) * 60 + parseFloat(m[2]);
-              const text = m[3].trim();
-              if (text) lines.push({ time, text });
-            }
-          }
-          State.lyricsLines = lines;
-          renderLyricsLines(lines);
+          parseSyncedLyrics(data.syncedLyrics);
+          renderLyricsLines();
+          return;
+        } else if (data.plainLyrics) {
+          renderPlainLyrics(data.plainLyrics);
           return;
         }
       }
     } catch (e) {
-      console.warn('Lyrics fetch err:', e);
+      console.log('Lyrics lookup fallback:', e);
     }
 
-    State.lyricsLines = [
-      { time: 0, text: `♪ ${song.title} ♪` },
-      { time: 5, text: song.artist },
-      { time: 10, text: 'Ad-free high definition stream' }
-    ];
-    renderLyricsLines(State.lyricsLines);
+    UI.lyricsScrollBox.innerHTML = `<div class="lyrics-line-active">${trackName}</div><div class="lyrics-line-secondary">${artistName}</div>`;
   }
 
-  function renderLyricsLines(lines) {
-    const box = document.getElementById('lyricsScrollBox');
-    if (!box) return;
-    box.innerHTML = '';
-    lines.forEach((l, idx) => {
-      const div = document.createElement('div');
-      div.className = 'lyric-line' + (idx === 0 ? ' active' : '');
-      div.dataset.time = l.time;
-      div.textContent = l.text;
-      box.appendChild(div);
-    });
+  function parseSyncedLyrics(lrcText) {
+    const lines = lrcText.split('\n');
+    const parsed = [];
+    const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+
+    for (const line of lines) {
+      const match = line.match(timeRegex);
+      if (match) {
+        const min = parseInt(match[1], 10);
+        const sec = parseInt(match[2], 10);
+        const ms = parseInt(match[3].padEnd(3, '0').slice(0, 3), 10);
+        const time = min * 60 + sec + ms / 1000;
+        const text = line.replace(timeRegex, '').trim();
+        if (text) parsed.push({ time, text });
+      }
+    }
+    State.lyricsLines = parsed;
   }
 
-  function updateLyricsHighlight(curTime) {
-    const box = document.getElementById('lyricsScrollBox');
-    if (!box || !State.lyricsLines.length) return;
-    const lines = box.getElementsByClassName('lyric-line');
+  function renderLyricsLines() {
+    if (!UI.lyricsScrollBox) return;
+    UI.lyricsScrollBox.innerHTML = State.lyricsLines
+      .map((l, i) => `<div class="lyrics-line focusable" id="lyric-${i}" data-time="${l.time}" tabindex="0">${l.text}</div>`)
+      .join('');
+  }
 
-    let activeIdx = 0;
+  function renderPlainLyrics(plainText) {
+    if (!UI.lyricsScrollBox) return;
+    UI.lyricsScrollBox.innerHTML = plainText.split('\n')
+      .filter(l => l.trim().length > 0)
+      .map(l => `<div class="lyrics-line">${l}</div>`)
+      .join('');
+  }
+
+  function syncLyricsWithTime(currentTime) {
+    if (!State.lyricsLines || State.lyricsLines.length === 0 || !UI.lyricsScrollBox) return;
+
+    let activeIndex = -1;
     for (let i = 0; i < State.lyricsLines.length; i++) {
-      if (curTime >= State.lyricsLines[i].time) {
-        activeIdx = i;
+      if (currentTime >= State.lyricsLines[i].time) {
+        activeIndex = i;
       } else {
         break;
       }
     }
 
-    for (let i = 0; i < lines.length; i++) {
-      if (i === activeIdx) {
-        if (!lines[i].classList.contains('active')) {
-          lines[i].classList.add('active');
-          lines[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (activeIndex !== -1) {
+      const allLines = UI.lyricsScrollBox.querySelectorAll('.lyrics-line');
+      allLines.forEach((el, idx) => {
+        if (idx === activeIndex) {
+          el.classList.add('lyrics-line-active');
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          el.classList.remove('lyrics-line-active');
         }
-      } else {
-        lines[i].classList.remove('active');
-      }
+      });
     }
   }
 
-  // 7. Search Engine (Active iTunes API Query + Instant Clickable Songs)
-  async function searchMusic(query) {
-    const container = document.getElementById('searchResultsContainer');
-    if (!container) return;
-    container.innerHTML = '<div class="loading-shimmer">Searching 100M+ tracks...</div>';
+  // ════════════════════════════════════════════════════════════════
+  // 10. RENDERING HOME FEED (1:1 AMOLED Grid from user_ss.jpg)
+  // ════════════════════════════════════════════════════════════════
+  function renderHomeFeed() {
+    // 1. Quick Picks: 4 rows per column horizontal grid
+    if (UI.quickPicksContainer) {
+      const tracks = INITIAL_TRACKS;
+      let colsHtml = '';
+      for (let i = 0; i < tracks.length; i += 4) {
+        const colSlice = tracks.slice(i, i + 4);
+        colsHtml += '<div class="quick-picks-col">';
+        colSlice.forEach((t) => {
+          colsHtml += `
+            <div class="quick-pick-item focusable" data-id="${t.id}" tabindex="0">
+              <img src="${t.thumbnail}" class="quick-pick-thumb" alt="${t.title}" loading="lazy">
+              <div class="quick-pick-info">
+                <div class="quick-pick-title">${t.title}</div>
+                <div class="quick-pick-artist">${t.artist}</div>
+              </div>
+              <button class="quick-pick-more-btn" title="More">⋮</button>
+            </div>
+          `;
+        });
+        colsHtml += '</div>';
+      }
+      UI.quickPicksContainer.innerHTML = colsHtml;
 
+      // Attach click handlers
+      UI.quickPicksContainer.querySelectorAll('.quick-pick-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = item.getAttribute('data-id');
+          const found = INITIAL_TRACKS.find(s => s.id === id);
+          if (found) playTrack(found, INITIAL_TRACKS);
+        });
+      });
+    }
+
+    // 2. Listen Again & Stations (Cards)
+    function renderCardStrip(container, items) {
+      if (!container) return;
+      container.innerHTML = items.map(item => `
+        <div class="music-card focusable" data-id="${item.id}" tabindex="0">
+          <div class="music-card-img-wrap">
+            <img src="${item.thumbnail}" class="music-card-img" alt="${item.title}" loading="lazy">
+            <div class="music-card-play-hover">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          </div>
+          <div class="music-card-title">${item.title}</div>
+          <div class="music-card-subtitle">${item.artist}</div>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.music-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.getAttribute('data-id');
+          const found = items.find(s => s.id === id);
+          if (found) playTrack(found, items);
+        });
+      });
+    }
+
+    renderCardStrip(UI.listenAgainContainer, INITIAL_TRACKS.slice(0, 6));
+    renderCardStrip(UI.listenTogetherContainer, INITIAL_TRACKS.slice(4, 10));
+    renderCardStrip(UI.trendingContainer, INITIAL_TRACKS);
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 11. SEARCH VIEW & ON-SCREEN TV KEYBOARD
+  // ════════════════════════════════════════════════════════════════
+  function initSearch() {
+    if (UI.searchInput) {
+      UI.searchInput.addEventListener('input', (e) => {
+        State.searchQuery = e.target.value;
+        debounceSearch(State.searchQuery);
+      });
+    }
+
+    if (UI.searchClearBtn) {
+      UI.searchClearBtn.addEventListener('click', () => {
+        if (UI.searchInput) UI.searchInput.value = '';
+        State.searchQuery = '';
+        if (UI.searchResultsContainer) UI.searchResultsContainer.innerHTML = '';
+      });
+    }
+
+    // Virtual Keyboard Keys Click Handling
+    if (UI.virtualKeyboard) {
+      UI.virtualKeyboard.querySelectorAll('.tv-key').forEach(key => {
+        key.addEventListener('click', () => {
+          const val = key.getAttribute('data-key');
+          if (val === 'DEL') {
+            State.searchQuery = State.searchQuery.slice(0, -1);
+          } else if (val === 'SPACE') {
+            State.searchQuery += ' ';
+          } else if (val === 'CLEAR') {
+            State.searchQuery = '';
+          } else {
+            State.searchQuery += val;
+          }
+          if (UI.searchInput) UI.searchInput.value = State.searchQuery;
+          debounceSearch(State.searchQuery);
+        });
+      });
+    }
+  }
+
+  function debounceSearch(query) {
+    clearTimeout(State.searchDebounceTimer);
+    if (!query.trim()) {
+      if (UI.searchResultsContainer) UI.searchResultsContainer.innerHTML = '';
+      return;
+    }
+    State.searchDebounceTimer = setTimeout(() => {
+      performSearch(query.trim());
+    }, 400);
+  }
+
+  async function performSearch(query) {
+    if (!UI.searchResultsContainer) return;
+    UI.searchResultsContainer.innerHTML = '<div class="loading-shimmer" style="padding: 24px;">Searching AyushMuzic catalog...</div>';
+
+    const host = (window.location && window.location.origin && window.location.origin.startsWith('http'))
+      ? window.location.origin
+      : 'http://localhost:8080';
+
+    let results = [];
+
+    // 1. Try Dev Server search endpoint
     try {
-      const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=30`;
-      const res = await fetch(itunesUrl);
-      const data = await res.json();
-
-      if (data.results && data.results.length > 0) {
-        const songs = data.results.map(r => ({
-          videoId: '',
-          title: r.trackName,
-          artist: r.artistName,
-          album: r.collectionName,
-          duration: Math.round((r.trackTimeMillis || 210000) / 1000),
-          thumbnail: (r.artworkUrl100 || '').replace('100x100bb.jpg', '600x600bb.jpg'),
-          previewUrl: r.previewUrl
-        }));
-
-        renderSearchResults(songs);
-        return;
+      const res = await fetch(`${host}/api/search?q=${encodeURIComponent(query)}`, { signal: AbortSignal.timeout(5000) });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+          results = data.results;
+        }
       }
     } catch (e) {
-      console.warn('Search API error:', e);
+      console.log('Dev search error, trying cloud Saavn fallback:', e);
     }
 
-    // Fallback: match initial tracks
-    const matches = INITIAL_TRACKS.filter(t =>
-      t.title.toLowerCase().includes(query.toLowerCase()) ||
-      t.artist.toLowerCase().includes(query.toLowerCase())
-    );
-    renderSearchResults(matches);
-  }
+    // 2. Fallback to Cloud Saavn Search API
+    if (results.length === 0) {
+      try {
+        const sRes = await fetch(`https://jiosaavn-api-2.vercel.app/search/songs?query=${encodeURIComponent(query)}`, { signal: AbortSignal.timeout(5000) });
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          const items = sData.results || (sData.data && sData.data.results) || [];
+          results = items.map(it => {
+            const dls = it.downloadUrl || [];
+            const bestLink = dls.length > 0 ? dls[dls.length - 1].link : null;
+            const imgs = it.image || [];
+            const cover = imgs.length > 0 ? imgs[imgs.length - 1].url : 'assets/starboy_square.jpg';
+            return {
+              id: it.id,
+              title: it.name,
+              artist: it.primaryArtists || it.artist || 'AyushMuzic',
+              duration: parseInt(it.duration, 10) || 210,
+              thumbnail: cover,
+              streamUrl: bestLink
+            };
+          });
+        }
+      } catch (e) {
+        console.log('Saavn search fallback error:', e);
+      }
+    }
 
-  function renderSearchResults(songs) {
-    const container = document.getElementById('searchResultsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    if (!songs.length) {
-      container.innerHTML = '<div class="search-placeholder-prompt">No songs found. Try another search.</div>';
+    if (results.length === 0) {
+      UI.searchResultsContainer.innerHTML = `<div style="padding: 30px; color: var(--text-secondary); text-align: center;">No results found for "${query}"</div>`;
       return;
     }
 
-    songs.forEach(s => {
-      const row = document.createElement('div');
-      row.className = 'song-pick-item focusable';
-      row.tabIndex = 0;
-      row.innerHTML = `
-        <img src="${s.thumbnail || 'assets/starboy_square.jpg'}" alt="" class="song-pick-art">
-        <div class="song-pick-meta">
-          <div class="song-pick-title">${s.title}</div>
-          <div class="song-pick-artist">${s.artist} • ${formatTime(s.duration)}</div>
+    // Render Results Grid
+    UI.searchResultsContainer.innerHTML = results.map(item => `
+      <div class="search-result-item focusable" data-id="${item.id}" tabindex="0">
+        <img src="${item.thumbnail}" class="search-result-thumb" alt="${item.title}" loading="lazy">
+        <div class="search-result-meta">
+          <div class="search-result-title">${item.title}</div>
+          <div class="search-result-artist">${item.artist} • ${formatTime(item.duration)}</div>
         </div>
-      `;
-      row.addEventListener('click', () => {
-        State.queue.unshift(s);
-        State.currentIndex = 0;
-        playSong(s);
-      });
-      container.appendChild(row);
-    });
-  }
-
-  // 8. Render Home Screen Sections (Exact match of user_ss.jpg)
-  function renderHomeScreen() {
-    // 1. Quick picks (4 items per column)
-    const qpBox = document.getElementById('quickPicksContainer');
-    if (qpBox) {
-      qpBox.innerHTML = '';
-      const col1 = document.createElement('div');
-      col1.className = 'quick-picks-column';
-      const col2 = document.createElement('div');
-      col2.className = 'quick-picks-column';
-
-      INITIAL_TRACKS.slice(0, 4).forEach(song => {
-        col1.appendChild(createSongRow(song));
-      });
-      INITIAL_TRACKS.slice(4, 8).forEach(song => {
-        col2.appendChild(createSongRow(song));
-      });
-
-      qpBox.appendChild(col1);
-      qpBox.appendChild(col2);
-    }
-
-    // 2. Listen again (large square cards)
-    const laBox = document.getElementById('listenAgainContainer');
-    if (laBox) {
-      laBox.innerHTML = '';
-      INITIAL_TRACKS.slice(4, 9).forEach(song => {
-        laBox.appendChild(createLargeCard(song));
-      });
-    }
-
-    // 3. Listen together (station cards)
-    const ltBox = document.getElementById('listenTogetherContainer');
-    if (ltBox) {
-      ltBox.innerHTML = '';
-      INITIAL_TRACKS.slice(0, 5).forEach(song => {
-        ltBox.appendChild(createLargeCard(song));
-      });
-    }
-
-    // 4. Trending Worldwide
-    const trBox = document.getElementById('trendingContainer');
-    if (trBox) {
-      trBox.innerHTML = '';
-      INITIAL_TRACKS.slice(2, 8).forEach(song => {
-        trBox.appendChild(createLargeCard(song));
-      });
-    }
-  }
-
-  function createSongRow(song) {
-    const item = document.createElement('div');
-    item.className = 'song-pick-item focusable';
-    item.tabIndex = 0;
-    item.innerHTML = `
-      <img src="${song.thumbnail || 'assets/starboy_square.jpg'}" alt="" class="song-pick-art">
-      <div class="song-pick-meta">
-        <div class="song-pick-title">${song.title}</div>
-        <div class="song-pick-artist">${song.artist}</div>
+        <button class="search-result-play-btn" title="Play">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </button>
       </div>
-      <div class="song-pick-more">⋮</div>
-    `;
-    item.addEventListener('click', () => {
-      playSong(song);
+    `).join('');
+
+    UI.searchResultsContainer.querySelectorAll('.search-result-item').forEach((row, idx) => {
+      row.addEventListener('click', () => {
+        playTrack(results[idx], results);
+      });
     });
-    return item;
   }
 
-  function createLargeCard(song) {
-    const card = document.createElement('div');
-    card.className = 'album-large-card focusable';
-    card.tabIndex = 0;
-    card.innerHTML = `
-      <img src="${song.thumbnail || 'assets/starboy_square.jpg'}" alt="" class="album-card-thumb">
-      <div class="album-card-title">${song.title}</div>
-      <div class="album-card-sub">${song.artist}</div>
-    `;
-    card.addEventListener('click', () => {
-      playSong(song);
-    });
-    return card;
-  }
-
-  // 9. Favorite System
-  function updateFaveUI(isFav) {
-    const fill = isFav ? '#ff2d55' : 'none';
-    const stroke = isFav ? '#ff2d55' : 'currentColor';
-    const svgPath = `<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>`;
-
-    const mpFave = document.getElementById('mpFaveSvg');
-    const npFave = document.getElementById('npFaveSvg');
-
-    if (mpFave) {
-      mpFave.setAttribute('fill', fill);
-      mpFave.setAttribute('stroke', stroke);
-      mpFave.innerHTML = svgPath;
-    }
-    if (npFave) {
-      npFave.setAttribute('fill', fill);
-      npFave.setAttribute('stroke', stroke);
-      npFave.innerHTML = svgPath;
-    }
-  }
-
-  function toggleFave() {
-    if (!State.currentSong) return;
-    const key = State.currentSong.videoId || State.currentSong.title;
-    if (State.favorites.has(key)) {
-      State.favorites.delete(key);
-      updateFaveUI(false);
-    } else {
-      State.favorites.add(key);
-      updateFaveUI(true);
-    }
-    renderLibraryContent();
-  }
-
-  // 10. Screen Switcher
+  // ════════════════════════════════════════════════════════════════
+  // 12. SCREEN NAVIGATION & MODAL MANAGEMENT
+  // ════════════════════════════════════════════════════════════════
   function switchScreen(screenId) {
     State.activeScreen = screenId;
-    document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-    const target = document.getElementById(screenId);
-    if (target) target.classList.add('active');
-
-    // Update bottom nav tabs
-    document.querySelectorAll('.nav-tab').forEach(t => {
-      if (t.dataset.screen === screenId) {
-        t.classList.add('active');
-      } else {
-        t.classList.remove('active');
-      }
+    [UI.viewHome, UI.viewSearch, UI.viewLibrary].forEach(view => {
+      if (view) view.classList.remove('active');
     });
 
-    if (screenId === 'viewSearch') {
-      setTimeout(() => {
-        const firstKey = document.querySelector('.tv-key');
-        if (firstKey) firstKey.focus();
-      }, 100);
+    [UI.navHome, UI.navSearch, UI.navLibrary].forEach(btn => {
+      if (btn) btn.classList.remove('active');
+    });
+
+    if (screenId === 'viewHome') {
+      if (UI.viewHome) UI.viewHome.classList.add('active');
+      if (UI.navHome) UI.navHome.classList.add('active');
+    } else if (screenId === 'viewSearch') {
+      if (UI.viewSearch) UI.viewSearch.classList.add('active');
+      if (UI.navSearch) UI.navSearch.classList.add('active');
+      setTimeout(() => { if (UI.searchInput) UI.searchInput.focus(); }, 100);
     } else if (screenId === 'viewLibrary') {
-      renderLibraryContent();
-    } else if (screenId === 'viewAnalytics') {
-      updateAnalyticsStats();
+      if (UI.viewLibrary) UI.viewLibrary.classList.add('active');
+      if (UI.navLibrary) UI.navLibrary.classList.add('active');
     }
   }
 
-  // 11. Samsung TV Remote & 2D Spatial Navigation
-  try {
-    if (window.tizen && tizen.tvinputdevice) {
-      const tvKeys = ['MediaPlay', 'MediaPause', 'MediaPlayPause', 'MediaFastForward', 'MediaRewind', 'MediaStop'];
-      tvKeys.forEach(k => {
-        try { tizen.tvinputdevice.registerKey(k); } catch (e) {}
-      });
-    }
-  } catch (e) {}
-
-  document.addEventListener('keydown', function(e) {
-    const key = e.keyCode;
-    const keyName = e.key;
-
-    // Media Keys
-    if (keyName === 'MediaPlay' || keyName === 'MediaPlayPause') {
-      togglePlay();
-      e.preventDefault();
-      return;
-    } else if (keyName === 'MediaPause') {
-      audioEl.pause();
-      setPlaybackState(false);
-      e.preventDefault();
-      return;
-    } else if (keyName === 'MediaFastForward') {
-      playNext();
-      e.preventDefault();
-      return;
-    } else if (keyName === 'MediaRewind') {
-      playPrev();
-      e.preventDefault();
-      return;
-    }
-
-    // Tizen TV Keycodes:
-    // Left: 37, Up: 38, Right: 39, Down: 40, Enter: 13, Return/Back: 10009, Escape: 27
-    if (key === 10009 || key === 27) { // Back
-      const sModal = document.getElementById('settingsModal');
-      if (sModal && !sModal.classList.contains('hidden')) {
-        sModal.classList.add('hidden');
-        e.preventDefault();
-        return;
-      }
-      const aModal = document.getElementById('addModal');
-      if (aModal && !aModal.classList.contains('hidden')) {
-        aModal.classList.add('hidden');
-        e.preventDefault();
-        return;
-      }
-      const modal = document.getElementById('nowPlayingModal');
-      if (modal && !modal.classList.contains('hidden')) {
-        modal.classList.add('hidden');
-        e.preventDefault();
-        return;
-      }
-      if (State.activeScreen !== 'viewHome') {
-        switchScreen('viewHome');
-        e.preventDefault();
-        return;
-      }
-    }
-
-    // Enter / OK Key (Activates any focused element)
-    if (key === 13) {
-      const current = document.activeElement;
-      if (current && typeof current.click === 'function') {
-        current.click();
-        e.preventDefault();
-        return;
-      }
-    }
-
-    // D-Pad Arrows
-    if ([37, 38, 39, 40].includes(key)) {
-      handleSpatialNavigation(key);
-      e.preventDefault();
-    }
-  });
-
-  // Intelligent 2D Spatial Navigation
-  function handleSpatialNavigation(keyCode) {
-    const focusable = Array.from(document.querySelectorAll('.focusable'))
-      .filter(el => {
-        if (el.offsetParent === null) return false;
-        const style = window.getComputedStyle(el);
-        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
-        return true;
-      });
-
-    if (focusable.length === 0) return;
-
-    let current = document.activeElement;
-    if (!current || !focusable.includes(current)) {
-      focusable[0].focus();
-      return;
-    }
-
-    const cRect = current.getBoundingClientRect();
-    const cX = cRect.left + cRect.width / 2;
-    const cY = cRect.top + cRect.height / 2;
-
-    let bestElem = null;
-    let minDistance = Infinity;
-
-    for (const el of focusable) {
-      if (el === current) continue;
-      const tRect = el.getBoundingClientRect();
-      const tX = tRect.left + tRect.width / 2;
-      const tY = tRect.top + tRect.height / 2;
-
-      const dx = tX - cX;
-      const dy = tY - cY;
-
-      let score = Infinity;
-
-      if (keyCode === 39) { // Right
-        if (tRect.left >= cRect.left + 4) {
-          score = Math.abs(dx) + Math.abs(dy) * 2.2;
-        }
-      } else if (keyCode === 37) { // Left
-        if (tRect.right <= cRect.right - 4) {
-          score = Math.abs(dx) + Math.abs(dy) * 2.2;
-        }
-      } else if (keyCode === 40) { // Down
-        if (tRect.top >= cRect.top + 4) {
-          score = Math.abs(dy) + Math.abs(dx) * 1.6;
-        }
-      } else if (keyCode === 38) { // Up
-        if (tRect.bottom <= cRect.bottom - 4) {
-          score = Math.abs(dy) + Math.abs(dx) * 1.6;
-        }
-      }
-
-      if (score < minDistance) {
-        minDistance = score;
-        bestElem = el;
-      }
-    }
-
-    if (bestElem) {
-      bestElem.focus();
-      bestElem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
-    } else {
-      // Fallback linear
-      const idx = focusable.indexOf(current);
-      if (keyCode === 39 || keyCode === 40) {
-        if (idx < focusable.length - 1) focusable[idx + 1].focus();
-      } else if (keyCode === 37 || keyCode === 38) {
-        if (idx > 0) focusable[idx - 1].focus();
-      }
-    }
+  function openNowPlaying() {
+    State.nowPlayingOpen = true;
+    if (UI.nowPlayingScreen) UI.nowPlayingScreen.classList.remove('hidden');
+    if (UI.npPlayBtn) UI.npPlayBtn.focus();
   }
 
-  // 12. Library Screen Content
-  let activeLibTab = 'liked';
-  function renderLibraryContent() {
-    const box = document.getElementById('libraryItemsContainer');
-    if (!box) return;
-    box.innerHTML = '';
+  function closeNowPlaying() {
+    State.nowPlayingOpen = false;
+    if (UI.nowPlayingScreen) UI.nowPlayingScreen.classList.add('hidden');
+    if (UI.miniPlayer) UI.miniPlayer.focus();
+  }
 
-    if (activeLibTab === 'liked') {
-      const likedSongs = State.queue.filter(s => State.favorites.has(s.videoId || s.title));
-      if (!likedSongs.length) {
-        box.innerHTML = '<div class="search-placeholder-prompt">No liked songs yet. Tap the heart button while listening to add songs to your favorites.</div>';
+  // ════════════════════════════════════════════════════════════════
+  // 13. TV D-PAD & HARDWARE REMOTE CONTROLS
+  // ════════════════════════════════════════════════════════════════
+  function initRemoteNavigation() {
+    window.addEventListener('keydown', (e) => {
+      // Hardware Media Keys
+      if (e.key === 'MediaPlayPause' || e.keyCode === 10252) {
+        togglePlayPause();
+        e.preventDefault();
         return;
       }
-      likedSongs.forEach(s => {
-        box.appendChild(createSongRow(s));
-      });
-    } else if (activeLibTab === 'recent') {
-      INITIAL_TRACKS.slice(0, 6).forEach(s => {
-        box.appendChild(createSongRow(s));
-      });
-    } else {
-      box.innerHTML = `
-        <div class="search-placeholder-prompt">
-          <p>Local Playlists: Favorites Mix, Night Drive, Workout Beats</p>
-        </div>
-      `;
-    }
-  }
+      if (e.key === 'MediaPlay' || e.keyCode === 415) {
+        if (audioEl.paused) togglePlayPause();
+        e.preventDefault();
+        return;
+      }
+      if (e.key === 'MediaPause' || e.keyCode === 19) {
+        if (!audioEl.paused) togglePlayPause();
+        e.preventDefault();
+        return;
+      }
+      if (e.key === 'MediaTrackNext' || e.keyCode === 10253) {
+        playNext();
+        e.preventDefault();
+        return;
+      }
+      if (e.key === 'MediaTrackPrevious' || e.keyCode === 10254) {
+        playPrevious();
+        e.preventDefault();
+        return;
+      }
 
-  // 13. Analytics Stats
-  function updateAnalyticsStats() {
-    const p = document.getElementById('statPlays');
-    const m = document.getElementById('statMinutes');
-    const f = document.getElementById('statFavorites');
-    if (p) p.textContent = (State.playCount || 14).toString();
-    if (m) m.textContent = (Math.round((State.totalSeconds || 3120) / 60)) + 'm';
-    if (f) f.textContent = State.favorites.size.toString();
-  }
-
-  // 14. Setup Virtual Keyboard, Modals & UI Event Listeners
-  function initEvents() {
-    const sInput = document.getElementById('searchInput');
-
-    // On-Screen TV Virtual Keyboard Buttons
-    document.querySelectorAll('.tv-key').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (!sInput) return;
-        const val = btn.dataset.key;
-        if (val === 'SPACE') {
-          sInput.value += ' ';
-        } else if (val === 'BACKSPACE') {
-          sInput.value = sInput.value.slice(0, -1);
-        } else if (val === 'CLEAR') {
-          sInput.value = '';
-        } else {
-          sInput.value += val;
-        }
-
-        const q = sInput.value.trim();
-        const clr = document.getElementById('clearSearchBtn');
-        if (clr) clr.style.display = q ? 'block' : 'none';
-
-        if (q) {
-          searchMusic(q);
-        } else {
-          document.getElementById('searchResultsContainer').innerHTML = '<div class="search-placeholder-prompt">Click letters above or type to search ad-free music</div>';
-        }
-      });
-    });
-
-    // Real-time keyboard input typing
-    let searchDebounce = null;
-    if (sInput) {
-      sInput.addEventListener('input', (e) => {
-        clearTimeout(searchDebounce);
-        const q = e.target.value.trim();
-        const clr = document.getElementById('clearSearchBtn');
-        if (clr) clr.style.display = q ? 'block' : 'none';
-
-        if (!q) {
-          document.getElementById('searchResultsContainer').innerHTML = '<div class="search-placeholder-prompt">Click letters above or type to search ad-free music</div>';
+      // Back Key (Tizen / Browser Escape)
+      if (e.key === 'Escape' || e.key === 'Back' || e.keyCode === 10009) {
+        if (State.nowPlayingOpen) {
+          closeNowPlaying();
+          e.preventDefault();
           return;
         }
-
-        searchDebounce = setTimeout(() => {
-          searchMusic(q);
-        }, 300);
-      });
-    }
-
-    document.getElementById('clearSearchBtn')?.addEventListener('click', () => {
-      if (sInput) {
-        sInput.value = '';
-        sInput.focus();
-        document.getElementById('clearSearchBtn').style.display = 'none';
-        document.getElementById('searchResultsContainer').innerHTML = '<div class="search-placeholder-prompt">Click letters above or type to search ad-free music</div>';
-      }
-    });
-
-    // Filter Chips ("All" vs "Mood")
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        const cType = chip.dataset.chip;
-        if (cType === 'mood') {
-          // Switch to curated Mood & Genre Mixes
-          const qp = document.getElementById('quickPicksContainer');
-          if (qp) {
-            qp.innerHTML = '';
-            const col1 = document.createElement('div');
-            col1.className = 'quick-picks-column';
-            const col2 = document.createElement('div');
-            col2.className = 'quick-picks-column';
-            INITIAL_TRACKS.slice(3, 7).forEach(s => col1.appendChild(createSongRow(s)));
-            INITIAL_TRACKS.slice(0, 4).forEach(s => col2.appendChild(createSongRow(s)));
-            qp.appendChild(col1);
-            qp.appendChild(col2);
-          }
-        } else {
-          renderHomeScreen();
+        if (UI.settingsModal && !UI.settingsModal.classList.contains('hidden')) {
+          UI.settingsModal.classList.add('hidden');
+          e.preventDefault();
+          return;
         }
-      });
-    });
-
-    // Header buttons (Settings, Add, Avatar)
-    document.getElementById('headerSettingsBtn')?.addEventListener('click', () => {
-      document.getElementById('settingsModal')?.classList.remove('hidden');
-    });
-    document.getElementById('closeSettingsBtn')?.addEventListener('click', () => {
-      document.getElementById('settingsModal')?.classList.add('hidden');
-    });
-    document.getElementById('settingsModalBackdrop')?.addEventListener('click', () => {
-      document.getElementById('settingsModal')?.classList.add('hidden');
-    });
-
-    document.getElementById('headerAddBtn')?.addEventListener('click', () => {
-      document.getElementById('addModal')?.classList.remove('hidden');
-    });
-    document.getElementById('closeAddBtn')?.addEventListener('click', () => {
-      document.getElementById('addModal')?.classList.add('hidden');
-    });
-    document.getElementById('addModalBackdrop')?.addEventListener('click', () => {
-      document.getElementById('addModal')?.classList.add('hidden');
-    });
-    document.getElementById('savePlaylistBtn')?.addEventListener('click', () => {
-      const inp = document.getElementById('playlistNameInput');
-      if (inp && inp.value.trim()) {
-        alert('Playlist "' + inp.value.trim() + '" created successfully!');
-        inp.value = '';
-        document.getElementById('addModal')?.classList.add('hidden');
+        if (UI.addModal && !UI.addModal.classList.contains('hidden')) {
+          UI.addModal.classList.add('hidden');
+          e.preventDefault();
+          return;
+        }
+        if (State.activeScreen !== 'viewHome') {
+          switchScreen('viewHome');
+          e.preventDefault();
+          return;
+        }
       }
     });
+  }
 
-    document.getElementById('userAvatarBtn')?.addEventListener('click', () => {
-      switchScreen('viewAnalytics');
-    });
-
-    document.getElementById('resetAppBtn')?.addEventListener('click', () => {
-      localStorage.clear();
-      window.location.reload();
-    });
-
-    // Library tab pills
-    document.querySelectorAll('.lib-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        document.querySelectorAll('.lib-pill').forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-        activeLibTab = pill.dataset.libtab;
-        renderLibraryContent();
-      });
-    });
-
+  // ════════════════════════════════════════════════════════════════
+  // 14. EVENT HANDLERS & BOOTSTRAP
+  // ════════════════════════════════════════════════════════════════
+  function initEventListeners() {
     // Mini player clicks
-    document.getElementById('mpOpenNowPlaying')?.addEventListener('click', () => {
-      document.getElementById('nowPlayingModal')?.classList.remove('hidden');
-    });
-    document.getElementById('mpPlayPauseBtn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      togglePlay();
-    });
-    document.getElementById('mpFaveBtn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleFave();
-    });
+    if (UI.miniPlayBtn) {
+      UI.miniPlayBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePlayPause();
+      });
+    }
+    if (UI.miniNextBtn) {
+      UI.miniNextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playNext();
+      });
+    }
+    if (UI.miniHeartBtn) {
+      UI.miniHeartBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const key = State.currentSong.id || State.currentSong.title;
+        if (State.favorites.has(key)) State.favorites.delete(key);
+        else State.favorites.add(key);
+        updateFaveUI(State.favorites.has(key));
+      });
+    }
+    if (UI.miniPlayer) {
+      UI.miniPlayer.addEventListener('click', openNowPlaying);
+    }
 
-    // Now Playing modal controls
-    document.getElementById('npCloseBtn')?.addEventListener('click', () => {
-      document.getElementById('nowPlayingModal')?.classList.add('hidden');
-    });
-    document.getElementById('npPlayPauseBtn')?.addEventListener('click', togglePlay);
-    document.getElementById('npNextBtn')?.addEventListener('click', playNext);
-    document.getElementById('npPrevBtn')?.addEventListener('click', playPrev);
-    document.getElementById('npFaveBtn')?.addEventListener('click', toggleFave);
-
-    // Scrubber seek control
-    const npSeek = document.getElementById('npSeekBar');
-    if (npSeek) {
-      npSeek.addEventListener('input', (e) => {
-        const pct = parseFloat(e.target.value);
-        if (ytPlayer && ytReady && typeof ytPlayer.getDuration === 'function') {
-          const dur = ytPlayer.getDuration() || State.duration || 180;
-          ytPlayer.seekTo((pct / 100) * dur, true);
-        } else if (audioEl && audioEl.duration) {
-          audioEl.currentTime = (pct / 100) * audioEl.duration;
+    // Now Playing controls
+    if (UI.npCloseBtn) UI.npCloseBtn.addEventListener('click', closeNowPlaying);
+    if (UI.npPlayBtn) UI.npPlayBtn.addEventListener('click', togglePlayPause);
+    if (UI.npNextBtn) UI.npNextBtn.addEventListener('click', playNext);
+    if (UI.npPrevBtn) UI.npPrevBtn.addEventListener('click', playPrevious);
+    if (UI.npSeekSlider) {
+      UI.npSeekSlider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        if (State.duration > 0) {
+          const targetSec = (val / 100) * State.duration;
+          seekTo(targetSec);
         }
       });
     }
-
-    // Navigation Tabs
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const screen = tab.dataset.screen;
-        if (screen) switchScreen(screen);
+    if (UI.npHeartBtn) {
+      UI.npHeartBtn.addEventListener('click', () => {
+        const key = State.currentSong.id || State.currentSong.title;
+        if (State.favorites.has(key)) State.favorites.delete(key);
+        else State.favorites.add(key);
+        updateFaveUI(State.favorites.has(key));
       });
-    });
-
-    // Search FAB
-    document.getElementById('searchFabBtn')?.addEventListener('click', () => {
-      switchScreen('viewSearch');
-    });
-
-    // Quick picks play all
-    document.getElementById('quickPicksPlayAll')?.addEventListener('click', () => {
-      State.queue = [...INITIAL_TRACKS];
-      State.currentIndex = 0;
-      playSong(State.queue[0]);
-    });
-  }
-
-  // 15. Initialize App
-  function init() {
-    renderHomeScreen();
-    initEvents();
-
-    // Set first track info in mini-player
-    if (INITIAL_TRACKS.length > 0) {
-      const first = INITIAL_TRACKS[0];
-      const mpTitle = document.getElementById('mpTitle');
-      const mpArtist = document.getElementById('mpArtist');
-      const mpThumb = document.getElementById('mpThumb');
-      if (mpTitle) mpTitle.textContent = first.title;
-      if (mpArtist) mpArtist.textContent = first.artist;
-      if (mpThumb) mpThumb.src = first.thumbnail;
-      audioEl.src = first.previewUrl;
     }
 
-    console.log('✓ AyushMuzic Smart TV Engine Active & Initialized');
+    // Bottom Navigation
+    if (UI.navHome) UI.navHome.addEventListener('click', () => switchScreen('viewHome'));
+    if (UI.navSearch) UI.navSearch.addEventListener('click', () => switchScreen('viewSearch'));
+    if (UI.navLibrary) UI.navLibrary.addEventListener('click', () => switchScreen('viewLibrary'));
+
+    // Modals
+    if (UI.headerSettingsBtn) {
+      UI.headerSettingsBtn.addEventListener('click', () => {
+        if (UI.settingsModal) UI.settingsModal.classList.remove('hidden');
+      });
+    }
+    if (UI.closeSettingsBtn) {
+      UI.closeSettingsBtn.addEventListener('click', () => {
+        if (UI.settingsModal) UI.settingsModal.classList.add('hidden');
+      });
+    }
+    if (UI.headerAddBtn) {
+      UI.headerAddBtn.addEventListener('click', () => {
+        if (UI.addModal) UI.addModal.classList.remove('hidden');
+      });
+    }
+    if (UI.closeAddBtn) {
+      UI.closeAddBtn.addEventListener('click', () => {
+        if (UI.addModal) UI.addModal.classList.add('hidden');
+      });
+    }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  // Bootstrap Application
+  document.addEventListener('DOMContentLoaded', () => {
+    renderHomeFeed();
+    initSearch();
+    initRemoteNavigation();
+    initEventListeners();
+
+    // Prepare default track
+    updateTrackMetadataUI(State.currentSong);
+    console.log('AyushMuzic Pure Native Audio Engine initialized.');
+  });
+
 })();
