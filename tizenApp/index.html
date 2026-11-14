@@ -1,324 +1,518 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AyushMuzic</title>
-    <link rel="stylesheet" href="css/tv-style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <title>AyushMuzic — Stream Ad-Free Music</title>
+  <meta name="description" content="AyushMuzic Web — The exact high fidelity Apple Music and Material 3 Expressive experience with live synced lyrics, 10-band equalizer, and profile analytics.">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tv-nav.css">
 </head>
 <body>
+<div id="app" class="app-shell">
+  <!-- Desktop Left Navigation Rail (Hidden on mobile) -->
+  <aside id="sidebar" class="desktop-nav-rail">
+    <div class="rail-brand">
+      <img src="assets/logo.png" alt="AyushMuzic" class="brand-icon">
+      <div class="brand-text-wrap">
+        <span class="brand-title">Ayush<span class="brand-accent">Muzic</span></span>
+        <span class="app-version">v1.0.8</span>
+      </div>
+    </div>
 
-<div id="app-container">
-
-    <!-- ═══════ SIDEBAR ═══════ -->
-    <nav id="sidebar">
-        <div class="logo-container">
-            <div class="logo-icon">
-                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-            </div>
-            <div class="logo-text">AyushMuzic</div>
-        </div>
-
-        <div class="nav-menu">
-            <div class="nav-item focusable active" data-view="home" id="nav-home">
-                <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                <span>Home</span>
-            </div>
-            <div class="nav-item focusable" data-view="search" id="nav-search">
-                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                <span>Search</span>
-            </div>
-            <div class="nav-item focusable" data-view="trending" id="nav-trending">
-                <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-                <span>Charts</span>
-            </div>
-            <div class="nav-item focusable" data-view="library" id="nav-library">
-                <svg viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 5h-3v5.5a2.5 2.5 0 0 1-5 0 2.5 2.5 0 0 1 2.5-2.5c.57 0 1.08.19 1.5.51V5h4v2zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z"/></svg>
-                <span>Library</span>
-            </div>
-            <div class="sidebar-divider"></div>
-            <div class="nav-item focusable" id="nav-nowplaying" data-view="nowplaying">
-                <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                <span>Now Playing</span>
-            </div>
-        </div>
-
-        <div class="sidebar-account">
-            <div class="account-row focusable" id="nav-account">
-                <div class="account-avatar" id="sidebar-avatar">A</div>
-                <div class="account-name">
-                    <strong id="sidebar-username">AyushMuzic</strong>
-                    <span id="sidebar-email">YouTube Music</span>
-                </div>
-            </div>
-        </div>
+    <!-- Navigation Links -->
+    <nav class="rail-nav">
+      <a href="#" data-page="home" class="nav-item active" title="Home">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        <span class="nav-label">Home</span>
+      </a>
+      <a href="#" data-page="search" class="nav-item" title="Search">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <span class="nav-label">Search</span>
+      </a>
+      <a href="#" data-page="library" class="nav-item" title="Library">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zm-7-2h2v-4h4V8h-6v6z"/>
+        </svg>
+        <span class="nav-label">Library</span>
+      </a>
+      <a href="#" data-page="analytics" class="nav-item" title="Analytics">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+        </svg>
+        <span class="nav-label">Receipt</span>
+      </a>
+      <a href="#" data-page="browse" class="nav-item" title="Explore">
+        <svg class="nav-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        </svg>
+        <span class="nav-label">Explore</span>
+      </a>
     </nav>
 
-    <!-- ═══════ MAIN CONTENT ═══════ -->
-    <main id="main-content">
+    <!-- Sidebar Playlists Section -->
+    <div class="rail-playlists-box">
+      <div class="playlists-header">
+        <span>Playlists</span>
+        <button id="createPlaylistBtn" title="Create Playlist" class="btn-circle-add">+</button>
+      </div>
+      <div id="sidebarLibraryList" class="playlists-list"></div>
+    </div>
+  </aside>
 
-        <!-- ── HOME VIEW ── -->
-        <section id="view-home" class="view-section active">
+  <!-- Main View Container -->
+  <main id="mainContent" class="main-viewport">
+    <!-- Top Bar Header with Profile & Actions -->
+    <header class="app-topbar">
+      <div class="topbar-nav-controls">
+        <button id="backBtn" class="circle-btn" title="Back">‹</button>
+        <button id="forwardBtn" class="circle-btn" title="Forward">›</button>
+      </div>
 
-            <!-- Hero Carousel -->
-            <div class="hero-carousel focusable" id="hero-carousel">
-                <div class="hero-track" id="hero-track">
-                    <!-- Slides injected by JS -->
-                </div>
-                <div class="hero-dots" id="hero-dots"></div>
-            </div>
+      <!-- Search Input in Topbar -->
+      <div class="app-search-box" id="topSearchBar">
+        <svg class="search-glyph" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search songs, artists, albums..." autocomplete="off">
+        <button id="clearSearch" class="search-clear-btn" style="display:none;">×</button>
+      </div>
 
-            <!-- Quick Picks -->
-            <div class="row-section">
-                <div class="row-title">🎵 Quick Picks</div>
-                <div class="row-scroll" id="quick-picks-row">
-                    <div class="loading-spinner"><div class="spinner-ring"></div>Loading…</div>
-                </div>
-            </div>
+      <!-- Action Buttons & Profile Switcher -->
+      <div class="topbar-actions-cluster">
+        <button id="historyTopBtn" class="circle-btn" title="Recently Played">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+          </svg>
+        </button>
 
-            <!-- New Releases -->
-            <div class="row-section">
-                <div class="row-title">🔥 Hot Right Now</div>
-                <div class="row-scroll" id="hot-now-row">
-                    <div class="loading-spinner"><div class="spinner-ring"></div>Loading…</div>
-                </div>
-            </div>
+        <button id="quickEqBtn" class="circle-btn" title="Graphic Equalizer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z"/>
+          </svg>
+        </button>
 
-            <!-- Artist Spotlight -->
-            <div class="row-section">
-                <div class="row-title">⭐ Recommended</div>
-                <div class="row-scroll" id="recommended-row">
-                    <div class="loading-spinner"><div class="spinner-ring"></div>Loading…</div>
-                </div>
-            </div>
+        <!-- User Profile Pill & Dropdown -->
+        <div class="user-profile-menu-anchor" id="profilePillContainer">
+          <button class="profile-capsule-btn" id="profilePillBtn" title="Switch User Profile">
+            <span class="capsule-avatar" id="topAvatar">A</span>
+            <span class="capsule-name" id="topProfileName">Ayush</span>
+            <span class="capsule-chevron">▾</span>
+          </button>
 
-        </section>
-
-        <!-- ── SEARCH VIEW ── -->
-        <section id="view-search" class="view-section">
-
-            <div class="search-top">
-                <div class="search-input-wrapper">
-                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    <div id="search-query-display">Search songs, artists, albums…</div>
-                    <span id="search-cursor"></span>
-                </div>
-            </div>
-
-            <!-- Virtual Keyboard -->
-            <div class="tv-keyboard" id="tv-keyboard">
-                <div class="key-btn focusable" data-key="Q">Q</div>
-                <div class="key-btn focusable" data-key="W">W</div>
-                <div class="key-btn focusable" data-key="E">E</div>
-                <div class="key-btn focusable" data-key="R">R</div>
-                <div class="key-btn focusable" data-key="T">T</div>
-                <div class="key-btn focusable" data-key="Y">Y</div>
-                <div class="key-btn focusable" data-key="U">U</div>
-                <div class="key-btn focusable" data-key="I">I</div>
-                <div class="key-btn focusable" data-key="O">O</div>
-                <div class="key-btn focusable" data-key="P">P</div>
-
-                <div class="key-btn focusable" data-key="A">A</div>
-                <div class="key-btn focusable" data-key="S">S</div>
-                <div class="key-btn focusable" data-key="D">D</div>
-                <div class="key-btn focusable" data-key="F">F</div>
-                <div class="key-btn focusable" data-key="G">G</div>
-                <div class="key-btn focusable" data-key="H">H</div>
-                <div class="key-btn focusable" data-key="J">J</div>
-                <div class="key-btn focusable" data-key="K">K</div>
-                <div class="key-btn focusable" data-key="L">L</div>
-                <div class="key-btn key-special focusable span-1" data-key="BACKSPACE">⌫</div>
-
-                <div class="key-btn focusable" data-key="Z">Z</div>
-                <div class="key-btn focusable" data-key="X">X</div>
-                <div class="key-btn focusable" data-key="C">C</div>
-                <div class="key-btn focusable" data-key="V">V</div>
-                <div class="key-btn focusable" data-key="B">B</div>
-                <div class="key-btn focusable" data-key="N">N</div>
-                <div class="key-btn focusable" data-key="M">M</div>
-                <div class="key-btn key-special focusable" data-key="1">1</div>
-                <div class="key-btn key-special focusable" data-key="2">2</div>
-                <div class="key-btn key-special focusable" data-key="3">3</div>
-
-                <div class="key-btn key-special focusable span-2" data-key="CLEAR">CLEAR</div>
-                <div class="key-btn key-special focusable span-4" data-key="SPACE">SPACE</div>
-                <div class="key-btn key-search focusable span-4" data-key="SEARCH">🔍 SEARCH</div>
-            </div>
-
-            <div id="search-results-area">
-                <div class="empty-state">
-                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                    <div class="empty-state-text">Type to search YouTube Music</div>
-                    <div class="empty-state-sub">Songs, Artists, Albums, Playlists</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ── TRENDING / CHARTS VIEW ── -->
-        <section id="view-trending" class="view-section">
-            <div class="section-header">
-                <div>
-                    <div class="header-title">🏆 Global Top Charts</div>
-                    <div class="header-subtitle">Most played music right now worldwide</div>
-                </div>
-            </div>
-            <div class="cards-grid" id="trending-grid">
-                <div class="loading-spinner" style="grid-column:1/-1"><div class="spinner-ring"></div>Loading charts…</div>
-            </div>
-        </section>
-
-        <!-- ── LIBRARY VIEW ── -->
-        <section id="view-library" class="view-section">
-            <div class="section-header">
-                <div>
-                    <div class="header-title">📚 Your Library</div>
-                    <div class="header-subtitle">Liked songs and recently played</div>
-                </div>
-            </div>
-            <div class="library-tabs">
-                <div class="lib-tab focusable active" data-lib="liked">Liked Songs</div>
-                <div class="lib-tab focusable" data-lib="recent">Recently Played</div>
-                <div class="lib-tab focusable" data-lib="queue">Current Queue</div>
-            </div>
-            <div class="cards-grid" id="library-grid">
-                <div class="empty-state" style="grid-column:1/-1">
-                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                    <div class="empty-state-text">No liked songs yet</div>
-                    <div class="empty-state-sub">Like songs while listening to save them here</div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- ═══════ MINI PLAYER ═══════ -->
-    <div id="mini-player">
-        <div class="mini-info focusable" id="mini-info-click">
-            <img class="mini-thumb" id="mini-thumb" src="icon.png" alt="">
-            <div class="mini-meta">
-                <div class="mini-title" id="mini-title">AyushMuzic</div>
-                <div class="mini-artist" id="mini-artist">Select a song to play</div>
-            </div>
+          <!-- Dropdown List -->
+          <div class="profile-dropdown-card hidden" id="profileDropdown">
+            <div class="profile-menu-title">Switch Account</div>
+            <div id="profileListItems" class="profile-items-group"></div>
+            <div class="profile-menu-divider"></div>
+            <button class="add-profile-action" id="addNewProfileBtn">+ Add Profile</button>
+          </div>
         </div>
+      </div>
+    </header>
 
-        <div class="mini-center">
-            <div class="mini-controls">
-                <div class="ctrl-btn focusable" id="ctrl-shuffle" title="Shuffle">
-                    <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
-                </div>
-                <div class="ctrl-btn focusable" id="ctrl-prev">
-                    <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
-                </div>
-                <div class="ctrl-btn play-btn focusable" id="ctrl-play">
-                    <svg id="ctrl-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <div class="ctrl-btn focusable" id="ctrl-next">
-                    <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-                </div>
-                <div class="ctrl-btn focusable" id="ctrl-repeat" title="Repeat">
-                    <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-                </div>
-            </div>
-            <div class="mini-progress-row">
-                <span class="mini-time" id="mini-current">0:00</span>
-                <div class="mini-seekbar focusable" id="mini-seekbar">
-                    <div class="mini-seekbar-fill" id="mini-fill"></div>
-                </div>
-                <span class="mini-time" id="mini-total">0:00</span>
-            </div>
-        </div>
+    <!-- ======================================================== -->
+    <!-- 1. PAGE: HOME SCREEN                                     -->
+    <!-- ======================================================== -->
+    <div id="pageHome" class="page-view active">
+      <!-- Time Greeting & User Subtitle -->
+      <div class="greeting-hero-block">
+        <h1 id="greetingText" class="app-greeting-title">Good evening</h1>
+        <p class="app-greeting-caption">Music stream for <span id="activeUserLabel" class="highlight-user">Ayush</span></p>
+      </div>
 
-        <div class="mini-right">
-            <div class="ctrl-btn focusable" id="ctrl-queue" title="Queue">
-                <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
-            </div>
-            <div class="ctrl-btn focusable" id="ctrl-like" title="Like">
-                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-            </div>
+      <!-- App Mood Filter Chips Row (SimpMusic Style) -->
+      <div class="mood-chips-scroller">
+        <button class="m3-chip active" data-mood="">All</button>
+        <button class="m3-chip" data-mood="Relax">🌙 Relax</button>
+        <button class="m3-chip" data-mood="Workout">🔥 Workout</button>
+        <button class="m3-chip" data-mood="Focus">🎧 Focus</button>
+        <button class="m3-chip" data-mood="Energize">⚡ Energize</button>
+        <button class="m3-chip" data-mood="Party">🎉 Party</button>
+        <button class="m3-chip" data-mood="Feel Good">✨ Feel Good</button>
+        <button class="m3-chip" data-mood="Romance">💖 Romance</button>
+        <button class="m3-chip" data-mood="Sad">🌧️ Sad</button>
+        <button class="m3-chip" data-mood="Sleep">💤 Sleep</button>
+        <button class="m3-chip" data-mood="Commute">🚗 Commute</button>
+      </div>
+
+      <!-- SECTION: RECENTLY PLAYED -->
+      <section class="home-content-section" id="recentlyPlayedSection">
+        <div class="section-headline-bar">
+          <div class="headline-group">
+            <h2 class="headline-text">Recently played</h2>
+            <span class="user-pill-tag" id="recentUserBadge">Ayush</span>
+          </div>
+          <button class="view-all-btn" onclick="Router.navigate('library'); Library.currentTab='history'; Library.render();">See all</button>
         </div>
+        <div class="horizontal-card-strip" id="recentlyPlayedCarousel">
+          <div class="empty-state-notice">Play tracks to start building your recent history.</div>
+        </div>
+      </section>
+
+      <!-- SECTION: MOST PLAYED -->
+      <section class="home-content-section" id="mostPlayedSection">
+        <div class="section-headline-bar">
+          <div class="headline-group">
+            <h2 class="headline-text">Most played</h2>
+            <span class="user-pill-tag" id="mostPlayedUserBadge">Ayush</span>
+          </div>
+        </div>
+        <div class="horizontal-card-strip" id="mostPlayedCarousel">
+          <div class="empty-state-notice">Your most streamed tracks will rank here automatically.</div>
+        </div>
+      </section>
+
+      <!-- SECTION: RECOMMENDED FOR YOU (Based on Played Songs) -->
+      <section class="home-content-section" id="recommendedSection">
+        <div class="section-headline-bar">
+          <div class="headline-group">
+            <h2 class="headline-text" id="recommendedHeadline">Similar to what you played</h2>
+            <span class="user-pill-tag" id="recommendedUserBadge">Ayush</span>
+          </div>
+          <span class="badge-subtitle" id="recommendedSubtitle">Tailored stream</span>
+        </div>
+        <div class="horizontal-card-strip" id="recommendedCarousel">
+          <div class="empty-state-notice">Stream songs to unlock intelligent recommendations.</div>
+        </div>
+      </section>
+
+      <!-- SECTION: QUICK PICKS (YouTube Music Grid) -->
+      <section class="home-content-section">
+        <div class="section-headline-bar">
+          <h2 class="headline-text">Quick picks</h2>
+          <span class="badge-subtitle" id="quickPicksTag">Trending Global</span>
+        </div>
+        <div class="quick-picks-grid" id="quickPicksGrid">
+          <div class="loading-spinner"></div>
+        </div>
+      </section>
+
+      <!-- SECTION: TRENDING & MIXES -->
+      <section class="home-content-section">
+        <div class="section-headline-bar">
+          <h2 class="headline-text">Trending Hits & Albums</h2>
+        </div>
+        <div class="horizontal-card-strip" id="newReleasesCarousel"></div>
+      </section>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- 2. PAGE: SEARCH                                          -->
+    <!-- ======================================================== -->
+    <div id="pageSearch" class="page-view">
+      <div id="searchCategories"></div>
+      <div id="searchResults" class="hidden">
+        <div class="filter-tabs-row">
+          <button class="filter-pill-tab active" data-type="song">Songs</button>
+          <button class="filter-pill-tab" data-type="artist">Artists</button>
+          <button class="filter-pill-tab" data-type="album">Albums</button>
+          <button class="filter-pill-tab" data-type="playlist">Playlists</button>
+        </div>
+        <div id="searchResultsContainer" class="search-results-list"></div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 3. PAGE: LIBRARY                                         -->
+    <!-- ======================================================== -->
+    <div id="pageLibrary" class="page-view">
+      <div class="greeting-hero-block">
+        <h1 class="app-greeting-title">Your Library</h1>
+        <p class="app-greeting-caption">Liked songs, custom playlists, and offline history</p>
+      </div>
+      <div class="filter-tabs-row">
+        <button class="filter-pill-tab active" data-lib="favorites">Liked Songs</button>
+        <button class="filter-pill-tab" data-lib="playlists">Playlists</button>
+        <button class="filter-pill-tab" data-lib="history">History</button>
+      </div>
+      <div id="libraryContent" class="library-body-content"></div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 4. PAGE: ANALYTICS & VIRAL LISTENING RECEIPT             -->
+    <!-- ======================================================== -->
+    <div id="pageAnalytics" class="page-view">
+      <div class="greeting-hero-block">
+        <h1 class="app-greeting-title">Listening Receipt & Stats</h1>
+        <p class="app-greeting-caption">Live stats for <strong id="analyticsProfileLabel" style="color:var(--accent-purple);">Ayush</strong></p>
+      </div>
+
+      <div class="stat-metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon">⏱️</div>
+          <div class="metric-number" id="statTimeValue">0h 0m</div>
+          <div class="metric-title">Hours Streamed</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">🎵</div>
+          <div class="metric-number" id="statSongsValue">0</div>
+          <div class="metric-title">Songs Streamed</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">🔥</div>
+          <div class="metric-number" id="statStreakValue">1</div>
+          <div class="metric-title">Day Streak</div>
+        </div>
+      </div>
+
+      <div class="analytics-split-layout">
+        <div class="analytics-tile">
+          <h3 class="tile-header">Top Artists</h3>
+          <div id="topArtistsList" class="top-list-group"></div>
+        </div>
+        <div class="analytics-tile">
+          <h3 class="tile-header">Top Tracks</h3>
+          <div id="topSongsList" class="top-list-group"></div>
+        </div>
+      </div>
+
+      <!-- Authentic Paper Listening Receipt -->
+      <div class="receipt-showcase-zone">
+        <h2 class="zone-title">Official AyushMuzic Listening Receipt</h2>
+        <div class="receipt-wrapper">
+          <div class="receipt-paper" id="receiptCard"></div>
+          <button id="downloadReceipt" class="receipt-print-btn">Download / Print Receipt</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- 5. PAGE: EXPLORE / BROWSE                                -->
+    <!-- ======================================================== -->
+    <div id="pageBrowse" class="page-view">
+      <div class="greeting-hero-block">
+        <h1 class="app-greeting-title">Explore & Charts</h1>
+        <p class="app-greeting-caption">Hand-picked moods, genre spotlights, and global trends</p>
+      </div>
+      <div id="browseContent"></div>
+    </div>
+
+    <!-- Detail Pages -->
+    <div id="pageArtist" class="page-view">
+      <div id="artistHeader" class="detail-hero-box"></div>
+      <div id="artistSongs" class="detail-tracks-box"></div>
+    </div>
+
+    <div id="pageAlbum" class="page-view">
+      <div id="albumHeader" class="detail-hero-box"></div>
+      <div id="albumTrackList" class="track-list-table"></div>
+    </div>
+
+    <div id="pagePlaylist" class="page-view">
+      <div id="playlistHeader" class="detail-hero-box"></div>
+      <div id="playlistTrackList" class="track-list-table"></div>
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- NOW PLAYING FULLSCREEN (Apple Music Dynamic Mesh Player) -->
+  <!-- ======================================================== -->
+  <div id="nowPlayingOverlay" class="apple-player-overlay hidden">
+    <!-- Fluid Animated Mesh Background -->
+    <div class="mesh-dynamic-bg" id="npBackdrop"></div>
+
+    <div class="apple-player-sheet">
+      <!-- Player Header -->
+      <div class="apple-sheet-header">
+        <button id="closeNowPlaying" class="sheet-chevron-down" title="Minimize">▼</button>
+        <span class="sheet-stream-tag" id="npHeaderBadge">YouTube Music Hi-Fi</span>
+        <button id="npFaveBtn" class="sheet-heart-btn" title="Like">♡</button>
+      </div>
+
+      <!-- Player Center Artwork & Lyrics/Queue Panels -->
+      <div class="apple-sheet-body">
+        <!-- Main Artwork & Track Title -->
+        <div class="sheet-main-view" id="npMainView">
+          <div class="cover-art-wrapper">
+            <img id="npArtwork" src="assets/logo.png" alt="Artwork" class="cover-art-img">
+            <div class="cover-art-glow" id="npGlow"></div>
+          </div>
+          <div class="track-metadata-block">
+            <h2 id="npTitle" class="track-title-text">No Song Selected</h2>
+            <p id="npArtist" class="track-artist-text">AyushMuzic</p>
+          </div>
+        </div>
+
+        <!-- Apple Music Live Synced Lyrics Overlay Panel -->
+        <div id="npLyricsPanel" class="apple-lyrics-sheet hidden">
+          <div class="sheet-panel-bar">
+            <h3>Live Synced Lyrics</h3>
+            <button id="closeLyricsBtn" class="sheet-close-btn">✕</button>
+          </div>
+          <div id="npLyricsContainer" class="lyrics-view-scroller"></div>
+        </div>
+
+        <!-- Queue Panel -->
+        <div id="npQueuePanel" class="apple-queue-sheet hidden">
+          <div class="sheet-panel-bar">
+            <h3>Playback Queue</h3>
+            <button id="closeQueueBtn" class="sheet-close-btn">✕</button>
+          </div>
+          <div id="queueList" class="queue-view-scroller"></div>
+        </div>
+
+        <!-- Equalizer Panel -->
+        <div id="npEqPanel" class="apple-eq-sheet hidden">
+          <div class="sheet-panel-bar">
+            <h3>10-Band Graphic Equalizer</h3>
+            <button id="closeEqBtn" class="sheet-close-btn">✕</button>
+          </div>
+          <div class="eq-presets-chips" id="eqPresets"></div>
+          <div class="eq-sliders-row" id="eqBands"></div>
+        </div>
+      </div>
+
+      <!-- Player Controls -->
+      <div class="apple-sheet-footer">
+        <!-- Wavy/Modern Seekbar -->
+        <div class="sheet-progress-row">
+          <span id="npCurrentTime" class="progress-timestamp">0:00</span>
+          <input type="range" id="npSeekBar" min="0" max="100" value="0" class="m3-slider">
+          <span id="npDuration" class="progress-timestamp">0:00</span>
+        </div>
+
+        <!-- Primary Transport Controls -->
+        <div class="sheet-transport-row">
+          <button id="npShuffle" class="transport-btn" title="Shuffle">🔀</button>
+          <button id="npPrev" class="transport-btn" title="Previous">⏮</button>
+          <button id="npPlayPause" class="transport-btn main-play-circle" title="Play">▶</button>
+          <button id="npNext" class="transport-btn" title="Next">⏭</button>
+          <button id="npRepeat" class="transport-btn" title="Repeat">🔁</button>
+        </div>
+
+        <!-- Secondary Sheet Actions -->
+        <div class="sheet-actions-row">
+          <button id="npLyricsBtn" class="sheet-action-pill" title="Lyrics">🎤 Lyrics</button>
+          <button id="npQueueBtn" class="sheet-action-pill" title="Queue">📑 Queue</button>
+          <button id="npEqBtn" class="sheet-action-pill" title="Equalizer">🎚️ EQ</button>
+          <div class="sheet-volume-box">
+            <span>🔊</span>
+            <input type="range" id="npVolume" min="0" max="100" value="85" class="m3-vol-slider">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- FLOATING CAPSULE MINI PLAYER (App Component)             -->
+  <!-- ======================================================== -->
+  <footer id="miniPlayer" class="capsule-mini-player">
+    <div class="capsule-left-slot" id="mpLeftSlot">
+      <img id="mpArtwork" src="assets/logo.png" alt="Artwork" class="capsule-art-img">
+      <div class="capsule-track-info">
+        <span id="mpTitle" class="capsule-title">AyushMuzic</span>
+        <span id="mpArtist" class="capsule-sub">Select track to play</span>
+      </div>
+      <button id="mpFaveBtn" class="capsule-heart-btn" title="Like">♡</button>
+    </div>
+
+    <!-- Center Playback Bar (Desktop) -->
+    <div class="capsule-center-slot">
+      <div class="capsule-buttons-row">
+        <button id="mpShuffle" class="capsule-ctrl-btn" title="Shuffle">🔀</button>
+        <button id="mpPrev" class="capsule-ctrl-btn" title="Previous">⏮</button>
+        <button id="mpPlayPause" class="capsule-play-pill" title="Play">▶</button>
+        <button id="mpNext" class="capsule-ctrl-btn" title="Next">⏭</button>
+        <button id="mpRepeat" class="capsule-ctrl-btn" title="Repeat">🔁</button>
+      </div>
+      <div class="capsule-timeline">
+        <span id="mpCurrentTime" class="capsule-time">0:00</span>
+        <input type="range" id="mpSeekBar" min="0" max="100" value="0" class="capsule-slider">
+        <span id="mpDuration" class="capsule-time">0:00</span>
+      </div>
+    </div>
+
+    <!-- Right Quick Controls -->
+    <div class="capsule-right-slot">
+      <!-- Mobile playback controls -->
+      <div class="mobile-mini-controls">
+        <button id="mpMobilePlayPause" class="capsule-play-pill" title="Play">▶</button>
+        <button id="mpMobileNext" class="capsule-ctrl-btn" title="Next">⏭</button>
+      </div>
+      <button id="mpLyricsBtn" class="capsule-quick-btn desktop-only" title="Lyrics">🎤</button>
+      <button id="mpQueueBtn" class="capsule-quick-btn desktop-only" title="Queue">📑</button>
+      <button id="mpEqBtn" class="capsule-quick-btn desktop-only" title="Equalizer">🎚️</button>
+      <div class="capsule-volume-wrap desktop-only">
+        <span>🔊</span>
+        <input type="range" id="mpVolume" min="0" max="100" value="85" class="capsule-vol-bar">
+      </div>
+      <button id="mpExpandBtn" class="capsule-expand-arrow" title="Open Full Player">▲</button>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- MOBILE FLOATING BOTTOM BAR & SEARCH FAB (Exact App Form) -->
+  <!-- ======================================================== -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav">
+    <div class="mobile-nav-capsule">
+      <a href="#" data-page="home" class="mobile-nav-link active" title="Home">
+        <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        <span>Home</span>
+      </a>
+      <a href="#" data-page="analytics" class="mobile-nav-link" title="Receipt">
+        <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+        </svg>
+        <span>Receipt</span>
+      </a>
+      <a href="#" data-page="library" class="mobile-nav-link" title="Library">
+        <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zm-7-2h2v-4h4V8h-6v6z"/>
+        </svg>
+        <span>Library</span>
+      </a>
+      <a href="#" data-page="browse" class="mobile-nav-link" title="Explore">
+        <svg class="mobile-nav-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        </svg>
+        <span>Explore</span>
+      </a>
+    </div>
+
+    <!-- Liquid Glass Search FAB Button -->
+    <a href="#" data-page="search" class="mobile-search-fab" title="Search">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+    </a>
+  </nav>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-capsule hidden"></div>
 </div>
 
-<!-- ═══════ FULLSCREEN PLAYER ═══════ -->
-<div id="fullscreen-player">
-    <div class="player-bg-blur" id="player-bg"></div>
+<!-- Underlying Audio Element -->
+<audio id="audioElement" preload="auto"></audio>
 
-    <div class="player-top-bar">
-        <div class="player-back-btn focusable" id="player-close">
-            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-            Back
-        </div>
-        <div class="player-queue-info" id="player-queue-info">Queue • 0 / 0</div>
-        <div class="ctrl-btn focusable" id="player-queue-toggle" title="Show Queue">
-            <svg viewBox="0 0 24 24"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/></svg>
-        </div>
-    </div>
-
-    <div class="player-main">
-        <div class="player-artwork">
-            <img id="player-art" src="icon.png" alt="Album Art">
-        </div>
-
-        <div class="player-info">
-            <div>
-                <div class="player-track-name" id="player-title">No Song Playing</div>
-                <div class="player-track-artist" id="player-artist">—</div>
-                <div class="player-track-album" id="player-album"></div>
-            </div>
-
-            <div class="player-progress-row">
-                <span class="player-time" id="player-current">0:00</span>
-                <div class="player-seekbar focusable" id="player-seekbar">
-                    <div class="player-seekbar-fill" id="player-fill"></div>
-                </div>
-                <span class="player-time end" id="player-total">0:00</span>
-            </div>
-
-            <div class="player-controls">
-                <div class="player-ctrl-btn focusable" id="player-shuffle">
-                    <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
-                </div>
-                <div class="player-ctrl-btn focusable" id="player-prev">
-                    <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
-                </div>
-                <div class="player-ctrl-btn primary focusable" id="player-play">
-                    <svg id="player-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <div class="player-ctrl-btn focusable" id="player-next">
-                    <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-                </div>
-                <div class="player-ctrl-btn focusable" id="player-repeat">
-                    <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-                </div>
-                <div class="player-ctrl-btn focusable" id="player-like">
-                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                </div>
-                <div class="eq-bars" id="player-eq">
-                    <div class="eq-bar"></div>
-                    <div class="eq-bar"></div>
-                    <div class="eq-bar"></div>
-                    <div class="eq-bar"></div>
-                    <div class="eq-bar"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Queue Panel -->
-    <div class="player-queue-panel" id="queue-panel">
-        <div class="queue-panel-header">Up Next</div>
-        <div class="queue-list" id="queue-list"></div>
-    </div>
-</div>
-
-<!-- Toast Container -->
-<div id="toast-container"></div>
-
-<!-- Scripts -->
-<script src="js/ytmusic.js"></script>
-<script src="js/player.js"></script>
-<script src="js/navigation.js"></script>
-<script src="js/app.js"></script>
+<!-- Scripts in Order -->
+  <!-- YouTube & Application Core Scripts -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="js/api-bridge.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/equalizer.js"></script>
+  <script src="js/library.js"></script>
+  <script src="js/lyrics.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/navigation.js"></script>
 </body>
 </html>
