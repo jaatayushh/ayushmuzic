@@ -120,7 +120,7 @@ window.Player = {
     if (!container) {
       container = document.createElement('div');
       container.id = 'ytPlayerContainer';
-      container.style.cssText = 'position:fixed; bottom:-2000px; left:-2000px; width:200px; height:200px; opacity:0; pointer-events:none; z-index:-1;';
+      container.style.cssText = 'position:fixed; top:0; left:0; width:1px; height:1px; opacity:0.01; pointer-events:none; z-index:-999;';
       document.body.appendChild(container);
     }
 
@@ -128,8 +128,8 @@ window.Player = {
     window.onYouTubeIframeAPIReady = function() {
       try {
         Player.ytPlayer = new YT.Player('ytPlayerContainer', {
-          height: '200',
-          width: '200',
+          height: '1',
+          width: '1',
           playerVars: {
             'autoplay': 1,
             'controls': 0,
@@ -137,7 +137,7 @@ window.Player = {
             'fs': 0,
             'playsinline': 1,
             'rel': 0,
-            'origin': window.location.origin || 'http://localhost'
+            'enablejsapi': 1
           },
           events: {
             'onReady': () => {
@@ -241,23 +241,29 @@ window.Player = {
     // PLAY AUDIO VIA UNBLOCKABLE YOUTUBE ENGINE
     const vId = song.videoId || song.id || '';
 
-    if (Player.ytPlayer && typeof Player.ytPlayer.loadVideoById === 'function') {
-      if (vId.startsWith('yt_')) {
-        const searchPhrase = decodeURIComponent(vId.replace('yt_', ''));
-        console.log('[Player] Playing search query via YouTube Engine:', searchPhrase);
-        Player.ytPlayer.loadPlaylist({
-          listType: 'search',
-          list: searchPhrase
-        });
-      } else {
+    if (vId) {
+      if (Player.ytPlayer && typeof Player.ytPlayer.loadVideoById === 'function') {
         console.log('[Player] Playing videoId via YouTube Engine:', vId);
-        Player.ytPlayer.loadVideoById(vId);
+        Player.ytPlayer.loadVideoById({
+          videoId: vId,
+          suggestedQuality: 'small'
+        });
+        Player.ytPlayer.playVideo();
+        Player.setPlayState(true);
+        Player.startProgressTimer();
+      } else {
+        // Direct iframe playback fallback
+        let ifr = document.getElementById('ytDirectFrame');
+        if (!ifr) {
+          ifr = document.createElement('iframe');
+          ifr.id = 'ytDirectFrame';
+          ifr.style.cssText = 'position:fixed; top:0; left:0; width:1px; height:1px; opacity:0.01; pointer-events:none; z-index:-999;';
+          document.body.appendChild(ifr);
+        }
+        ifr.src = `https://www.youtube.com/embed/${vId}?autoplay=1&enablejsapi=1`;
+        Player.setPlayState(true);
       }
-      Player.setPlayState(true);
-      Player.startProgressTimer();
-    } else {
-      // Fallback to HTML5 audio element
-      Player.audio.src = `/api/stream?videoId=${vId}`;
+    }
       if (autoPlay) Player.play();
     }
 

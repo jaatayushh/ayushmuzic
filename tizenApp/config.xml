@@ -2,7 +2,7 @@
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:tizen="http://tizen.org/ns/widgets"
         id="http://ayushmuzic.app"
-        version="1.0.9"
+        version="2.0.0"
         viewmodes="fullscreen">
 
     <tizen:application id="AyushMuzic.app"
@@ -19,7 +19,6 @@
     <tizen:privilege name="http://tizen.org/privilege/storage"/>
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
     <tizen:privilege name="http://tizen.org/privilege/download"/>
-    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
 
     <!-- Allow all network communication -->
     <access origin="*" subdomains="true"/>
@@ -33,7 +32,7 @@
                    hw-key-event="enable"/>
 
     <name>AyushMuzic</name>
-    <description>AyushMuzic - YouTube Music Client for Samsung Smart TV</description>
+    <description>AyushMuzic - Stream Ad-Free Music on Samsung Smart TV</description>
     <author href="https://github.com/jaatayushh">Ayush</author>
 
     <icon src="icon.png"/>

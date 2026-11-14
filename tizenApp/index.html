@@ -2,11 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; img-src * data: blob:; media-src * blob:; connect-src *;">
+  <meta name="viewport" content="width=1920">
   <title>AyushMuzic — Stream Ad-Free Music</title>
-  <meta name="description" content="AyushMuzic Web — The exact high fidelity Apple Music and Material 3 Expressive experience with live synced lyrics, 10-band equalizer, and profile analytics.">
+  <meta name="description" content="AyushMuzic — The exact high fidelity Apple Music and Material 3 Expressive experience with live synced lyrics, 10-band equalizer, and profile analytics.">
   <meta name="theme-color" content="#000000">
   <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Error Diagnostics for TV -->
+  <script>
+    window.onerror = function(msg, url, line) {
+      console.error('TV Error:', msg, url, line);
+      var b = document.getElementById('tvDiagBox');
+      if (!b && document.body) {
+        b = document.createElement('div');
+        b.id = 'tvDiagBox';
+        b.style.cssText = 'position:fixed;top:10px;right:10px;background:rgba(220,20,60,0.95);color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;z-index:999999;font-family:monospace;max-width:80%;';
+        document.body.appendChild(b);
+      }
+      if (b) b.textContent = 'Err: ' + msg + ' at ' + (url ? url.split('/').pop() : '') + ':' + line;
+    };
+  </script>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +40,7 @@
       <img src="assets/logo.png" alt="AyushMuzic" class="brand-icon">
       <div class="brand-text-wrap">
         <span class="brand-title">Ayush<span class="brand-accent">Muzic</span></span>
-        <span class="app-version">v1.0.8</span>
+        <span class="app-version">v2.0.0</span>
       </div>
     </div>
 

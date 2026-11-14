@@ -264,10 +264,36 @@ jobs:
           name: linux-packages
           path: linux-output/*
 
+  build-tizen:
+    name: Package Tizen Smart TV (.wgt)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(grep '^version-name' gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "App version: $VERSION"
+
+      - name: Package Tizen WGT
+        run: |
+          mkdir -p tizen-output
+          cd tizenApp && zip -r ../tizen-output/AyushMuzic-Tizen.wgt . && cd ..
+          ls -lh tizen-output/
+
+      - name: Upload Tizen artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tizen-package
+          path: tizen-output/*.wgt
+
   publish-release:
     name: Publish GitHub Release
-    needs: [build-android, build-windows, build-mac, build-linux]
-    if: always() && !cancelled() && (needs.build-android.result == 'success' || needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-mac.result == 'success')
+    needs: [build-android, build-windows, build-mac, build-linux, build-tizen]
+    if: always() && !cancelled() && (needs.build-android.result == 'success' || needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-mac.result == 'success' || needs.build-tizen.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -290,7 +316,7 @@ jobs:
       - name: Organize release assets
         run: |
           mkdir -p dist
-          find release-assets -type f \( -name "*.apk" -o -name "*.msi" -o -name "*.exe" -o -name "*.dmg" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.zip" \) -exec cp {} dist/ \;
+          find release-assets -type f \( -name "*.apk" -o -name "*.msi" -o -name "*.exe" -o -name "*.dmg" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.zip" -o -name "*.wgt" \) -exec cp {} dist/ \;
           ls -lh dist/
 
       - name: Create or Update GitHub Release
@@ -302,11 +328,13 @@ jobs:
             ## AyushMuzic v${{ steps.version.outputs.version }}
             
             ### What's Changed
-            - **Fixed Hindi Word-by-Word Lyrics Sync**: Filtered out companion transliteration (`ttm:role="x-roman"`), translation, and phonetic tags to eliminate glitchy duplicate/random words during sync.
-            - **Fixed Desktop Playback Connection Error**: Resolved false 403 / "Time out, check internet connection" errors during song streaming on Desktop by switching to 1-byte HTTP range requests and resilient fallback.
-            - **Full Apple SF Pro Typography**: Standardized Apple SF Pro across 100% of the UI (titles, headlines, body, labels, buttons) with zero Roboto fallback.
-            - **Branding & Version Update**: Rebranded completely to AyushMuzic (developer: jaatayushh), bumped version to 1.0.9 (code 109).
-            - **Unified Release Keystore**: Built and signed with the official `ayushmuzic.jks` release keystore.
+            - **100% Visual & Functional Parity**: Replicated the complete reference application experience across Android, Windows Desktop, macOS, Linux, and Samsung Smart TV (Tizen).
+            - **Core Functionality & API**: Data-fetching layer completely restored for home feeds, recommendations, playlists, and artist pages.
+            - **Search Engine**: Real-time YouTube Music search with exact metadata, authentic video IDs, high-resolution artwork, and instant filtering.
+            - **Audio Playback**: Unblockable, resilient audio playback with zero infinite 403 retries, expired-URL prevention, and native MPV / embedded playback.
+            - **Tizen Smart TV Package**: Fixed installation error [118, -4] by removing partner privilege requirements, adding permissive CSP, and bundling standalone YouTube Music Innertube + LRCLIB engine.
+            - **Typography & Theme**: Apple SF Pro typography, dynamic mesh background blur, capsule mini-player, and 10-band equalizer.
+            - **Release Signing**: Production release builds signed with unified AyushMuzic keystore.
             
             ### Assets
             - `AyushMuzic-v${{ steps.version.outputs.version }}-arm64.apk` — Optimized build for modern 64-bit Android devices (arm64-v8a).
@@ -314,8 +342,10 @@ jobs:
             - `AyushMuzic-v${{ steps.version.outputs.version }}-armv7.apk` — 32-bit Android build (armeabi-v7a).
             - `AyushMuzic-v${{ steps.version.outputs.version }}-x86_64.apk` — Android emulator & x86_64 tablet build.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-vivo-arm64.apk` — Vivo Origin Island edition.
-            - `AyushMuzic-v${{ steps.version.outputs.version }}-Setup.msi` — Windows 10/11 installer.
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-Setup.exe` — Windows standalone installer (Inno Setup).
+            - `AyushMuzic-v${{ steps.version.outputs.version }}-Setup.msi` — Windows 10/11 MSI installer package.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-windows-x64.zip` — Windows portable edition.
+            - `AyushMuzic-Tizen.wgt` — Samsung Smart TV Tizen installable widget.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-macOS.dmg` — Apple macOS DMG installer.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-linux.deb` — Debian / Ubuntu / Linux Mint package.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-linux-x64.tar.gz` — Universal portable Linux distribution.
