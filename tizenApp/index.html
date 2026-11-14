@@ -7,7 +7,7 @@
   <title>AyushMuzic</title>
   <link rel="icon" type="image/png" href="assets/logo.png">
 
-  <!-- Google Fonts: Plus Jakarta Sans (Matches Apple SF Pro design) -->
+  <!-- Google Fonts: Plus Jakarta Sans (Matches Apple SF Pro Typography) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -94,9 +94,9 @@
       <div style="height: 140px;"></div>
     </section>
 
-    <!-- 2. SEARCH SCREEN -->
+    <!-- 2. SEARCH SCREEN (With Clickable TV Letters Grid) -->
     <section id="viewSearch" class="app-screen">
-      <div class="search-input-header">
+      <div class="search-header-container">
         <div class="search-bar-wrap">
           <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
@@ -104,10 +104,61 @@
           <input type="text" id="searchInput" class="search-field focusable" placeholder="Search songs, artists, albums..." autocomplete="off" tabindex="0">
           <button id="clearSearchBtn" class="clear-search-btn focusable" style="display:none;" tabindex="0">✕</button>
         </div>
+
+        <!-- On-Screen Virtual Keyboard for Samsung TV Remote Control -->
+        <div class="tv-keyboard-container" id="tvKeyboard">
+          <div class="tv-keyboard-row">
+            <button class="tv-key focusable" data-key="A" tabindex="0">A</button>
+            <button class="tv-key focusable" data-key="B" tabindex="0">B</button>
+            <button class="tv-key focusable" data-key="C" tabindex="0">C</button>
+            <button class="tv-key focusable" data-key="D" tabindex="0">D</button>
+            <button class="tv-key focusable" data-key="E" tabindex="0">E</button>
+            <button class="tv-key focusable" data-key="F" tabindex="0">F</button>
+            <button class="tv-key focusable" data-key="G" tabindex="0">G</button>
+            <button class="tv-key focusable" data-key="H" tabindex="0">H</button>
+            <button class="tv-key focusable" data-key="I" tabindex="0">I</button>
+            <button class="tv-key focusable" data-key="J" tabindex="0">J</button>
+          </div>
+          <div class="tv-keyboard-row">
+            <button class="tv-key focusable" data-key="K" tabindex="0">K</button>
+            <button class="tv-key focusable" data-key="L" tabindex="0">L</button>
+            <button class="tv-key focusable" data-key="M" tabindex="0">M</button>
+            <button class="tv-key focusable" data-key="N" tabindex="0">N</button>
+            <button class="tv-key focusable" data-key="O" tabindex="0">O</button>
+            <button class="tv-key focusable" data-key="P" tabindex="0">P</button>
+            <button class="tv-key focusable" data-key="Q" tabindex="0">Q</button>
+            <button class="tv-key focusable" data-key="R" tabindex="0">R</button>
+            <button class="tv-key focusable" data-key="S" tabindex="0">S</button>
+            <button class="tv-key focusable" data-key="T" tabindex="0">T</button>
+          </div>
+          <div class="tv-keyboard-row">
+            <button class="tv-key focusable" data-key="U" tabindex="0">U</button>
+            <button class="tv-key focusable" data-key="V" tabindex="0">V</button>
+            <button class="tv-key focusable" data-key="W" tabindex="0">W</button>
+            <button class="tv-key focusable" data-key="X" tabindex="0">X</button>
+            <button class="tv-key focusable" data-key="Y" tabindex="0">Y</button>
+            <button class="tv-key focusable" data-key="Z" tabindex="0">Z</button>
+            <button class="tv-key focusable" data-key="1" tabindex="0">1</button>
+            <button class="tv-key focusable" data-key="2" tabindex="0">2</button>
+            <button class="tv-key focusable" data-key="3" tabindex="0">3</button>
+            <button class="tv-key focusable" data-key="4" tabindex="0">4</button>
+          </div>
+          <div class="tv-keyboard-row">
+            <button class="tv-key focusable" data-key="5" tabindex="0">5</button>
+            <button class="tv-key focusable" data-key="6" tabindex="0">6</button>
+            <button class="tv-key focusable" data-key="7" tabindex="0">7</button>
+            <button class="tv-key focusable" data-key="8" tabindex="0">8</button>
+            <button class="tv-key focusable" data-key="9" tabindex="0">9</button>
+            <button class="tv-key focusable" data-key="0" tabindex="0">0</button>
+            <button class="tv-key tv-key-wide focusable" data-key="SPACE" tabindex="0">SPACE</button>
+            <button class="tv-key tv-key-wide focusable" data-key="BACKSPACE" tabindex="0">⌫ DEL</button>
+            <button class="tv-key tv-key-action focusable" data-key="CLEAR" tabindex="0">CLEAR</button>
+          </div>
+        </div>
       </div>
 
       <div class="search-results-box" id="searchResultsContainer">
-        <div class="search-placeholder-prompt">Type to search over 100M+ ad-free songs on YouTube Music</div>
+        <div class="search-placeholder-prompt">Click letters above or type to search ad-free music</div>
       </div>
 
       <div style="height: 140px;"></div>
@@ -134,15 +185,15 @@
         <div class="section-pre-tag">AYUSH'S STREAMING PROFILE</div>
         <div class="analytics-card-grid">
           <div class="stat-card">
-            <div class="stat-num" id="statPlays">0</div>
+            <div class="stat-num" id="statPlays">14</div>
             <div class="stat-label">Tracks Streamed</div>
           </div>
           <div class="stat-card">
-            <div class="stat-num" id="statMinutes">0m</div>
+            <div class="stat-num" id="statMinutes">52m</div>
             <div class="stat-label">Playback Time</div>
           </div>
           <div class="stat-card">
-            <div class="stat-num" id="statFavorites">0</div>
+            <div class="stat-num" id="statFavorites">7</div>
             <div class="stat-label">Liked Songs</div>
           </div>
         </div>
@@ -156,7 +207,7 @@
   <!-- ══════════════════════════════════════════════════════════ -->
   <div id="miniPlayer" class="floating-capsule-mini-player focusable" tabindex="0">
     <div class="mp-left" id="mpOpenNowPlaying">
-      <img id="mpThumb" src="assets/starboy_square.jpg" alt="Art" class="mp-art">
+      <img id="mpThumb" src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f9/ac/85/f9ac85bb-9e47-2f10-6981-b5ff19c7ca6b/26UM1IM28034.rgb.jpg/600x600bb.jpg" alt="Art" class="mp-art">
       <div class="mp-meta">
         <div id="mpTitle" class="mp-title">Wake Up</div>
         <div id="mpArtist" class="mp-artist">Krish Rao</div>
@@ -170,7 +221,7 @@
       </button>
       <button id="mpPlayPauseBtn" class="mp-play-pill focusable" title="Play/Pause" tabindex="0">
         <svg id="mpPlayPauseSvg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M8 5v14l11-7z"/>
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
         </svg>
       </button>
     </div>
@@ -241,7 +292,7 @@
       <!-- Left / Center: Artwork & Controls -->
       <div class="np-art-column">
         <div class="np-art-wrap">
-          <img id="npArtwork" src="assets/starboy_square.jpg" alt="Artwork" class="np-large-art">
+          <img id="npArtwork" src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f9/ac/85/f9ac85bb-9e47-2f10-6981-b5ff19c7ca6b/26UM1IM28034.rgb.jpg/600x600bb.jpg" alt="Artwork" class="np-large-art">
         </div>
 
         <div class="np-track-row">
@@ -309,14 +360,94 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SETTINGS MODAL                                            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="settingsModal" class="app-modal hidden">
+    <div class="app-modal-backdrop" id="settingsModalBackdrop"></div>
+    <div class="app-modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Settings</h3>
+        <button id="closeSettingsBtn" class="modal-close-btn focusable" tabindex="0">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-group">
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">App Version</span>
+              <span class="settings-item-sub">AyushMuzic v2.0.0 (Samsung Smart TV Edition)</span>
+            </div>
+            <span class="settings-item-badge">v2.0.0</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Audio Stream Quality</span>
+              <span class="settings-item-sub">Direct Akamai/Apple AAC 256kbps Ultra-HD</span>
+            </div>
+            <span class="settings-item-badge active">256 kbps</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Live Synced Lyrics</span>
+              <span class="settings-item-sub">Real-time word sync via LRCLIB engine</span>
+            </div>
+            <span class="settings-item-badge active">Enabled</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Theme & Layout</span>
+              <span class="settings-item-sub">Pure AMOLED Black (1:1 Android Mobile Replica)</span>
+            </div>
+            <span class="settings-item-badge">AMOLED</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Smart TV D-Pad Navigation</span>
+              <span class="settings-item-sub">Hardware Remote & Media Key Support</span>
+            </div>
+            <span class="settings-item-badge active">Active</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Reset & Reload</span>
+              <span class="settings-item-sub">Clear cache and restart player engine</span>
+            </div>
+            <button id="resetAppBtn" class="settings-action-btn focusable" tabindex="0">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ADD PLAYLIST MODAL                                        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="addModal" class="app-modal hidden">
+    <div class="app-modal-backdrop" id="addModalBackdrop"></div>
+    <div class="app-modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">New Playlist</h3>
+        <button id="closeAddBtn" class="modal-close-btn focusable" tabindex="0">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">Create a new playlist for quick access on TV.</p>
+        <input type="text" id="playlistNameInput" class="modal-input focusable" placeholder="Playlist Name..." tabindex="0">
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button id="savePlaylistBtn" class="modal-primary-btn focusable" tabindex="0">Create Playlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- Hidden Audio Player & Active YouTube Engine Container -->
+<!-- Primary Native Audio Element for Direct Instant Streaming -->
 <audio id="html5AudioPlayer" preload="auto"></audio>
+
+<!-- Background YouTube Iframe Container -->
 <div id="ytContainer" style="position:fixed;bottom:-500px;left:-500px;width:200px;height:200px;opacity:0.01;pointer-events:none;"></div>
 
 <!-- Core Application Script -->
-<script src="https://www.youtube.com/iframe_api"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

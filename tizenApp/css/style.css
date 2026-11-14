@@ -841,9 +841,12 @@ body {
 }
 
 /* ==========================================================================
-   SEARCH SCREEN & INPUT
+   SEARCH SCREEN & TV ON-SCREEN VIRTUAL KEYBOARD
    ========================================================================== */
-.search-input-header {
+.search-header-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
@@ -881,6 +884,70 @@ body {
   cursor: pointer;
 }
 
+.tv-keyboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(22, 22, 24, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  max-width: 900px;
+}
+
+.tv-keyboard-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.tv-key {
+  flex: 1;
+  min-width: 44px;
+  height: 48px;
+  background: #2a2a2c;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.tv-key:hover,
+.tv-key:focus,
+.tv-key.tv-focused {
+  background: var(--accent-cyan);
+  color: #000000;
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(43, 211, 255, 0.6);
+  z-index: 10;
+}
+
+.tv-key-wide {
+  flex: 2;
+  font-size: 15px;
+}
+
+.tv-key-action {
+  flex: 1.5;
+  background: #3a1c22;
+  color: #ff6b81;
+  font-size: 14px;
+}
+
+.tv-key-action:hover,
+.tv-key-action:focus {
+  background: #ff4757;
+  color: #ffffff;
+}
+
 .search-results-box {
   display: flex;
   flex-direction: column;
@@ -899,4 +966,150 @@ body {
   color: var(--text-secondary);
   font-size: 16px;
   padding: 20px 0;
+}
+
+/* ==========================================================================
+   APP MODALS & DIALOGS (Settings & Add Playlist)
+   ========================================================================== */
+.app-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.25s ease;
+}
+
+.app-modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.app-modal-dialog {
+  position: relative;
+  z-index: 2;
+  width: 90%;
+  max-width: 680px;
+  background: #141416;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+}
+
+.settings-item-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.settings-item-sub {
+  display: block;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.settings-item-badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.settings-item-badge.active {
+  background: rgba(43, 211, 255, 0.2);
+  color: var(--accent-cyan);
+  border: 1px solid var(--accent-cyan);
+}
+
+.settings-action-btn {
+  padding: 8px 16px;
+  background: #ff4757;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modal-input {
+  width: 100%;
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: #ffffff;
+  font-size: 16px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.modal-primary-btn {
+  padding: 12px 24px;
+  background: var(--accent-cyan);
+  color: #000000;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
 }

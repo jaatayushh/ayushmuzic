@@ -15,7 +15,6 @@
     <feature name="http://tizen.org/feature/screen.size.all"/>
 
     <tizen:privilege name="http://tizen.org/privilege/internet"/>
-    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
     <tizen:privilege name="http://tizen.org/privilege/network.get"/>
     <tizen:privilege name="http://tizen.org/privilege/storage"/>
     <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
