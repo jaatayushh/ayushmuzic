@@ -1,6 +1,7 @@
 package com.maxrave.data.parser
 
 import com.maxrave.data.mapping.toYouTubeWatchEndpoint
+import com.maxrave.domain.extension.toHighResThumbnailUrl
 import com.maxrave.domain.data.model.home.Content
 import com.maxrave.domain.data.model.home.HomeItem
 import com.maxrave.domain.data.model.searchResult.songs.Album
@@ -749,9 +750,9 @@ internal fun parseSongArtistsRuns(runs: List<Run>): List<Artist> {
 
 fun Thumbnail.toThumbnail(): com.maxrave.domain.data.model.searchResult.songs.Thumbnail =
     com.maxrave.domain.data.model.searchResult.songs.Thumbnail(
-        height = this.height ?: 0,
-        url = this.url,
-        width = this.width ?: 0,
+        height = if ((this.height ?: 0) > 0) 800 else 0,
+        url = this.url.toHighResThumbnailUrl(),
+        width = if ((this.width ?: 0) > 0) 800 else 0,
     )
 
 fun List<Thumbnail>.toListThumbnail(): List<com.maxrave.domain.data.model.searchResult.songs.Thumbnail> {

@@ -399,7 +399,7 @@ internal class DataStoreManagerImpl(
 
     override val sendBackToGoogle =
         settingsDataStore.data.map { preferences ->
-            preferences[SEND_BACK_TO_GOOGLE] ?: FALSE
+            preferences[SEND_BACK_TO_GOOGLE] ?: if (preferences[LOGGED_IN] == TRUE) TRUE else FALSE
         }
 
     override suspend fun setSendBackToGoogle(send: Boolean) {
@@ -794,7 +794,7 @@ internal class DataStoreManagerImpl(
 
     override val syncFollowToYouTube: Flow<String> =
         settingsDataStore.data.map { preferences ->
-            preferences[SYNC_FOLLOW_TO_YOUTUBE] ?: FALSE
+            preferences[SYNC_FOLLOW_TO_YOUTUBE] ?: if (preferences[LOGGED_IN] == TRUE) TRUE else FALSE
         }
 
     override suspend fun setSyncFollowToYouTube(enabled: Boolean) {

@@ -1360,13 +1360,14 @@ class Ytmusic {
             val response =
                 httpClient.get(url) {
                     header("Range", "bytes=0-0")
+                    header("User-Agent", YouTubeClient.USER_AGENT_WEB)
                 }
             response.status.value in 400..499
         } catch (e: ClientRequestException) {
             e.response.status.value in 400..499
         } catch (e: Exception) {
             Logger.w(TAG, "is403Url check failed for $url: ${e.message}")
-            false
+            true
         }
     }
 

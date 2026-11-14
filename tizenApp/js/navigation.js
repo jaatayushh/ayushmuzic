@@ -1,158 +1,131 @@
-// Spatial D-Pad Navigation Engine for Samsung Smart TV Remote
+// =====================================================
+// AyushMuzic Tizen TV — D-Pad Navigation Engine v2.0
+// Spatial nearest-element focus for TV remote + keyboard
+// =====================================================
+
 const TVNavigation = {
     currentFocus: null,
+    _history: [],
 
     init() {
-        // Register Tizen TV Remote Keys
-        this.registerTizenKeys();
+        this._registerTizenKeys();
+        window.addEventListener('keydown', e => this._onKey(e), true);
+        // Hover-on-cursor-move (for browser testing with mouse)
+        document.addEventListener('mousemove', () => {
+            document.body.classList.add('using-mouse');
+        });
 
-        // Listen for keyboard events (works with both TV remote & PC keyboard)
-        window.addEventListener('keydown', (e) => this.handleKeyDown(e));
-
-        // Initial focus on first sidebar item
-        const firstFocus = document.querySelector('.focusable');
-        if (firstFocus) {
-            this.setFocus(firstFocus);
-        }
+        // Auto-focus first visible focusable
+        requestAnimationFrame(() => {
+            const first = document.querySelector('#sidebar .focusable');
+            if (first) this.setFocus(first);
+        });
     },
 
-    registerTizenKeys() {
-        if (window.tizen && tizen.tvinputdevice) {
-            const keysToRegister = [
-                'MediaPlay', 'MediaPause', 'MediaPlayPause', 'MediaStop',
-                'MediaFastForward', 'MediaRewind', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
-            ];
-            keysToRegister.forEach(key => {
-                try {
-                    tizen.tvinputdevice.registerKey(key);
-                } catch (e) {
-                    console.log('[TVNav] Key registration ignored for:', key);
-                }
-            });
-        }
+    _registerTizenKeys() {
+        if (!window.tizen || !tizen.tvinputdevice) return;
+        const keys = [
+            'MediaPlay', 'MediaPause', 'MediaPlayPause', 'MediaStop',
+            'MediaFastForward', 'MediaRewind', 'MediaTrackNext', 'MediaTrackPrevious',
+            'ColorF0Red', 'ColorF1Green', 'ColorF2Yellow', 'ColorF3Blue',
+            '0','1','2','3','4','5','6','7','8','9'
+        ];
+        keys.forEach(k => {
+            try { tizen.tvinputdevice.registerKey(k); } catch {}
+        });
     },
 
-    setFocus(element) {
-        if (!element) return;
-        if (this.currentFocus) {
-            this.currentFocus.classList.remove('focused');
-        }
-        this.currentFocus = element;
-        this.currentFocus.classList.add('focused');
-
-        // Smooth scroll element into view if inside a scrollable container
-        element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    setFocus(el) {
+        if (!el || el === this.currentFocus) return;
+        if (this.currentFocus) this.currentFocus.classList.remove('focused');
+        this.currentFocus = el;
+        el.classList.add('focused');
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
     },
 
-    handleKeyDown(e) {
-        const keyCode = e.keyCode;
+    pushHistory(el) {
+        if (el) this._history.push(el);
+    },
+
+    popHistory() {
+        return this._history.pop();
+    },
+
+    _onKey(e) {
+        const k = e.keyCode;
         const key = e.key;
 
-        // Tizen Return / Back Button (keyCode 10009 or Backspace)
-        if (keyCode === 10009 || key === 'Backspace') {
+        // ── Back / Return ──
+        if (k === 10009 || key === 'Escape' || key === 'Backspace') {
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
             e.preventDefault();
-            if (window.App && window.App.handleBack) {
-                window.App.handleBack();
-            }
+            if (window.App) App.handleBack();
             return;
         }
 
-        // Tizen Media Remote Keys
-        if (keyCode === 415 || key === 'MediaPlay') {
-            e.preventDefault();
-            AudioPlayer.togglePlayPause();
-            return;
-        }
-        if (keyCode === 19 || key === 'MediaPause') {
-            e.preventDefault();
-            AudioPlayer.togglePlayPause();
-            return;
-        }
-        if (keyCode === 10252 || key === 'MediaPlayPause') {
-            e.preventDefault();
-            AudioPlayer.togglePlayPause();
-            return;
-        }
+        // ── Media keys ──
+        if (k === 415 || key === 'MediaPlay') { e.preventDefault(); AudioPlayer.togglePlayPause(); return; }
+        if (k === 19  || key === 'MediaPause') { e.preventDefault(); AudioPlayer.togglePlayPause(); return; }
+        if (k === 10252 || key === 'MediaPlayPause') { e.preventDefault(); AudioPlayer.togglePlayPause(); return; }
+        if (k === 417 || key === 'MediaFastForward') { e.preventDefault(); AudioPlayer.seek(AudioPlayer.currentTime + 10); return; }
+        if (k === 412 || key === 'MediaRewind') { e.preventDefault(); AudioPlayer.seek(AudioPlayer.currentTime - 10); return; }
+        if (k === 10233 || key === 'MediaTrackNext') { e.preventDefault(); AudioPlayer.playNext(); return; }
+        if (k === 10232 || key === 'MediaTrackPrevious') { e.preventDefault(); AudioPlayer.playPrev(); return; }
 
-        // D-Pad Directional Navigation
+        // ── D-Pad ──
         switch (key) {
-            case 'ArrowUp':
-                e.preventDefault();
-                this.moveFocus('up');
-                break;
-            case 'ArrowDown':
-                e.preventDefault();
-                this.moveFocus('down');
-                break;
-            case 'ArrowLeft':
-                e.preventDefault();
-                this.moveFocus('left');
-                break;
-            case 'ArrowRight':
-                e.preventDefault();
-                this.moveFocus('right');
-                break;
+            case 'ArrowUp':    e.preventDefault(); this._move('up'); break;
+            case 'ArrowDown':  e.preventDefault(); this._move('down'); break;
+            case 'ArrowLeft':  e.preventDefault(); this._move('left'); break;
+            case 'ArrowRight': e.preventDefault(); this._move('right'); break;
             case 'Enter':
                 e.preventDefault();
-                if (this.currentFocus) {
-                    this.currentFocus.click();
-                }
+                if (this.currentFocus) this.currentFocus.click();
                 break;
         }
     },
 
-    moveFocus(direction) {
+    _move(dir) {
         if (!this.currentFocus) {
             const first = document.querySelector('.focusable');
             if (first) this.setFocus(first);
             return;
         }
 
-        const visibleFocusables = Array.from(document.querySelectorAll('.focusable')).filter(el => {
-            return el.offsetParent !== null && window.getComputedStyle(el).display !== 'none';
+        const all = Array.from(document.querySelectorAll('.focusable')).filter(el => {
+            if (!el.offsetParent) return false;
+            const style = window.getComputedStyle(el);
+            return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
         });
 
-        const currentRect = this.currentFocus.getBoundingClientRect();
-        let bestCandidate = null;
-        let bestDistance = Infinity;
+        const curRect = this.currentFocus.getBoundingClientRect();
+        const curCX = curRect.left + curRect.width / 2;
+        const curCY = curRect.top + curRect.height / 2;
 
-        visibleFocusables.forEach(candidate => {
-            if (candidate === this.currentFocus) return;
-            const candRect = candidate.getBoundingClientRect();
+        let best = null;
+        let bestScore = Infinity;
 
-            let isValid = false;
-            let primaryDist = 0;
-            let secondaryDist = 0;
+        for (const el of all) {
+            if (el === this.currentFocus) continue;
+            const rect = el.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
 
-            if (direction === 'up' && candRect.bottom <= currentRect.top + 10) {
-                isValid = true;
-                primaryDist = currentRect.top - candRect.bottom;
-                secondaryDist = Math.abs((candRect.left + candRect.width / 2) - (currentRect.left + currentRect.width / 2));
-            } else if (direction === 'down' && candRect.top >= currentRect.bottom - 10) {
-                isValid = true;
-                primaryDist = candRect.top - currentRect.bottom;
-                secondaryDist = Math.abs((candRect.left + candRect.width / 2) - (currentRect.left + currentRect.width / 2));
-            } else if (direction === 'left' && candRect.right <= currentRect.left + 10) {
-                isValid = true;
-                primaryDist = currentRect.left - candRect.right;
-                secondaryDist = Math.abs((candRect.top + candRect.height / 2) - (currentRect.top + currentRect.height / 2));
-            } else if (direction === 'right' && candRect.left >= currentRect.right - 10) {
-                isValid = true;
-                primaryDist = candRect.left - currentRect.right;
-                secondaryDist = Math.abs((candRect.top + candRect.height / 2) - (currentRect.top + currentRect.height / 2));
+            let valid = false;
+            let primary = 0, secondary = 0;
+
+            if (dir === 'up'    && rect.bottom <= curRect.top + 8)    { valid = true; primary = curRect.top - cy;    secondary = Math.abs(cx - curCX); }
+            if (dir === 'down'  && rect.top >= curRect.bottom - 8)    { valid = true; primary = cy - curRect.bottom; secondary = Math.abs(cx - curCX); }
+            if (dir === 'left'  && rect.right <= curRect.left + 8)   { valid = true; primary = curRect.left - cx;   secondary = Math.abs(cy - curCY); }
+            if (dir === 'right' && rect.left >= curRect.right - 8)   { valid = true; primary = cx - curRect.right;  secondary = Math.abs(cy - curCY); }
+
+            if (valid) {
+                // Score: primary distance weighted more than secondary
+                const score = primary * 2 + secondary * 0.8;
+                if (score < bestScore) { bestScore = score; best = el; }
             }
-
-            if (isValid) {
-                const totalDist = primaryDist * 1.5 + secondaryDist;
-                if (totalDist < bestDistance) {
-                    bestDistance = totalDist;
-                    bestCandidate = candidate;
-                }
-            }
-        });
-
-        if (bestCandidate) {
-            this.setFocus(bestCandidate);
         }
+
+        if (best) this.setFocus(best);
     }
 };

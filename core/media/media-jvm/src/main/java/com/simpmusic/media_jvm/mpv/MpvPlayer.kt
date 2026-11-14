@@ -252,6 +252,8 @@ class MpvPlayer private constructor(
             // surfaces as MPV_EVENT_END_FILE instead of MPV_EVENT_SHUTDOWN.
             option("idle", "yes")
             option("audio-client-name", "SimpMusic")
+            option("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36")
+            option("http-header-fields", "Origin: https://music.youtube.com,Referer: https://music.youtube.com/")
 
             // macOS only: keep mpv off ao_coreaudio, which leaks a process-wide CoreAudio
             // listener pointing at a freed `struct ao` and takes the whole JVM down the next

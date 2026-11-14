@@ -776,6 +776,9 @@ interface DatabaseDao {
     @Query("SELECT * FROM new_format WHERE videoId = :videoId")
     suspend fun getNewFormat(videoId: String): NewFormatEntity?
 
+    @Query("DELETE FROM new_format WHERE videoId = :videoId")
+    suspend fun deleteNewFormat(videoId: String)
+
     @Query("SELECT * FROM new_format WHERE videoId = :videoId")
     fun getNewFormatAsFlow(videoId: String): Flow<NewFormatEntity?>
 

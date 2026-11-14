@@ -866,47 +866,7 @@ fun HomeScreen(
                                     // Android drops the 8dp over each section's title: the list's own 8dp
                                     // spacing already separates it from the shelf above.
                                     if (getPlatform() != Platform.Android) Spacer(modifier = Modifier.height(8.dp))
-                                    if (item.title == stringResource(Res.string.quick_picks)) {
-                                        AnimatedVisibility(
-                                            visible =
-                                                homeData.find {
-                                                    it.title ==
-                                                        stringResource(
-                                                            Res.string.quick_picks,
-                                                        )
-                                                } != null,
-                                        ) {
-                                            QuickPicks(
-                                                homeItem =
-                                                    (
-                                                        homeData.find {
-                                                            it.title ==
-                                                                stringResource(
-                                                                    Res.string.quick_picks,
-                                                                )
-                                                        } ?: return@AnimatedVisibility
-                                                    ).let { content ->
-                                                        content.copy(
-                                                            contents =
-                                                                content.contents.mapNotNull { ct ->
-                                                                    ct?.copy(
-                                                                        artists =
-                                                                            ct.artists?.let { art ->
-                                                                                if (art.size > 1) {
-                                                                                    art.dropLast(1)
-                                                                                } else {
-                                                                                    art
-                                                                                }
-                                                                            },
-                                                                    )
-                                                                },
-                                                        )
-                                                    },
-                                                navController = navController,
-                                                viewModel = viewModel,
-                                            )
-                                        }
-                                    } else if (item.isSongCardShelf()) {
+                                    if (index == 0 || item.title.equals("Quick picks", ignoreCase = true) || item.title == stringResource(Res.string.quick_picks) || item.isSongCardShelf()) {
                                         HomeDiscoverSection(
                                             data = item,
                                             navController = navController,
@@ -1357,11 +1317,13 @@ private val LandscapeGridItemMaxWidth = 400.dp
 // List shelves (Quick picks with itemsPerColumn) keep their own multi-row grid look;
 // 16:9 widescreen video shelves keep their wide video cards.
 private fun HomeItem.isSongCardShelf(): Boolean =
-    itemsPerColumn == null &&
-        contents.isNotEmpty() &&
-        contents.filterNotNull().let { list ->
-            list.isNotEmpty() && list.none { it.thumbnails.firstOrNull()?.let { t -> t.width != t.height } == true }
-        }
+    contents.filterNotNull().let { list ->
+        list.size >= 2 && (
+            title.contains("Listen again", ignoreCase = true) ||
+            title.contains("Quick picks", ignoreCase = true) ||
+            list.any { !it.videoId.isNullOrEmpty() }
+        )
+    }
 
 @ExperimentalFoundationApi
 @Composable

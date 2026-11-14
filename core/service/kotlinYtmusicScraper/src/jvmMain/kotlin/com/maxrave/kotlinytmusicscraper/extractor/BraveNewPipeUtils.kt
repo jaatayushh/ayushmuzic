@@ -42,7 +42,7 @@ internal fun List<Pair<Int, String>>.headCheckRandomStream(): Boolean {
         streamHealthCheckClient.newCall(request).execute().use { response ->
             response.code in 200..299
         }
-    }.getOrDefault(true)
+    }.getOrDefault(false)
 }
 
 class BraveNewPipeDownloaderImpl(

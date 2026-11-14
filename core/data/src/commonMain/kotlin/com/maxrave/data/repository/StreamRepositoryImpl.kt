@@ -402,12 +402,8 @@ internal class StreamRepositoryImpl(
 
     override suspend fun invalidateFormat(videoId: String) {
         withContext(Dispatchers.IO) {
-            localDataSource.getNewFormat(videoId)?.let { format ->
-                Logger.d("Stream", "Invalidating cached format for $videoId")
-                localDataSource.updateNewFormat(
-                    format.copy(expiredTime = now().plusSeconds(-1)),
-                )
-            }
+            Logger.d("Stream", "Invalidating and deleting cached format for $videoId")
+            localDataSource.deleteNewFormat(videoId)
         }
     }
 }

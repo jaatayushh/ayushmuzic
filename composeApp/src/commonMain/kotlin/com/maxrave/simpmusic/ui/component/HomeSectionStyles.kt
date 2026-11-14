@@ -36,6 +36,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.maxrave.domain.extension.toHighResThumbnailUrl
 import com.maxrave.domain.data.model.browse.album.Track
 import com.maxrave.domain.data.model.home.HomeItem
 import com.maxrave.domain.utils.connectArtists
@@ -138,6 +139,9 @@ fun HomeDiscoverSection(
                     }
                 }
                 val (hoverModifier, hovered) = rememberCardHover(enabled = true)
+                val rawThumb = song.thumbnails.lastOrNull()?.url
+                val highResThumb = remember(rawThumb) { rawThumb?.toHighResThumbnailUrl() }
+                var currentThumbUrl by remember(highResThumb) { mutableStateOf(highResThumb) }
                 Box(
                     Modifier
                         .fillMaxSize()
@@ -156,14 +160,21 @@ fun HomeDiscoverSection(
                         model =
                             ImageRequest
                                 .Builder(LocalPlatformContext.current)
-                                .data(song.thumbnails.lastOrNull()?.url)
+                                .data(currentThumbUrl)
                                 .diskCachePolicy(CachePolicy.ENABLED)
-                                .diskCacheKey(song.thumbnails.lastOrNull()?.url)
-                                .crossfade(550)
+                                .diskCacheKey(currentThumbUrl)
+                                .crossfade(400)
                                 .build(),
                         contentDescription = null,
                         placeholder = rememberHolderPainter(),
                         error = rememberHolderPainter(),
+                        onError = {
+                            if (currentThumbUrl?.contains("maxresdefault") == true) {
+                                currentThumbUrl = currentThumbUrl?.replace("maxresdefault", "hqdefault")
+                            } else if (currentThumbUrl != rawThumb && rawThumb != null) {
+                                currentThumbUrl = rawThumb
+                            }
+                        },
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize().hoverZoom(hovered),
                     )

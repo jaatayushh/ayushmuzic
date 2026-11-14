@@ -16,6 +16,7 @@ import com.maxrave.domain.mediaservice.automix.TransitionPlanner
 import com.maxrave.domain.data.player.PlayerConstants
 import com.maxrave.domain.data.player.PlayerError
 import com.maxrave.domain.extension.isVideo
+import com.maxrave.domain.extension.now
 import com.maxrave.domain.manager.DataStoreManager
 import com.maxrave.domain.mediaservice.player.MediaPlayerInterface
 import com.maxrave.domain.mediaservice.player.MediaPlayerListener
@@ -1394,7 +1395,7 @@ class MpvPlayerAdapter(
             .listFiles()
             ?.firstOrNull { it.name.contains(videoId) && !it.name.contains(MERGING_DATA_TYPE.VIDEO) && it.length() > 0 }
             ?.let { return it.absolutePath }
-        val audioUrl = streamRepository.getNewFormat(videoId).lastOrNull()?.audioUrl?.takeIf { it.isNotEmpty() } ?: return null
+        val audioUrl = streamRepository.getNewFormat(videoId).lastOrNull()?.takeIf { it.expiredTime > now() }?.audioUrl?.takeIf { it.isNotEmpty() } ?: return null
         return audioUrl.takeIf { streamRepository.is403Url(it).firstOrNull() == false }
     }
 
@@ -3361,31 +3362,35 @@ class MpvPlayerAdapter(
             val audioUrl = format.audioUrl
             val videoUrl = format.videoUrl
 
-            if (shouldFindVideo && !videoUrl.isNullOrEmpty()) {
-                val is403Video = streamRepository.is403Url(videoUrl).firstOrNull() != false
-                if (!is403Video) {
-                    // Return video URL with audio as a second EDL stream for merging
-                    val audioSlave =
-                        if (!audioUrl.isNullOrEmpty()) {
-                            val is403Audio = streamRepository.is403Url(audioUrl).firstOrNull() != false
-                            if (!is403Audio) audioUrl else null
-                        } else {
-                            null
-                        }
+            if (format.expiredTime > now()) {
+                if (shouldFindVideo && !videoUrl.isNullOrEmpty()) {
+                    val is403Video = streamRepository.is403Url(videoUrl).firstOrNull() != false
+                    if (!is403Video) {
+                        // Return video URL with audio as a second EDL stream for merging
+                        val audioSlave =
+                            if (!audioUrl.isNullOrEmpty()) {
+                                val is403Audio = streamRepository.is403Url(audioUrl).firstOrNull() != false
+                                if (!is403Audio) audioUrl else null
+                            } else {
+                                null
+                            }
 
-                    Logger.w("Stream", "Video from format (with audio stream: ${audioSlave != null})")
-                    return PlayableSource(
-                        isVideo = true,
-                        url = videoUrl,
-                        audioSlaveUrl = audioSlave,
-                    )
+                        Logger.w("Stream", "Video from format (with audio stream: ${audioSlave != null})")
+                        return PlayableSource(
+                            isVideo = true,
+                            url = videoUrl,
+                            audioSlaveUrl = audioSlave,
+                        )
+                    }
+                } else if (!shouldFindVideo && !audioUrl.isNullOrEmpty()) {
+                    val is403Url = streamRepository.is403Url(audioUrl).firstOrNull() != false
+                    if (!is403Url) {
+                        Logger.w("Stream", "Audio from format")
+                        return PlayableSource(isVideo = false, url = audioUrl)
+                    }
                 }
-            } else if (!shouldFindVideo && !audioUrl.isNullOrEmpty()) {
-                val is403Url = streamRepository.is403Url(audioUrl).firstOrNull() != false
-                if (!is403Url) {
-                    Logger.w("Stream", "Audio from format")
-                    return PlayableSource(isVideo = false, url = audioUrl)
-                }
+            } else {
+                Logger.d(TAG, "Cached format for $videoId expired at ${format.expiredTime}, requesting fresh stream")
             }
         }
 

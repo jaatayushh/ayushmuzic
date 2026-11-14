@@ -79,6 +79,7 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.maxrave.common.Config
+import com.maxrave.domain.extension.toHighResThumbnailUrl
 import com.maxrave.domain.data.entities.AlbumEntity
 import com.maxrave.domain.data.entities.LocalPlaylistEntity
 import com.maxrave.domain.data.entities.PlaylistEntity
@@ -605,7 +606,7 @@ fun HomeItemContentPlaylist(
                     // thumbSize, so the floor would only add empty space under every tile.
                     .then(if (fillMaxWidth) Modifier else Modifier.heightIn(min = thumbSize + if (compactCards) cardTextBlockFloor() else 70.dp)),
         ) {
-            val thumb =
+            val rawThumb =
                 when (data) {
                     is Content -> data.thumbnails.lastOrNull()?.url
                     is com.maxrave.domain.data.model.mood.genre.Content -> data.thumbnail?.lastOrNull()?.url
@@ -628,6 +629,7 @@ fun HomeItemContentPlaylist(
                     is MonthlyRecapItem -> null
                     else -> null
                 }
+            val thumb = rawThumb?.toHighResThumbnailUrl()
             Box {
                 AsyncImage(
                     model =
@@ -988,14 +990,7 @@ fun HomeItemSong(
                     .padding(start = cardSidePadding, top = 10.dp, end = cardSidePadding, bottom = 6.dp)
                     .heightIn(min = if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
         ) {
-            val thumb =
-                data.thumbnails.lastOrNull()?.url?.let {
-                    if (it.contains("w120")) {
-                        Regex("([wh])120").replace(it, "$1544")
-                    } else {
-                        it
-                    }
-                }
+            val thumb = data.thumbnails.lastOrNull()?.url?.toHighResThumbnailUrl()?.toHighResThumbnailUrl()
             Box(Modifier.align(Alignment.CenterHorizontally)) {
                 AsyncImage(
                     model =
@@ -1099,7 +1094,7 @@ fun HomeItemVideo(
                     .padding(start = cardSidePadding, top = 10.dp, end = cardSidePadding, bottom = 6.dp)
                     .heightIn(min = if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
         ) {
-            val thumb = data.thumbnails.lastOrNull()?.url
+            val thumb = data.thumbnails.lastOrNull()?.url?.toHighResThumbnailUrl()
             Box(Modifier.align(Alignment.CenterHorizontally)) {
                 AsyncImage(
                     model =
@@ -1217,7 +1212,7 @@ fun HomeItemArtist(
                     .padding(start = cardSidePadding, top = 10.dp, end = cardSidePadding, bottom = 6.dp)
                     .heightIn(min = if (compactCards) 160.dp + cardTextBlockFloor() else 230.dp),
         ) {
-            val thumb = data.thumbnails.lastOrNull()?.url
+            val thumb = data.thumbnails.lastOrNull()?.url?.toHighResThumbnailUrl()
             AsyncImage(
                 model =
                     ImageRequest
@@ -1335,7 +1330,7 @@ fun ItemVideoChart(
                 Modifier
                     .padding(10.dp),
         ) {
-            val thumb = data.thumbnails.lastOrNull()?.url
+            val thumb = data.thumbnails.lastOrNull()?.url?.toHighResThumbnailUrl()
             AsyncImage(
                 model =
                     ImageRequest
@@ -1448,7 +1443,7 @@ fun ItemArtistChart(
                         .align(Alignment.CenterVertically)
                         .padding(end = 20.dp),
             )
-            val thumb = data.thumbnails.lastOrNull()?.url
+            val thumb = data.thumbnails.lastOrNull()?.url?.toHighResThumbnailUrl()
             AsyncImage(
                 model =
                     ImageRequest

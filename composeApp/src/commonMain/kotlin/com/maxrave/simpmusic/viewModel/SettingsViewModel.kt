@@ -1159,6 +1159,14 @@ class SettingsViewModel(
         viewModelScope.launch {
             dataStoreManager.loggedIn.collect { loggedIn ->
                 _loggedIn.emit(loggedIn)
+                if (loggedIn == DataStoreManager.TRUE) {
+                    if (_syncFollowToYouTube.value != true) {
+                        setSyncFollowToYouTube(true)
+                    }
+                    if (_sendBackToGoogle.value != DataStoreManager.TRUE) {
+                        setSendBackToGoogle(true)
+                    }
+                }
             }
         }
     }

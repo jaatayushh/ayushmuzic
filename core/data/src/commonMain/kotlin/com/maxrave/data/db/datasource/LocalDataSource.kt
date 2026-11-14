@@ -533,6 +533,8 @@ internal class LocalDataSource(
 
     suspend fun getNewFormat(videoId: String) = databaseDao.getNewFormat(videoId)
 
+    suspend fun deleteNewFormat(videoId: String) = databaseDao.deleteNewFormat(videoId)
+
     suspend fun updateNewFormat(newFormatEntity: NewFormatEntity) = databaseDao.updateNewFormat(newFormatEntity)
 
     suspend fun getNewFormatAsFlow(videoId: String) = databaseDao.getNewFormatAsFlow(videoId)

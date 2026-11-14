@@ -202,3 +202,24 @@ fun decodeHtmlEntities(text: String): String {
 
     return result
 }
+
+/**
+ * Upgrades standard YouTube Music and Google CDN thumbnail URLs to crisp high resolution (800x800 or 1280x720).
+ */
+fun String.toHighResThumbnailUrl(): String {
+    if (isBlank()) return this
+    var url = this
+    if (url.contains("googleusercontent.com") || url.contains("ggpht.com") || url.contains("=w") || url.contains("=s")) {
+        url = if (url.contains("=w") || url.contains("-w")) {
+            url.replace(Regex("([=-])w\\d+.*"), "$1w800-h800-l90-rj")
+        } else if (url.contains("=s") || url.contains("-s")) {
+            url.replace(Regex("([=-])s\\d+.*"), "$1s800-c")
+        } else {
+            url
+        }
+    } else if (url.contains("i.ytimg.com/vi/")) {
+        val base = url.substringBefore('?')
+        url = base.replace(Regex("/(default|mqdefault|hqdefault|sddefault)\\.jpg$"), "/maxresdefault.jpg")
+    }
+    return url
+}
