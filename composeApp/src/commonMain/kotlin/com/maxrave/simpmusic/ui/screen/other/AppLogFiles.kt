@@ -215,7 +215,7 @@ internal suspend fun exportLog(chooserTitle: String): Boolean {
         withContext(Dispatchers.IO) {
             runCatching {
                 buildString {
-                    appendLine("SimpMusic ${VersionManager.getVersionName()} · ${getPlatform().osName()}")
+                    appendLine("AyushMuzic ${VersionManager.getVersionName()} · ${getPlatform().osName()}")
                     for (name in listOf(Logger.APP_LOG, Logger.ERROR_LOG)) {
                         appendLine()
                         appendLine("===== $name.log =====")

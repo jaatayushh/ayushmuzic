@@ -34,7 +34,7 @@ class LiveServerHandshakeTest {
             val client =
                 ListenTogetherClient(
                     clientVersion = "simpmusic-live-test",
-                    userAgent = "SimpMusic/test (org.simpmusic.test; JVM)",
+                    userAgent = "AyushMuzic/test (org.simpmusic.test; JVM)",
                 )
             val received = Channel<ListenTogetherEvent>(Channel.UNLIMITED)
             val collector = launch { client.events.collect { received.send(it) } }
@@ -74,7 +74,7 @@ class LiveServerHandshakeTest {
                 // 2. Proves the server can PARSE bytes we encoded, i.e. protobuf equivalence holds.
                 println("→ create_room")
                 assertTrue(
-                    client.send(MessageTypes.CREATE_ROOM, CreateRoomPayload(username = "SimpMusicTest")),
+                    client.send(MessageTypes.CREATE_ROOM, CreateRoomPayload(username = "AyushMuzicTest")),
                     "create_room could not be sent",
                 )
                 val created =

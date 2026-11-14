@@ -225,7 +225,7 @@ internal fun AppleMusicLyricsView(
                                 )
                             }
                             // One line per fact, not one line joined by a bullet. "Word by word"
-                            // and "Lyrics provided by SimpMusic Lyrics" are two different things,
+                            // and "Lyrics provided by AyushMuzic Lyrics" are two different things,
                             // and glued together they make a single line long enough to run the
                             // width of the screen.
                             //

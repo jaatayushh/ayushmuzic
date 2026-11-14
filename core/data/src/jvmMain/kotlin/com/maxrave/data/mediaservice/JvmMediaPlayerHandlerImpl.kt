@@ -230,7 +230,7 @@ class JvmMediaPlayerHandlerImpl(
             Platform.MacOs
         } else {
             Platform.Linux(
-                "SimpMusic",
+                "AyushMuzic",
                 // MPRIS DesktopEntry: GNOME takes the media widget's icon from "<this>.desktop",
                 // so it must name the file the AppImage's AppRun installs (desktopApp/build.gradle.kts).
                 "com-maxrave-simpmusic-MainKt",

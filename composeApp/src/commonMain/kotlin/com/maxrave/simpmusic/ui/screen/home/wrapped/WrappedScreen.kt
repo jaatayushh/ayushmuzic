@@ -626,7 +626,7 @@ private fun rememberWrappedShare(
     // reel must not silently overwrite the first.
     val fileName =
         remember(wrapped.year) {
-            "SimpMusic_Wrapped_${wrapped.year}_${Random.nextInt(100_000, 999_999)}.png"
+            "AyushMuzic_Wrapped_${wrapped.year}_${Random.nextInt(100_000, 999_999)}.png"
         }
 
     // Only saving can be refused; sharing goes through the app's own cache and needs nothing. On

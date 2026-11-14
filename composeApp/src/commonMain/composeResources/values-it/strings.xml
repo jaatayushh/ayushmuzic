@@ -163,7 +163,7 @@
     <string name="albums_inArtist">Album</string>
     <string name="singles_inArtist">Singoli</string>
     <string name="fans_might_also_like_inArtist">Ai fan potrebbe anche piacere</string>
-    <string name="crash_log">SimpMusic ha subito un arresto anomalo. Ci scusiamo per questo problema.\nInvia il log del suo arresto allo sviluppatore</string>
+    <string name="crash_log">AyushMuzic ha subito un arresto anomalo. Ci scusiamo per questo problema.\nInvia il log del suo arresto allo sviluppatore</string>
     <string name="crash">Arresto anomalo</string>
     <string name="send">Invia</string>
     <string name="mail_subject">Segnala arresto</string>
@@ -224,12 +224,12 @@
     <string name="save">Salva</string>
     <string name="crop_cover">Ritaglia cover</string>
     <string name="saved">Salvato</string>
-    <string name="sponsor_block_intro">SponsorBlock è un sistema di crowdsourcing per saltare parti fastidiose dei video di YouTube.\nUlteriori informazioni: https://sponsor.ajay.app/\nIn SimpMusic, SponsorBlock è disponibile solo quando il dispositivo è online</string>
+    <string name="sponsor_block_intro">SponsorBlock è un sistema di crowdsourcing per saltare parti fastidiose dei video di YouTube.\nUlteriori informazioni: https://sponsor.ajay.app/\nIn AyushMuzic, SponsorBlock è disponibile solo quando il dispositivo è online</string>
     <string name="skip_sponsor_part_of_video">Salta la parte dello sponsor del video</string>
     <string name="customactivityoncrash_error_activity_error_occurred_explanation">Si è verificato un errore imprevisto. Ci dispiace per l'inconvenienza.</string>
     <string name="customactivityoncrash_error_activity_restart_app">Riavvia l'applicazione</string>
-    <string name="help_build_lyrics_database">Aiuta SimpMusic a costruire il database dei testi</string>
-    <string name="help_build_lyrics_database_description">Invia i tuoi testi salvati al database dei testi di SimpMusic</string>
+    <string name="help_build_lyrics_database">Aiuta AyushMuzic a costruire il database dei testi</string>
+    <string name="help_build_lyrics_database_description">Invia i tuoi testi salvati al database dei testi di AyushMuzic</string>
     <string name="customactivityoncrash_error_activity_close_app">Chiudi l'applicazione</string>
     <string name="customactivityoncrash_error_activity_error_details">Dettagli errore</string>
     <string name="customactivityoncrash_error_activity_error_details_title">Dettagli errore</string>
@@ -265,7 +265,7 @@
     <string name="saved_to_local_playlist">Salvato nella playlist locale</string>
     <string name="if_you_want_to_unsync_this_playlist_please_go_to_local_playlist">se desideri annullare la sincronizzazione di questa playlist, vai alla playlist locale</string>
     <string name="log_in_to_get_YouTube_playlist">Accedi per ottenere la playlist di YouTube</string>
-    <string name="sync_playlist_warning">SimpMusic creerà automaticamente una playlist musicale di YouTube. Sei sicuro?</string>
+    <string name="sync_playlist_warning">AyushMuzic creerà automaticamente una playlist musicale di YouTube. Sei sicuro?</string>
     <string name="syncing">Sincronizzazione</string>
     <string name="unsync_playlist_warning">"Vuoi sincronizzare questa playlist? Questa playlist non verrà rimossa da YouTube Music"</string>
     <string name="unsyncing">Desincronizzazione</string>
@@ -282,7 +282,7 @@
     <string name="email">Posta elettronica</string>
     <string name="password">Password</string>
     <string name="please_enter_your_email_and_password">Per favore inserisci le tue credenziali</string>
-    <string name="translation_language_message">Digitare il codice della lingua (Es: it) (2 lettere). Se vuoi impostare lo stesso con la lingua di SimpMusic, lascia vuota la casella di modifica.</string>
+    <string name="translation_language_message">Digitare il codice della lingua (Es: it) (2 lettere). Se vuoi impostare lo stesso con la lingua di AyushMuzic, lascia vuota la casella di modifica.</string>
     <string name="invalid_language_code">Codice lingua non valido</string>
     <string name="lyrics_provider_youtube">Testi forniti da YouTube</string>
     <string name="lyrics_provider_betterlyrics">Testi forniti da BetterLyrics</string>
@@ -301,7 +301,7 @@
     <string name="older_first">Prima i più datati</string>
     <string name="newer_first">Prima i più recenti</string>
     <string name="added_date">Data aggiunta</string>
-    <string name="credit_app">Una semplice app musicale che utilizza YouTube Music come backend \n\nSimpMusic è un progetto open source per lo streaming di musica da YouTube e YouTube Music senza pubblicità e tracciamento. SimpMusic offre molte funzionalità:\n\n - Musica in streaming\n - Testi sincronizzati\n - Personalizza dati\n - ecc... \n\nSimpMusic è sempre gratuito e senza pubblicità\n\nCrea con ❤️ di Tuan Minh Nguyen Duc (maxrave-dev)</string>
+    <string name="credit_app">Una semplice app musicale che utilizza YouTube Music come backend \n\nAyushMuzic è un progetto open source per lo streaming di musica da YouTube e YouTube Music senza pubblicità e tracciamento. AyushMuzic offre molte funzionalità:\n\n - Musica in streaming\n - Testi sincronizzati\n - Personalizza dati\n - ecc... \n\nAyushMuzic è sempre gratuito e senza pubblicità\n\nCrea con ❤️ di Tuan Minh Nguyen Duc (maxrave-dev)</string>
     <string name="issue_tracker">Rilevatore di problemi</string>
     <string name="featured_playlists">Playlist in primo piano</string>
     <string name="featured_inArtist">In primo piano</string>
@@ -362,7 +362,7 @@
     <string name="reverb_help_rt60">Coda (RT60): %1$s</string>
     <string name="reverb_help_predelay">Pre-ritardo: %1$s</string>
     <string name="reverb_help_damping">Smorzamento da: %1$s</string>
-    <string name="sync_follow_to_youtube_description">Seguire un artista su SimpMusic ti iscrive anche al suo canale sul tuo account YouTube</string>
+    <string name="sync_follow_to_youtube_description">Seguire un artista su AyushMuzic ti iscrive anche al suo canale sul tuo account YouTube</string>
     <string name="sync_follow_failed">Impossibile aggiornare la tua iscrizione su YouTube</string>
     <string name="subscribed_on_youtube">Iscritto su YouTube</string>
     <string name="unsubscribed_on_youtube">Disiscritto da YouTube</string>
@@ -383,7 +383,7 @@
     <string name="enable_spotify_lyrics">Abilita testi da Spotify</string>
     <string name="spotify_lyrícs_info">Più testi senza traduzione</string>
     <string name="enable_canvas">Abilita Canvas</string>
-    <string name="canvas_info">Mostra i Canvas di Spotify in SimpMusic</string>
+    <string name="canvas_info">Mostra i Canvas di Spotify in AyushMuzic</string>
     <string name="enable_animated_artwork">Illustrazione animata</string>
     <string name="spotify_lyrics_provider">Testi forniti da Spotify</string>
     <string name="offline_mode">Modalità disconnessa</string>
@@ -453,7 +453,7 @@
     <string name="loading">Caricamento</string>
     <string name="updating">Aggiornando</string>
     <string name="go_to_log_in_page">Vai alla pagina di accesso</string>
-    <string name="log_in_warning">YouTube Music ora richiede di accedere per riprodurre musica, quindi l'istanza Piped potrebbe occasionalmente non funzionare. Si consiglia di accedere a YouTube per ottenere un'esperienza migliore con SimpMusic.</string>
+    <string name="log_in_warning">YouTube Music ora richiede di accedere per riprodurre musica, quindi l'istanza Piped potrebbe occasionalmente non funzionare. Si consiglia di accedere a YouTube per ottenere un'esperienza migliore con AyushMuzic.</string>
     <string name="spotify_canvas_cache">Cache di Spotify Canvas</string>
     <string name="clear_canvas_cache">Pulisci la cache di Spotify Canvas</string>
     <string name="listening_history">Cronologia d'ascolto</string>
@@ -500,8 +500,8 @@
     <string name="other_version">Altra versione</string>
     <string name="later">Dopo</string>
     <string name="give_a_star">Dai una stella</string>
-    <string name="enjoying_simpmusic">Divertiti con SimpMusic</string>
-    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">Se ti piace usare SimpMusic, stella SimpMusic su GitHub o lasciare una recensione su</string>
+    <string name="enjoying_simpmusic">Divertiti con AyushMuzic</string>
+    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">Se ti piace usare AyushMuzic, stella AyushMuzic su GitHub o lasciare una recensione su</string>
     <string name="if_you_love_my_work_consider">"Se ami il mio lavoro, considera"</string>
     <string name="buying_me_a_coffee">di offrirmi un caffè.</string>
     <string name="fade_audio_effect">Effetto di dissolvenza audio</string>
@@ -563,14 +563,14 @@
     <string name="contributor_name">Nome del collaboratore</string>
     <string name="contributor_email">E-mail del collaboratore</string>
     <string name="anonymous">Anonimo</string>
-    <string name="simpmusic_lyrics">Testi di SimpMusic</string>
-    <string name="lyrics_provider_simpmusic">Testi forniti da SimpMusic Lyrics</string>
+    <string name="simpmusic_lyrics">Testi di AyushMuzic</string>
+    <string name="lyrics_provider_simpmusic">Testi forniti da AyushMuzic Lyrics</string>
     <string name="backup_in_progress">Duplicazione in corso</string>
     <string name="restore_in_progress">Ripristino in corso</string>
     <string name="backup_downloaded">Copia dei dati scaricati</string>
     <string name="backup_downloaded_description">Crea una copia di sicurezza di tutti i dati delle canzoni scaricate</string>
     <string name="auto_backup">Duplicazione automatica</string>
-    <string name="auto_backup_description">Duplica automaticamente i tuoi dati nella cartella Download/SimpMusic</string>
+    <string name="auto_backup_description">Duplica automaticamente i tuoi dati nella cartella Download/AyushMuzic</string>
     <string name="backup_frequency">Frequenza di salvataggio delle copie di sicurezza</string>
     <string name="daily">Giornaliero</string>
     <string name="weekly">Settimanale</string>
@@ -656,7 +656,7 @@
     <string name="downvote">Vota negativamente</string>
     <string name="vote_submitted">Grazie per aver votato questo testo!</string>
     <string name="vote_error">Invio non riuscito</string>
-    <string name="open_app">Apri SimpMusic</string>
+    <string name="open_app">Apri AyushMuzic</string>
     <string name="close_miniplayer">Chiudi il mini-lettore</string>
     <string name="open_miniplayer">Apri il mini-lettore</string>
     <string name="quit_app">Esci dall'applicazione</string>
@@ -664,7 +664,7 @@
     <string name="local_tracking_description">Registra la cronologia di ascolto nel database locale</string>
     <string name="blog_notification_title">Notifiche post blog</string>
     <string name="blog_notification_description">Ricevi una notifica quando viene pubblicato un nuovo post sul blog</string>
-    <string name="simpmusic_charts">Classifica SimpMusic</string>
+    <string name="simpmusic_charts">Classifica AyushMuzic</string>
     <string name="crossfading">Dissolvenza incrociata</string>
     <string name="your_320kbps_url">Il tuo URL 320kbps</string>
     <string name="your_320kbps_url_description">Lascia vuoto per scegliere automaticamente un URL di lavoro dal checker uptime.</string>
@@ -743,7 +743,7 @@
     <string name="wrapped_tap_to_continue">Tocca per continuare</string>
     <string name="wrapped_share">Condividi</string>
     <string name="wrapped_save">Salva</string>
-    <string name="wrapped_opening_lead">Hai aperto SimpMusic su</string>
+    <string name="wrapped_opening_lead">Hai aperto AyushMuzic su</string>
     <string name="wrapped_opening_days">%1$s su %2$s giorni</string>
     <string name="wrapped_minutes_unit">MINUTI</string>
     <string name="wrapped_plays">%1$s riproduzioni</string>
@@ -774,7 +774,7 @@
     <string name="month_full_dec">Dicembre</string>
     <string name="login_sync_section">Dispositivi</string>
     <string name="login_sync_desktop_title">Accedi dal tuo telefono</string>
-    <string name="login_sync_desktop_description">Scansiona un codice QR con SimpMusic su Android per portare qui i tuoi accessi</string>
+    <string name="login_sync_desktop_description">Scansiona un codice QR con AyushMuzic su Android per portare qui i tuoi accessi</string>
     <string name="login_sync_android_title">Invia accessi al PC</string>
     <string name="login_sync_received">Accesso effettuato su %1$s</string>
     <string name="login_sync_expired">Questo codice è scaduto.</string>
@@ -796,7 +796,7 @@
     <string name="taste_error_title">L'IA ha segnalato un errore</string>
     <string name="taste_regenerate">Rigenera</string>
     <string name="taste_share_title">Condividi i tuoi gusti musicali</string>
-    <string name="taste_card_subtitle">12 mesi su SimpMusic</string>
+    <string name="taste_card_subtitle">12 mesi su AyushMuzic</string>
     <string name="receipt_qty">Qtà</string>
     <string name="receipt_total">Totale:</string>
     <string name="receipt_card">Carta #: **** **** **** %1$s</string>

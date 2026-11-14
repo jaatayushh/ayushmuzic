@@ -176,7 +176,7 @@ internal fun ShareCardSignature(
         }
         Spacer(modifier = Modifier.width(6.dp))
         Text(
-            text = "SimpMusic",
+            text = "AyushMuzic",
             color = content.copy(alpha = 0.68f),
             fontSize = 10.sp,
             fontWeight = FontWeight.Medium,

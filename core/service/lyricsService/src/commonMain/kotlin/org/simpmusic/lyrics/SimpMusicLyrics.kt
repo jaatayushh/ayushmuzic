@@ -48,7 +48,7 @@ class SimpMusicLyrics {
             followRedirects = true
             install(HttpCache)
             install(CurlLogger) {
-                logger = { Logger.d("SimpMusicLyrics", it) }
+                logger = { Logger.d("AyushMuzicLyrics", it) }
             }
             install(HttpSend) {
                 maxSendCount = 100
@@ -88,7 +88,7 @@ class SimpMusicLyrics {
     ) {
         headers {
             header(HttpHeaders.Accept, "application/json")
-            header(HttpHeaders.UserAgent, "SimpMusicLyrics/1.0")
+            header(HttpHeaders.UserAgent, "AyushMuzicLyrics/1.0")
             header(HttpHeaders.ContentType, "application/json")
             timestamp?.let {
                 header("X-Timestamp", it)

@@ -68,8 +68,8 @@ class DiscordRpc(
         val endTime = now + ((durationMillis - currentPlaybackTimeMillis) / playbackSpeed).toLong()
         val buttons =
             listOf(
-                "Listen on SimpMusic" to "https://simpmusic.org/app/watch?v=${song.videoId}",
-                "Visit SimpMusic" to "https://github.com/maxrave-dev/SimpMusic",
+                "Listen on AyushMuzic" to "https://simpmusic.org/app/watch?v=${song.videoId}",
+                "Visit AyushMuzic" to "https://github.com/maxrave-dev/AyushMuzic",
             )
         gateway.sendPresence(
             Presence(
@@ -133,7 +133,7 @@ class DiscordRpc(
 
     private companion object {
         const val TAG = "DiscordRpc"
-        const val APP_NAME = "SimpMusic"
+        const val APP_NAME = "AyushMuzic"
         const val TYPE_LISTENING = 2
         const val USER_AGENT = "Discord-Android/314013;RNA"
         const val APP_ICON =

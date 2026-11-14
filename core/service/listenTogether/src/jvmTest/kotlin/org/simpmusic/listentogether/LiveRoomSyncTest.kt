@@ -28,7 +28,7 @@ class LiveRoomSyncTest {
         ListenTogetherSession(
             ListenTogetherClient(
                 clientVersion = version,
-                userAgent = "SimpMusic/test (org.simpmusic.test; JVM)",
+                userAgent = "AyushMuzic/test (org.simpmusic.test; JVM)",
             ),
         )
 

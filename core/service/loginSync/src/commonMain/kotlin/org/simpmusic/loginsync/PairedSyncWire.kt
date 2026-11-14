@@ -24,7 +24,7 @@ object PairedSyncWire {
     /** Administratively scoped multicast group the computer listens on for the phone's probe. */
     const val GROUP = "239.255.48.17"
 
-    const val PHONE_HEADER = "X-SimpMusic-Phone"
+    const val PHONE_HEADER = "X-AyushMuzic-Phone"
 
     // Compressed. A first round carries a year of plays and every row they point at.
     const val MAX_BODY_BYTES = 16 * 1024 * 1024

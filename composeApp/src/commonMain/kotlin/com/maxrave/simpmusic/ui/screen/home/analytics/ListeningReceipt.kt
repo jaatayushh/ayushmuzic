@@ -114,7 +114,7 @@ internal fun ShareReceiptSheet(
     ShareImageSheet(
         title = stringResource(Res.string.receipt_share_title),
         seedColor = seedColor,
-        fileNamePrefix = "SimpMusic_receipt",
+        fileNamePrefix = "AyushMuzic_receipt",
         onDismiss = onDismiss,
     ) { captureModifier ->
         // The shadow sits outside the captured node: it belongs to the sheet, not to the image.

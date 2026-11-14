@@ -16,7 +16,7 @@ import java.awt.Toolkit
  * stub can delegate without duplicating any window-construction logic.
  */
 /**
- * Force the X11 WM_CLASS so the Linux taskbar/dock shows "SimpMusic" instead of
+ * Force the X11 WM_CLASS so the Linux taskbar/dock shows "AyushMuzic" instead of
  * the class name of whatever thread first touches AWT — with the Conveyor native
  * launcher that ends up being a Kotlin coroutine worker
  * (kotlinx.coroutines...CoroutineScheduler$Worker, hence the wrong dock label).
@@ -31,7 +31,7 @@ import java.awt.Toolkit
  * conveyor.conf). The value MUST match StartupWMClass in the generated .desktop
  * file, else GNOME/KDE won't bind the launcher icon to the window.
  */
-private fun forceLinuxWmClass(appName: String = "SimpMusic") {
+private fun forceLinuxWmClass(appName: String = "AyushMuzic") {
     if (!System.getProperty("os.name").orEmpty().contains("linux", ignoreCase = true)) return
     runCatching {
         val toolkit = Toolkit.getDefaultToolkit()

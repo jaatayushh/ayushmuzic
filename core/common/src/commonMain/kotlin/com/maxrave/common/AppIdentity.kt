@@ -9,5 +9,5 @@ data class AppIdentity(
     val isDevBuild: Boolean = false,
 ) {
     val userAgent: String
-        get() = "SimpMusic/$versionName ($applicationId; $platform)"
+        get() = "AyushMuzic/$versionName ($applicationId; $platform)"
 }

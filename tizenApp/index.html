@@ -13,6 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/style.css">
+  <!-- YouTube IFrame API for Full-Length Unblockable Music Playback -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
 <div id="app" class="app-container">
@@ -444,8 +446,10 @@
 <!-- Primary Native Audio Element for Direct Instant Streaming -->
 <audio id="html5AudioPlayer" preload="auto"></audio>
 
-<!-- Background YouTube Iframe Container -->
-<div id="ytContainer" style="position:fixed;bottom:-500px;left:-500px;width:200px;height:200px;opacity:0.01;pointer-events:none;"></div>
+<!-- Full-Song YouTube Engine (Floating Mini Music Video Box) -->
+<div id="ytPlayerContainer" class="yt-pip-box">
+  <div id="ytPlayerFrame"></div>
+</div>
 
 <!-- Core Application Script -->
 <script src="js/app.js"></script>

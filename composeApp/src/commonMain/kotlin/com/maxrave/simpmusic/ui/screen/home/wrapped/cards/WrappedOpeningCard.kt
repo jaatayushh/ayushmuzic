@@ -126,7 +126,7 @@ private fun YearFigure(year: Int) {
 }
 
 /**
- * "You opened SimpMusic on 287 of 365 days. 1,204 tracks went past."
+ * "You opened AyushMuzic on 287 of 365 days. 1,204 tracks went past."
  *
  * Three resources rather than one sentence, so the middle clause can be lifted from body colour to
  * `onSurface` — it is the only figure on this card and the surrounding prose is there to frame it,

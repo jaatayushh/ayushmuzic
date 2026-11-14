@@ -454,7 +454,7 @@ private fun CreditFooter() {
 }
 
 /** Prefix for the share button; the code alone means nothing to the recipient. */
-private const val SHARE_PREFIX = "Join my SimpMusic room with code "
+private const val SHARE_PREFIX = "Join my AyushMuzic room with code "
 
 // ───────────────────────────────── structure ─────────────────────────────────
 

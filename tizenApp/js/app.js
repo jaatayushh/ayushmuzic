@@ -114,8 +114,10 @@
     activeScreen: 'viewHome'
   };
 
-  // 3. Audio Player Element (Primary zero-latency engine)
+  // 3. Audio & YouTube Full-Song Playback Engine
   const audioEl = document.getElementById('html5AudioPlayer');
+  let ytPlayer = null;
+  let ytReady = false;
 
   // Format mm:ss helper
   function formatTime(sec) {
@@ -125,30 +127,90 @@
     return m + ':' + (s < 10 ? '0' : '') + s;
   }
 
-  // Audio element event listeners
+  // Initialize YouTube Full-Song Engine
+  window.onYouTubeIframeAPIReady = function() {
+    try {
+      ytPlayer = new YT.Player('ytPlayerFrame', {
+        height: '100%',
+        width: '100%',
+        videoId: INITIAL_TRACKS[0].videoId,
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: function() {
+            ytReady = true;
+            console.log('✓ AyushMuzic Full-Song YouTube Engine Ready');
+          },
+          onStateChange: function(e) {
+            // 1: PLAYING, 2: PAUSED, 0: ENDED, 3: BUFFERING
+            if (e.data === 1) {
+              setPlaybackState(true);
+            } else if (e.data === 2) {
+              setPlaybackState(false);
+            } else if (e.data === 0) {
+              playNext();
+            }
+          },
+          onError: function(err) {
+            console.warn('YouTube playback error, fallback to audio stream:', err);
+            if (State.currentSong && State.currentSong.previewUrl && audioEl) {
+              audioEl.src = State.currentSong.previewUrl;
+              audioEl.play().catch(() => {});
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.warn('YouTube Iframe init error:', e);
+    }
+  };
+
+  // High-precision 250ms Progress & Lyric Synchronizer
+  setInterval(() => {
+    if (!State.isPlaying) return;
+    let cur = 0;
+    let dur = State.duration || 180;
+
+    if (ytPlayer && ytReady && typeof ytPlayer.getCurrentTime === 'function') {
+      try {
+        cur = ytPlayer.getCurrentTime() || 0;
+        const d = ytPlayer.getDuration();
+        if (d && d > 10) dur = d;
+      } catch (e) {}
+    } else if (audioEl && !audioEl.paused) {
+      cur = audioEl.currentTime || 0;
+      dur = audioEl.duration || dur;
+    }
+
+    State.currentTime = cur;
+    State.duration = dur;
+
+    const npCur = document.getElementById('npCurrentTime');
+    const npDur = document.getElementById('npDurationTime');
+    const npSeek = document.getElementById('npSeekBar');
+
+    if (npCur) npCur.textContent = formatTime(cur);
+    if (npDur) npDur.textContent = formatTime(dur);
+    if (npSeek && dur > 0) npSeek.value = (cur / dur) * 100;
+
+    updateLyricsHighlight(cur);
+  }, 250);
+
+  // Audio element event listeners (for AAC fallback)
   if (audioEl) {
     audioEl.addEventListener('play', () => setPlaybackState(true));
     audioEl.addEventListener('pause', () => setPlaybackState(false));
     audioEl.addEventListener('ended', () => playNext());
-    audioEl.addEventListener('timeupdate', () => {
-      const cur = audioEl.currentTime || 0;
-      const dur = audioEl.duration || State.duration || 167;
-      State.currentTime = cur;
-      State.duration = dur;
-
-      const npCur = document.getElementById('npCurrentTime');
-      const npDur = document.getElementById('npDurationTime');
-      const npSeek = document.getElementById('npSeekBar');
-
-      if (npCur) npCur.textContent = formatTime(cur);
-      if (npDur) npDur.textContent = formatTime(dur);
-      if (npSeek && dur > 0) npSeek.value = (cur / dur) * 100;
-
-      updateLyricsHighlight(cur);
-    });
   }
 
-  // 4. Playback Controller
+  // 4. Playback Controller (Full Song Mode)
   function playSong(song) {
     if (!song) return;
     State.currentSong = song;
@@ -171,7 +233,7 @@
     if (npTitle) npTitle.textContent = song.title;
     if (npArtist) npArtist.textContent = song.artist;
     if (npArtwork) npArtwork.src = song.thumbnail || 'assets/starboy_square.jpg';
-    if (npHeaderAlbum) npHeaderAlbum.textContent = song.album || 'AyushMuzic Stream';
+    if (npHeaderAlbum) npHeaderAlbum.textContent = song.album || 'AyushMuzic Full Stream';
 
     // Update Favorite Buttons
     updateFaveUI(State.favorites.has(song.videoId || song.title));
@@ -182,29 +244,60 @@
     // Load Synced Lyrics
     loadLyrics(song);
 
-    // IMMEDIATE AUDIO PLAYBACK
-    if (song.previewUrl) {
-      audioEl.src = song.previewUrl;
-      audioEl.currentTime = 0;
-      audioEl.play().then(() => {
+    // PLAY FULL SONG
+    if (song.videoId) {
+      if (audioEl) { audioEl.pause(); }
+      if (ytPlayer && ytReady && typeof ytPlayer.loadVideoById === 'function') {
+        ytPlayer.loadVideoById(song.videoId);
+        ytPlayer.playVideo();
         setPlaybackState(true);
-      }).catch(err => {
-        console.warn('Audio play error:', err);
-      });
+      } else {
+        setTimeout(() => {
+          if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
+            ytPlayer.loadVideoById(song.videoId);
+            ytPlayer.playVideo();
+            setPlaybackState(true);
+          } else if (song.previewUrl && audioEl) {
+            audioEl.src = song.previewUrl;
+            audioEl.play().catch(() => {});
+          }
+        }, 400);
+      }
     } else {
-      // Resolve audio stream on the fly from iTunes Search API
-      const searchUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(song.title + ' ' + song.artist)}&entity=song&limit=1`;
-      fetch(searchUrl)
+      // Resolve videoId via local server API or query
+      const query = song.title + ' ' + song.artist;
+      fetch(`/api/yt_id?q=${encodeURIComponent(query)}`)
         .then(res => res.json())
         .then(data => {
-          if (data.results && data.results.length > 0 && data.results[0].previewUrl) {
-            song.previewUrl = data.results[0].previewUrl;
-            audioEl.src = song.previewUrl;
-            audioEl.currentTime = 0;
-            audioEl.play().then(() => setPlaybackState(true)).catch(() => {});
+          if (data && data.videoId) {
+            song.videoId = data.videoId;
+            if (ytPlayer && ytReady && typeof ytPlayer.loadVideoById === 'function') {
+              ytPlayer.loadVideoById(data.videoId);
+              ytPlayer.playVideo();
+              setPlaybackState(true);
+              return;
+            }
+          }
+          if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
+            ytPlayer.loadPlaylist({
+              listType: 'search',
+              list: query
+            });
+            setPlaybackState(true);
           }
         })
-        .catch(err => console.warn('Stream resolve err:', err));
+        .catch(() => {
+          if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
+            ytPlayer.loadPlaylist({
+              listType: 'search',
+              list: query
+            });
+            setPlaybackState(true);
+          } else if (song.previewUrl && audioEl) {
+            audioEl.src = song.previewUrl;
+            audioEl.play().catch(() => {});
+          }
+        });
     }
   }
 
@@ -221,15 +314,22 @@
   }
 
   function togglePlay() {
-    if (audioEl.paused) {
-      if (!audioEl.src && State.currentSong) {
-        playSong(State.currentSong);
+    if (ytPlayer && ytReady && typeof ytPlayer.getPlayerState === 'function') {
+      const pState = ytPlayer.getPlayerState();
+      if (pState === 1) { // playing
+        ytPlayer.pauseVideo();
+        setPlaybackState(false);
       } else {
-        audioEl.play().then(() => setPlaybackState(true)).catch(() => {});
+        ytPlayer.playVideo();
+        setPlaybackState(true);
       }
-    } else {
-      audioEl.pause();
-      setPlaybackState(false);
+    } else if (audioEl) {
+      if (audioEl.paused) {
+        audioEl.play().then(() => setPlaybackState(true)).catch(() => {});
+      } else {
+        audioEl.pause();
+        setPlaybackState(false);
+      }
     }
   }
 
@@ -903,7 +1003,10 @@
     if (npSeek) {
       npSeek.addEventListener('input', (e) => {
         const pct = parseFloat(e.target.value);
-        if (audioEl && audioEl.duration) {
+        if (ytPlayer && ytReady && typeof ytPlayer.getDuration === 'function') {
+          const dur = ytPlayer.getDuration() || State.duration || 180;
+          ytPlayer.seekTo((pct / 100) * dur, true);
+        } else if (audioEl && audioEl.duration) {
           audioEl.currentTime = (pct / 100) * audioEl.duration;
         }
       });

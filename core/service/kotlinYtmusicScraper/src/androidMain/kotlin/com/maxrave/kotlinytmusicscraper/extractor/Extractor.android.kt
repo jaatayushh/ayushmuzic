@@ -171,11 +171,11 @@ actual class Extractor {
                 "-map",
                 "1:a:0",
                 "-shortest",
-                "$filePath-SimpMusic.mp4",
+                "$filePath-AyushMuzic.mp4",
             ).joinToString(" ")
 
-        if (FileSystem.SYSTEM.exists("$filePath-SimpMusic.mp4".toPath())) {
-            FileSystem.SYSTEM.delete("$filePath-SimpMusic.mp4".toPath())
+        if (FileSystem.SYSTEM.exists("$filePath-AyushMuzic.mp4".toPath())) {
+            FileSystem.SYSTEM.delete("$filePath-AyushMuzic.mp4".toPath())
         }
 
         val session =

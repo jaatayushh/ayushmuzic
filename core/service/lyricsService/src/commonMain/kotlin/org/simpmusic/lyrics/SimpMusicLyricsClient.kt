@@ -22,7 +22,7 @@ import org.simpmusic.lyrics.models.response.TranslatedLyricsResponse
 import org.simpmusic.lyrics.parser.parseLrclibLyrics
 import kotlin.math.abs
 
-private const val TAG = "SimpMusicLyricsClient"
+private const val TAG = "AyushMuzicLyricsClient"
 
 /** An error the SimpMusic Lyrics API answered with; [code] 404 means nobody has added that song yet. */
 class SimpMusicLyricsApiException(

@@ -146,7 +146,7 @@
     <string name="developer_blog">בלוג המפתח</string>
     <string name="developer_blog_tagline">קרא הערות מפתח, מדריכים &amp; ומאחורי-הקלעים</string>
     <string name="blog_promo_title">משהו חדש מהמפתח</string>
-    <string name="blog_promo_message">השקתי את הבלוג של SimpMusic ב-simpmusic.org - אני משתף את הסיפור מאחורי SimpMusic, צלילות מעמיקות בטכנולוגיית מוזיקה והערות הנדסיות. קראו אותו אם אתם סקרנים ✨</string>
+    <string name="blog_promo_message">השקתי את הבלוג של AyushMuzic ב-ayushmuzic.org - אני משתף את הסיפור מאחורי AyushMuzic, צלילות מעמיקות בטכנולוגיית מוזיקה והערות הנדסיות. קראו אותו אם אתם סקרנים ✨</string>
     <string name="visit_blog">בקרו בבלוג</string>
     <string name="paypal">PayPal</string>
     <string name="title">כותרת</string>
@@ -167,7 +167,7 @@
     <string name="albums_inArtist">אלבומים</string>
     <string name="singles_inArtist">סינגלים</string>
     <string name="fans_might_also_like_inArtist">מעריצים עשויים לאהוב גם</string>
-    <string name="crash_log">SimpMusic התרסק. סליחה על הבעיה הזו.\nשלח יומן קריסה למפתח</string>
+    <string name="crash_log">AyushMuzic התרסק. סליחה על הבעיה הזו.\nשלח יומן קריסה למפתח</string>
     <string name="crash">קריסה</string>
     <string name="send">שלח</string>
     <string name="mail_subject">דווח על קריסה</string>
@@ -228,12 +228,12 @@
     <string name="save">שמור</string>
     <string name="crop_cover">חתוך תמונת קאבר</string>
     <string name="saved">נשמר</string>
-    <string name="sponsor_block_intro">SponsorBlock היא מערכת מיקור המונים לדילוג על חלקים מעצבנים בסרטוני יוטיוב.\nלמידע נוסף: https://sponsor.ajay.app/\n ב-SimpMusic, חסימת חסות זמין רק כאשר המכשיר מחובר לאינטרנט</string>
+    <string name="sponsor_block_intro">SponsorBlock היא מערכת מיקור המונים לדילוג על חלקים מעצבנים בסרטוני יוטיוב.\nלמידע נוסף: https://sponsor.ajay.app/\n ב-AyushMuzic, חסימת חסות זמין רק כאשר המכשיר מחובר לאינטרנט</string>
     <string name="skip_sponsor_part_of_video">דלג על חלק הפרסומות בסרטון</string>
     <string name="customactivityoncrash_error_activity_error_occurred_explanation">שגיאה לא צפויה התרחשה. מצטערים על אי הנוחות.</string>
     <string name="customactivityoncrash_error_activity_restart_app">הפעל מחדש את האפליקציה</string>
-    <string name="help_build_lyrics_database">עזור ל-SimpMusic lyrics לבנות את מאגר המילים</string>
-    <string name="help_build_lyrics_database_description">שלחו את המילים ששמרתם למאגר המילים של SimpMusic lyrics</string>
+    <string name="help_build_lyrics_database">עזור ל-AyushMuzic lyrics לבנות את מאגר המילים</string>
+    <string name="help_build_lyrics_database_description">שלחו את המילים ששמרתם למאגר המילים של AyushMuzic lyrics</string>
     <string name="customactivityoncrash_error_activity_close_app">סגור את האפליקציה</string>
     <string name="customactivityoncrash_error_activity_error_details">פרטי שגיאה</string>
     <string name="customactivityoncrash_error_activity_error_details_title">פרטי שגיאה</string>
@@ -269,7 +269,7 @@
     <string name="saved_to_local_playlist">נשמר בפלייליסט המקומי</string>
     <string name="if_you_want_to_unsync_this_playlist_please_go_to_local_playlist">אם ברצונך לבטל את הסנכרון של פלייליסט זה, אנא עבור לפלייליסט מקומי</string>
     <string name="log_in_to_get_YouTube_playlist">התחבר כדי לקבל פלייליסט YouTube</string>
-    <string name="sync_playlist_warning">SimpMusic תיצור פלייליסט YouTube Music באופן אוטומטי. האם אתה בטוח?</string>
+    <string name="sync_playlist_warning">AyushMuzic תיצור פלייליסט YouTube Music באופן אוטומטי. האם אתה בטוח?</string>
     <string name="syncing">מסנכרן</string>
     <string name="unsync_playlist_warning">"לבטל את הסנכרון של הפלייליסט הזה? הפלייליסט הזה לא יוסר מ-YouTube Music"</string>
     <string name="unsyncing">מבטל סנכרון</string>
@@ -286,7 +286,7 @@
     <string name="email">דוא"ל</string>
     <string name="password">סיסמא</string>
     <string name="please_enter_your_email_and_password">נא להזין דוא״ל וסיסמא</string>
-    <string name="translation_language_message">הקלד קוד שפה (למשל: en) (2 אותיות). אם אתה רוצה להגדיר את אותה השפה כמו של SimpMusic, אנא הפוך את תיבת העריכה לריקה.</string>
+    <string name="translation_language_message">הקלד קוד שפה (למשל: en) (2 אותיות). אם אתה רוצה להגדיר את אותה השפה כמו של AyushMuzic, אנא הפוך את תיבת העריכה לריקה.</string>
     <string name="invalid_language_code">קוד שפה לא חוקי</string>
     <string name="lyrics_provider_youtube">מילים מסופקות על ידי YouTube</string>
     <string name="lyrics_provider_betterlyrics">מילים מסופקות על ידי BetterLyrics</string>
@@ -305,8 +305,8 @@
     <string name="older_first">הישן ביותר תחילה</string>
     <string name="newer_first">החדש ביותר תחילה</string>
     <string name="added_date">תאריך הוספה</string>
-    <string name="credit_app">אפליקציית מוזיקה פשוטה המשתמשת ב-YouTube Music כבסיס. \n\nSimpMusic הוא פרויקט קוד פתוח להזרמת מוזיקה מ-YouTube ו-YouTube Music ללא פרסומות ומעקבים. SimpMusic מספקת תכונות רבות:\n\n - הזרמת מוזיקה \n - מילים מסונכרנות\n - התאמה אישית של נתונים\n - ועוד… \n\n
-SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מאת Tuan Minh Nguyen Duc (maxrave-dev)</string>
+    <string name="credit_app">אפליקציית מוזיקה פשוטה המשתמשת ב-YouTube Music כבסיס. \n\nAyushMuzic הוא פרויקט קוד פתוח להזרמת מוזיקה מ-YouTube ו-YouTube Music ללא פרסומות ומעקבים. AyushMuzic מספקת תכונות רבות:\n\n - הזרמת מוזיקה \n - מילים מסונכרנות\n - התאמה אישית של נתונים\n - ועוד… \n\n
+AyushMuzic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מאת Tuan Minh Nguyen Duc (maxrave-dev)</string>
     <string name="issue_tracker">מעקב אחר בעיות</string>
     <string name="featured_playlists">פלייליסטים נבחרים</string>
     <string name="featured_inArtist">נבחר לככב</string>
@@ -378,7 +378,7 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="reverb_help_predelay_meaning">עיכוב מקדים הוא הדממה לפני שההדהוד מתחיל. פער ארוך יותר שומר על הצליל היבש צלול ודוחף את הקירות רחוק יותר.</string>
     <string name="reverb_help_damping_meaning">שיכוך הוא המקום שבו הזנב מתחיל לאבד צלילים גבוהים. הוא מתכהה עוד יותר כשהוא דועך, כפי שאוויר ומשטחים רכים סופגים צלילים גבוהים.</string>
     <string name="reverb_help_mix">מיקס הוא השיתוף הרטוב: המחוון קובע כמה מהחדר אתה שומע כנגד האות היבש, באופן זהה באנדרואיד ובמחשב שולחני.</string>
-    <string name="sync_follow_to_youtube_description">מעקב אחר אמן ב-SimpMusic גם נרשם לערוץ שלו בחשבון ה-YouTube שלך</string>
+    <string name="sync_follow_to_youtube_description">מעקב אחר אמן ב-AyushMuzic גם נרשם לערוץ שלו בחשבון ה-YouTube שלך</string>
     <string name="sync_follow_failed">לא ניתן היה לעדכן את מנוי ה-YouTube שלך</string>
     <string name="subscribed_on_youtube">נרשמת כמנוי ב-YouTube</string>
     <string name="unsubscribed_on_youtube">בוטלה ההרשמה כמנוי ב-YouTube</string>
@@ -399,7 +399,7 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="enable_spotify_lyrics">הפעל מילים מ-Spotify</string>
     <string name="spotify_lyrícs_info">עוד מילים ללא תרגום</string>
     <string name="enable_canvas">הפעל קנבסים</string>
-    <string name="canvas_info">הצג קנבסים מ-Spotify ב-SimpMusic</string>
+    <string name="canvas_info">הצג קנבסים מ-Spotify ב-AyushMuzic</string>
     <string name="enable_animated_artwork">גרפיקה מונפשת</string>
     <string name="animated_artwork_info">הפעל את קאבר האלבום המונפש במקום קנבסים. אין צורך בחשבון. אלבומים ללא חשבון ישמרו על הקאבר הדומם.</string>
     <string name="spotify_lyrics_provider">מילים מסופקות על ידי Spotify</string>
@@ -474,7 +474,7 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="loading">טוען</string>
     <string name="updating">מעדכן</string>
     <string name="go_to_log_in_page">עבור לדף ההתחברות</string>
-    <string name="log_in_warning">YouTube Music מחייב אותך כעת להתחבר כדי להזרים מוזיקה, לפעמים Piped Instance לא יעבוד גם כן. עליך להתחבר ל-YouTube כדי לקבל חווית SimpMusic טובה יותר.</string>
+    <string name="log_in_warning">YouTube Music מחייב אותך כעת להתחבר כדי להזרים מוזיקה, לפעמים Piped Instance לא יעבוד גם כן. עליך להתחבר ל-YouTube כדי לקבל חווית AyushMuzic טובה יותר.</string>
     <string name="spotify_canvas_cache">מטמון הקנבסים של Spotify</string>
     <string name="clear_canvas_cache">נקה את מטמון הקנבסים</string>
     <string name="listening_history">היסטוריית ההשמעה</string>
@@ -521,8 +521,8 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="other_version">גרסא אחרת</string>
     <string name="later">מאוחר יותר</string>
     <string name="give_a_star">סימון בכוכב</string>
-    <string name="enjoying_simpmusic">נהנים מאפליקציית SimpMusic</string>
-    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">אם אתם נהנים מהשימוש ב-SimpMusic, סמנו את SimpMusic בכוכב ב-GitHub או השאירו חוות דעת ב</string>
+    <string name="enjoying_simpmusic">נהנים מאפליקציית AyushMuzic</string>
+    <string name="if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on">אם אתם נהנים מהשימוש ב-AyushMuzic, סמנו את AyushMuzic בכוכב ב-GitHub או השאירו חוות דעת ב</string>
     <string name="if_you_love_my_work_consider">"אם אתם אוהבים את העבודה שלי, תשקלו "</string>
     <string name="buying_me_a_coffee">לקנות לי קפה.</string>
     <string name="footguns_promo_title">כל מלכודת שנפלתי בה</string>
@@ -592,14 +592,14 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="contributor_name">שם התורם</string>
     <string name="contributor_email">אימייל התורם</string>
     <string name="anonymous">אנונימי</string>
-    <string name="simpmusic_lyrics">מילים של SimpMusic</string>
-    <string name="lyrics_provider_simpmusic">מילים מסופקות על ידי SimpMusic Lyrics</string>
+    <string name="simpmusic_lyrics">מילים של AyushMuzic</string>
+    <string name="lyrics_provider_simpmusic">מילים מסופקות על ידי AyushMuzic Lyrics</string>
     <string name="backup_in_progress">גיבוי בתהליך</string>
     <string name="restore_in_progress">שחזור בתהליך</string>
     <string name="backup_downloaded">גבה מידע שהורד</string>
     <string name="backup_downloaded_description">גבה מידע על כל השירים שהורדו</string>
     <string name="auto_backup">גיבוי אוטומטי</string>
-    <string name="auto_backup_description">גבה אוטומטית את הנתונים שלך לתיקיית הורדות/SimpMusic</string>
+    <string name="auto_backup_description">גבה אוטומטית את הנתונים שלך לתיקיית הורדות/AyushMuzic</string>
     <string name="backup_frequency">תדירות גיבוי</string>
     <string name="daily">יומי</string>
     <string name="weekly">שבועי</string>
@@ -639,8 +639,8 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="intro_login_to_lastfm">התחבר כדי לתעד את ההאזנות שלך</string>
     <string name="enable_scrobbling">הפעל תיעוד</string>
     <string name="scrobbling_info">שלח את מה שאתה מאזין לו לפרופיל ה-Last.fm שלך</string>
-    <string name="lastfm_login_step_1">פתח את עמוד ה-Last.fm והענק ל-SimpMusic גישה לחשבון שלך.</string>
-    <string name="lastfm_login_step_2">SimpMusic יפתח שוב מעצמו לאחר שתעניק גישה.</string>
+    <string name="lastfm_login_step_1">פתח את עמוד ה-Last.fm והענק ל-AyushMuzic גישה לחשבון שלך.</string>
+    <string name="lastfm_login_step_2">AyushMuzic יפתח שוב מעצמו לאחר שתעניק גישה.</string>
     <string name="lastfm_open_authorize_page">פתח את Last.fm</string>
     <string name="lastfm_login_failed">לא ניתן היה להתחבר אל Last.fm. אנא נסה שוב.</string>
     <string name="lastfm_paste_callback_title">לא חזרת אוטומטית?</string>
@@ -713,7 +713,7 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="downvote">הצבעה שלילית</string>
     <string name="vote_submitted">תודה שהצבעת למילים האלו!</string>
     <string name="vote_error">השליחה נכשלה</string>
-    <string name="open_app">פתח את SimpMusic</string>
+    <string name="open_app">פתח את AyushMuzic</string>
     <string name="close_miniplayer">סגור את המיני-נגן</string>
     <string name="open_miniplayer">פתח את המיני-נגן</string>
     <string name="quit_app">סגור אפליקציה</string>
@@ -721,7 +721,7 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="local_tracking_description">רשום את היסטוריית ההאזנה שלך למסד הנתונים המקומי</string>
     <string name="blog_notification_title">עדכוני פוסט הבלוג</string>
     <string name="blog_notification_description">קבל התראה כאשר פוסט בלוג חדש מפורסם</string>
-    <string name="simpmusic_charts">מצעדי SimpMusic</string>
+    <string name="simpmusic_charts">מצעדי AyushMuzic</string>
     <string name="crossfading">משלב בין השירים</string>
     <string name="your_320kbps_url">קישור ה-320kbps שלך</string>
     <string name="your_320kbps_url_description">השאר ריק כדי לבחור אוטומטית את הקישור העובד מבודק זמן הפעילות.</string>
@@ -745,13 +745,13 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="audio_output_hdmi">HDMI</string>
     <string name="import_data">יבא פלייליסטים</string>
     <string name="import_playlists_from_other_apps">יבא פלייליסטים מאפליקציה אחרת</string>
-    <string name="import_data_intro">ייבוא מביא פלייליסטים שהומרו מ-Spotify או מאפליקציית לקוח אחרת של YouTube Music.\nכלי המרה: https://www.simpmusic.org/tools\nב-SimpMusic, ניתן לייבא רק קבצי פלייליסט בפורמט שלנו</string>
+    <string name="import_data_intro">ייבוא מביא פלייליסטים שהומרו מ-Spotify או מאפליקציית לקוח אחרת של YouTube Music.\nכלי המרה: https://www.ayushmuzic.org/tools\nב-AyushMuzic, ניתן לייבא רק קבצי פלייליסט בפורמט שלנו</string>
     <string name="import_reading_file">קורא קובץ…</string>
     <string name="import_progress_songs">%1$d מתוך %2$d שירים</string>
     <string name="import_result">נוצרו %1$d פלייליסטים ויובאו %2$d שירים.</string>
     <string name="import_result_skipped">%1$d רשומות דולגו מכיוון שהשיר שלהן היה חסר בקובץ.</string>
     <string name="import_failed">ייבוא נכשל</string>
-    <string name="import_invalid_file">הקובץ הזה הוא לא קובץ ייבוא תקין של SimpMusic. המר את הספרייה שלך ב-simpmsuic.org תחילה.</string>
+    <string name="import_invalid_file">הקובץ הזה הוא לא קובץ ייבוא תקין של AyushMuzic. המר את הספרייה שלך ב-simpmsuic.org תחילה.</string>
     <string name="analytics">נתונים</string>
     <string name="select_all">בחר הכל</string>
     <string name="n_selected">%1$d נבחרו</string>
@@ -821,7 +821,7 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="wrapped_share">שתף</string>
     <string name="wrapped_save">שמור</string>
     <string name="wrapped_opening_title">השנה שלך במוזיקה</string>
-    <string name="wrapped_opening_lead">פתחת את SimpMusic ב</string>
+    <string name="wrapped_opening_lead">פתחת את AyushMuzic ב</string>
     <string name="wrapped_opening_days">%1$s מתוך %2$s ימים</string>
     <string name="wrapped_opening_tracks">%1$s שירים הופעלו.</string>
     <string name="wrapped_minutes_title">בילית חלק זה של השנה בהאזנה</string>
@@ -891,10 +891,10 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="month_full_dec">דצמבר</string>
     <string name="login_sync_section">מכשירים</string>
     <string name="login_sync_desktop_title">התחבר מהטלפון שלך</string>
-    <string name="login_sync_desktop_description">סרוק קוד QR עם SimpMusic ב-Android כדי להביא את הכניסות שלך לכאן</string>
+    <string name="login_sync_desktop_description">סרוק קוד QR עם AyushMuzic ב-Android כדי להביא את הכניסות שלך לכאן</string>
     <string name="login_sync_android_title">שלח כניסות למחשב</string>
-    <string name="login_sync_android_description">סרוק את קוד ה-QR שמופיע ב-SimpMusic במחשב שלך</string>
-    <string name="login_sync_desktop_instructions">בטלפון שלך, פתח את הגדרות SimpMusic, עבור אל %1$s וסרוק את הקוד הזה.</string>
+    <string name="login_sync_android_description">סרוק את קוד ה-QR שמופיע ב-AyushMuzic במחשב שלך</string>
+    <string name="login_sync_desktop_instructions">בטלפון שלך, פתח את הגדרות AyushMuzic, עבור אל %1$s וסרוק את הקוד הזה.</string>
     <string name="login_sync_pick_address">בחר כתובת שהטלפון שלך יוכל לגשת אליה — באותה הרשת, או דרך Tailscale.</string>
     <string name="login_sync_phone_connected">טלפון מחובר. אשר בטלפון שלך כדי להמשיך.</string>
     <string name="login_sync_received">מחובר אל %1$s</string>
@@ -913,16 +913,16 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="login_sync_sending">שולח...</string>
     <string name="login_sync_sent">מחובר ב-%1$s: %2$s</string>
     <string name="login_sync_nothing_signed_in">אתה לא מחובר לאף שירות עדיין.</string>
-    <string name="login_sync_camera_needed">SimpMusic משתמש במצלמה שלך רק כדי לסרוק את הקוד שמוצג במחשב שלך.</string>
+    <string name="login_sync_camera_needed">AyushMuzic משתמש במצלמה שלך רק כדי לסרוק את הקוד שמוצג במחשב שלך.</string>
     <string name="login_sync_allow_camera">אשר גישה למצלמה</string>
-    <string name="login_sync_camera_blocked">גישה למצלמה כבויה עבור SimpMusic. הפעל אותה בהגדרות כדי לסרוק את הקוד.</string>
+    <string name="login_sync_camera_blocked">גישה למצלמה כבויה עבור AyushMuzic. הפעל אותה בהגדרות כדי לסרוק את הקוד.</string>
     <string name="login_sync_open_settings">פתח הגדרות</string>
     <string name="login_sync_no_camera">אין מצלמה זמינה לסריקת הקוד.</string>
     <string name="login_sync_unreachable">לא ניתן היה להתחבר למחשב. ודא שהטלפון שלך מחובר לאותה רשת או רשת אחורית, ולאחר מכן נסה שוב.</string>
     <string name="login_sync_code_expired">הקוד במחשב שלך פג. הצג אחד חדש וסרוק אותו שוב.</string>
     <string name="login_sync_failed">משהו השתבש. אנא נסה שוב.</string>
     <string name="modified_build_title">אפליקציה לא רשמית</string>
-    <string name="modified_build_message">אתה משתמש בעותק לא רשמי של SimpMusic ששונה או נארז מחדש על ידי מישהו אחר. לא ניתן להשתמש בו. הורד את הגרסה הרשמית מהאתר simpmusic.org.</string>
+    <string name="modified_build_message">אתה משתמש בעותק לא רשמי של AyushMuzic ששונה או נארז מחדש על ידי מישהו אחר. לא ניתן להשתמש בו. הורד את הגרסה הרשמית מהאתר ayushmuzic.org.</string>
     <string name="taste_title">מהו טעם המוזיקה שלך?</string>
     <string name="taste_invite">תן לבינה מלאכותית לקרוא את 12 החודשים האחרונים של ההאזנות שלך ולספר לך.</string>
     <string name="taste_loading_title">קורא את טעם המוזיקה שלך…</string>
@@ -938,7 +938,7 @@ SimpMusic תמיד בחינם וללא פרסומות \n\nנבנה ב-❤️ מ�
     <string name="taste_regenerate">צור מחדש</string>
     <string name="taste_share_title">שתף את טעם המוזיקה שלך</string>
     <string name="taste_card_title">טעם המוזיקה שלי</string>
-    <string name="taste_card_subtitle">12 חודשים ב-SimpMusic</string>
+    <string name="taste_card_subtitle">12 חודשים ב-AyushMuzic</string>
     <string name="receipt_open">קבלת האזנה</string>
     <string name="receipt_share_title">שתף את הקבלה שלך</string>
     <string name="receipt_order">הזמנה #%1$s עבור %2$s</string>

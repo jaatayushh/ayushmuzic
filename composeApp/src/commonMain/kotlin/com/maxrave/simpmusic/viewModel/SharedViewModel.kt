@@ -1497,11 +1497,11 @@ class SharedViewModel(
                                     ).collectLatest {
                                         when (it) {
                                             is Resource.Error -> {
-                                                Logger.w(tag, "Vote SimpMusic Translated Lyrics Error ${it.message}")
+                                                Logger.w(tag, "Vote AyushMuzic Translated Lyrics Error ${it.message}")
                                             }
 
                                             is Resource.Success -> {
-                                                Logger.d(tag, "Vote SimpMusic Translated Lyrics Success")
+                                                Logger.d(tag, "Vote AyushMuzic Translated Lyrics Success")
                                             }
                                         }
                                     }
@@ -1555,11 +1555,11 @@ class SharedViewModel(
                                 ).collect {
                                     when (it) {
                                         is Resource.Error -> {
-                                            log("Insert SimpMusic Translated Lyrics Error ${it.message}", LogLevel.WARN)
+                                            log("Insert AyushMuzic Translated Lyrics Error ${it.message}", LogLevel.WARN)
                                         }
 
                                         is Resource.Success -> {
-                                            log("Insert SimpMusic Translated Lyrics Success")
+                                            log("Insert AyushMuzic Translated Lyrics Success")
                                         }
                                     }
                                 }
@@ -1607,11 +1607,11 @@ class SharedViewModel(
                                 ).collect {
                                     when (it) {
                                         is Resource.Error -> {
-                                            Logger.w(tag, "Insert SimpMusic Lyrics Error ${it.message}")
+                                            Logger.w(tag, "Insert AyushMuzic Lyrics Error ${it.message}")
                                         }
 
                                         is Resource.Success -> {
-                                            Logger.d(tag, "Insert SimpMusic Lyrics Success")
+                                            Logger.d(tag, "Insert AyushMuzic Lyrics Success")
                                         }
                                     }
                                 }
@@ -1698,10 +1698,10 @@ class SharedViewModel(
         duration: Int,
     ) {
         lyricsCanvasRepository.getSimpMusicLyrics(videoId).collectLatest {
-            Logger.d(tag, "Get SimpMusic Lyrics for $videoId: ${it::class.simpleName}")
+            Logger.d(tag, "Get AyushMuzic Lyrics for $videoId: ${it::class.simpleName}")
             val data = it.data
             if (it is Resource.Success && data != null) {
-                Logger.d(tag, "Get SimpMusic Lyrics Success")
+                Logger.d(tag, "Get AyushMuzic Lyrics Success")
                 updateLyrics(
                     videoId,
                     duration,
@@ -1890,7 +1890,7 @@ class SharedViewModel(
                     // If SimpMusic translated lyrics are RICH_SYNCED (word-by-word),
                     // convert to LINE_SYNCED, downvote, and fallback to AI translation
                     if (data.syncType == "RICH_SYNCED") {
-                        Logger.w(tag, "SimpMusic translated lyrics are RICH_SYNCED, downvoting and falling back to AI")
+                        Logger.w(tag, "AyushMuzic translated lyrics are RICH_SYNCED, downvoting and falling back to AI")
                         val simpMusicLyricsId = data.simpMusicLyrics?.id
                         if (!simpMusicLyricsId.isNullOrEmpty()) {
                             viewModelScope.launch {
@@ -1907,7 +1907,7 @@ class SharedViewModel(
                         // Fallback to AI translation
                         getAITranslationLyrics(videoId, lyrics)
                     } else {
-                        Logger.d(tag, "Get SimpMusic Translated Lyrics Success")
+                        Logger.d(tag, "Get AyushMuzic Translated Lyrics Success")
                         updateLyrics(
                             videoId,
                             0,
@@ -1919,7 +1919,7 @@ class SharedViewModel(
                 }
 
                 else -> {
-                    Logger.d(tag, "Get SimpMusic Translated Lyrics Error: ${response.message}")
+                    Logger.d(tag, "Get AyushMuzic Translated Lyrics Error: ${response.message}")
                     getAITranslationLyrics(
                         videoId,
                         lyrics,
@@ -2289,7 +2289,7 @@ class SharedViewModel(
     val lyricsVoteState: StateFlow<VoteData?> = _lyricsVoteState.asStateFlow()
 
     /**
-     * Vote for SimpMusic original lyrics (upvote or downvote)
+     * Vote for AyushMuzic original lyrics (upvote or downvote)
      * @param upvote true for upvote, false for downvote
      */
     fun voteLyrics(upvote: Boolean) {
@@ -2309,7 +2309,7 @@ class SharedViewModel(
                 )
             }
             lyricsCanvasRepository
-                .voteSimpMusicLyrics(
+                .voteAyushMuzicLyrics(
                     lyricsId = simpMusicLyricsId,
                     upvote = upvote,
                 ).collectLatest { result ->
@@ -2344,7 +2344,7 @@ class SharedViewModel(
     }
 
     /**
-     * Vote for SimpMusic translated lyrics (upvote or downvote)
+     * Vote for AyushMuzic translated lyrics (upvote or downvote)
      * @param upvote true for upvote, false for downvote
      */
     fun voteTranslatedLyrics(upvote: Boolean) {
@@ -2364,7 +2364,7 @@ class SharedViewModel(
                 )
             }
             lyricsCanvasRepository
-                .voteSimpMusicTranslatedLyrics(
+                .voteAyushMuzicTranslatedLyrics(
                     translatedLyricsId = simpMusicLyricsId,
                     upvote = upvote,
                 ).collectLatest { result ->

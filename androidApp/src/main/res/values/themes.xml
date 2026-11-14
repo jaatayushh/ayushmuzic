@@ -13,6 +13,6 @@
     <color name="simpmusic_cold_start_background">#FF131313</color>
 
     <style name="Theme.SimpMusic" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="android:windowBackground">@color/simpmusic_cold_start_background</item>
+        <item name="android:windowBackground">@color/ayushmuzic_cold_start_background</item>
     </style>
 </resources>

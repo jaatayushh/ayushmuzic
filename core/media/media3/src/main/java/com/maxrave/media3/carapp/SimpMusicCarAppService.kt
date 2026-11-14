@@ -154,7 +154,7 @@ internal class SimpMusicCarSession : Session() {
     }
 
     private companion object {
-        private const val TAG = "SimpMusicCarSession"
+        private const val TAG = "AyushMuzicCarSession"
 
         // Docs-defined action for templated media apps; no library constant as of car-app 1.9.0-alpha01
         private const val ACTION_SHOW_MEDIA_PLAYBACK = "androidx.car.app.media.action.SHOW_MEDIA_PLAYBACK"

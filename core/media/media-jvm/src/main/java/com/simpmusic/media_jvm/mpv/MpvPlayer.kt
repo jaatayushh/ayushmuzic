@@ -251,7 +251,7 @@ class MpvPlayer private constructor(
             // Keep the core alive across end-of-file so one handle can be reloaded, and so EOF
             // surfaces as MPV_EVENT_END_FILE instead of MPV_EVENT_SHUTDOWN.
             option("idle", "yes")
-            option("audio-client-name", "SimpMusic")
+            option("audio-client-name", "AyushMuzic")
             option("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36")
             option("http-header-fields", "Origin: https://music.youtube.com,Referer: https://music.youtube.com/")
 

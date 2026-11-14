@@ -376,7 +376,7 @@ private fun PosterSignature(wrapped: WrappedYear) {
             Text(
                 // A brand name, not copy — it is spelled this way in every language, exactly as
                 // the lyrics share card spells it, and set in the same muted weight it uses there.
-                text = "SimpMusic",
+                text = "AyushMuzic",
                 style = MaterialTheme.typography.bodySmall,
             )
         }

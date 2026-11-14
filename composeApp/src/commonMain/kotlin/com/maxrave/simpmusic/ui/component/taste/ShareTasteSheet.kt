@@ -67,7 +67,7 @@ fun ShareTasteSheet(
     ShareImageSheet(
         title = stringResource(Res.string.taste_share_title),
         seedColor = seedColor,
-        fileNamePrefix = "SimpMusic_taste",
+        fileNamePrefix = "AyushMuzic_taste",
         onDismiss = onDismiss,
         belowImage = { content ->
             ShareLyricsPalette(

@@ -686,7 +686,7 @@ internal class LyricsCanvasRepositoryImpl(
         }.flowOn(Dispatchers.IO)
 
     // SimpMusic Lyrics
-    private val simpMusicLyricsTag = "SimpMusicLyricsRepository"
+    private val simpMusicLyricsTag = "AyushMuzicLyricsRepository"
 
     /** A 404 only means nobody has added lyrics for this song yet; anything else is a real failure. */
     private fun logSimpMusicLyricsFailure(

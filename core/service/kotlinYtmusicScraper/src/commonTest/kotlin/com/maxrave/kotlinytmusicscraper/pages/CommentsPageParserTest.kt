@@ -172,7 +172,7 @@ class CommentsPageParserTest {
     fun createdCommentIsReadFromItsKeys() {
         val created = assertNotNull(CommentsPageParser.parseCreated(json.decodeFromString<CommentsResponse>(CREATED)))
         assertEquals("new", created.id)
-        assertEquals("Posted from SimpMusic", created.text)
+        assertEquals("Posted from AyushMuzic", created.text)
         assertEquals("NEW_LIKE", created.likeAction)
     }
 }
