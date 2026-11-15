@@ -324,7 +324,7 @@ jobs:
 
   build-ios:
     name: Build iOS IPA (iPhone & iPad)
-    runs-on: macos-14
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
