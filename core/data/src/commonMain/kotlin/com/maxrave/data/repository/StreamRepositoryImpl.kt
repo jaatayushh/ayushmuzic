@@ -284,13 +284,7 @@ internal class StreamRepositoryImpl(
                             if (muxed) {
                                 response.streamingData?.hlsManifestUrl
                             } else {
-                                format?.url?.let { url ->
-                                    if (youTube.isManifestUrl(url)) {
-                                        url.plus("&cpn=${data.first}")
-                                    } else {
-                                        url.plus("&cpn=${data.first}&range=0-${format.contentLength ?: 10000000}")
-                                    }
-                                }
+                                format?.url?.plus("&cpn=${data.first}")
                             },
                         )
                     } else {
@@ -298,13 +292,7 @@ internal class StreamRepositoryImpl(
                             if (muxed) {
                                 response.streamingData?.hlsManifestUrl
                             } else {
-                                format?.url?.let { url ->
-                                    if (youTube.isManifestUrl(url)) {
-                                        url
-                                    } else {
-                                        url.plus("&range=0-${format.contentLength ?: 10000000}")
-                                    }
-                                }
+                                format?.url
                             },
                         )
                     }

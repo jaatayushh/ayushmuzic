@@ -36,7 +36,7 @@ internal fun List<Pair<Int, String>>.headCheckRandomStream(): Boolean {
             okhttp3.Request
                 .Builder()
                 .url(candidate.second)
-                .header("Range", "bytes=0-0")
+                .header("Range", "bytes=0-")
                 .header("User-Agent", YouTubeClient.USER_AGENT_WEB)
                 .build()
         streamHealthCheckClient.newCall(request).execute().use { response ->

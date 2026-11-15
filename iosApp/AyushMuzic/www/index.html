@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; img-src * data: blob: https:; media-src * blob: https: data:; frame-src * https:; child-src * https:; connect-src * https: http:;">
+  <meta name="viewport" content="width=1920">
+  <title>AyushMuzic</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Google Fonts: Plus Jakarta Sans (Matches Apple SF Pro Typography) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app" class="app-container">
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- TOP APP HEADER (Profile, Filter Chips, Add, Settings)       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <header class="app-header">
+    <div class="user-avatar-btn focusable" id="userAvatarBtn" tabindex="0">
+      <img src="assets/starboy_square.jpg" alt="Ayush" class="avatar-img" id="userAvatarImg">
+    </div>
+
+    <div class="chips-row">
+      <button class="filter-chip active focusable" data-chip="all" tabindex="0">All</button>
+      <button class="filter-chip focusable" data-chip="mood" tabindex="0">Mood</button>
+    </div>
+
+    <div class="header-right-actions">
+      <button class="icon-circle-btn focusable" id="headerAddBtn" title="Add" tabindex="0">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      </button>
+      <button class="icon-circle-btn focusable" id="headerSettingsBtn" title="Settings" tabindex="0">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- MAIN SCROLLABLE VIEWPORT                                  -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <main class="main-viewport" id="mainViewport">
+
+    <!-- 1. HOME SCREEN (Exact match of user_ss.jpg) -->
+    <section id="viewHome" class="app-screen active">
+
+      <!-- SECTION 1: QUICK PICKS (4-row columns) -->
+      <div class="content-block">
+        <div class="section-title-row">
+          <h2 class="section-heading">Quick picks</h2>
+          <button class="section-action-btn focusable" id="quickPicksPlayAll" tabindex="0">Play all</button>
+        </div>
+        <div class="quick-picks-scroller" id="quickPicksContainer">
+          <!-- Populated dynamically with 4-row song grids -->
+          <div class="loading-shimmer">Loading music...</div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: LISTEN AGAIN -->
+      <div class="content-block">
+        <div class="section-pre-tag">AYUSH</div>
+        <div class="section-title-row">
+          <h2 class="section-heading">Listen again</h2>
+          <button class="section-action-btn focusable" id="listenAgainMore" tabindex="0">More</button>
+        </div>
+        <div class="cards-strip-scroller" id="listenAgainContainer">
+          <!-- Populated dynamically with large square cards -->
+        </div>
+      </div>
+
+      <!-- SECTION 3: LISTEN TOGETHER / STATIONS -->
+      <div class="content-block">
+        <div class="section-pre-tag">STATION</div>
+        <div class="section-title-row">
+          <h2 class="section-heading">Listen together</h2>
+        </div>
+        <div class="cards-strip-scroller" id="listenTogetherContainer">
+          <!-- Populated dynamically with artist station cards -->
+        </div>
+      </div>
+
+      <!-- SECTION 4: TRENDING HITS -->
+      <div class="content-block">
+        <div class="section-title-row">
+          <h2 class="section-heading">Trending Worldwide</h2>
+        </div>
+        <div class="cards-strip-scroller" id="trendingContainer"></div>
+      </div>
+
+      <div style="height: 140px;"></div>
+    </section>
+
+    <!-- 2. SEARCH SCREEN (With Clickable TV Letters Grid) -->
+    <section id="viewSearch" class="app-screen">
+      <div class="search-header-container">
+        <div class="search-bar-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <input type="text" id="searchInput" class="search-field focusable" placeholder="Search songs, artists, albums..." autocomplete="off" tabindex="0">
+          <button id="clearSearchBtn" class="clear-search-btn focusable" style="display:none;" tabindex="0">✕</button>
+        </div>
+
+        <!-- On-Screen Virtual Keyboard for Samsung TV Remote Control -->
+        <div class="tv-keyboard-container" id="tvKeyboard">
+          <div class="tv-keyboard-row">
+            <button class="tv-key focusable" data-key="A" tabindex="0">A</button>
+            <button class="tv-key focusable" data-key="B" tabindex="0">B</button>
+            <button class="tv-key focusable" data-key="C" tabindex="0">C</button>
+            <button class="tv-key focusable" data-key="D" tabindex="0">D</button>
+            <button class="tv-key focusable" data-key="E" tabindex="0">E</button>
+            <button class="tv-key focusable" data-key="F" tabindex="0">F</button>
+            <button class="tv-key focusable" data-key="G" tabindex="0">G</button>
+            <button class="tv-key focusable" data-key="H" tabindex="0">H</button>
+            <button class="tv-key focusable" data-key="I" tabindex="0">I</button>
+            <button class="tv-key focusable" data-key="J" tabindex="0">J</button>
+          </div>
+          <div class="tv-keyboard-row">
+            <button class="tv-key focusable" data-key="K" tabindex="0">K</button>
+            <button class="tv-key focusable" data-key="L" tabindex="0">L</button>
+            <button class="tv-key focusable" data-key="M" tabindex="0">M</button>
+            <button class="tv-key focusable" data-key="N" tabindex="0">N</button>
+            <button class="tv-key focusable" data-key="O" tabindex="0">O</button>
+            <button class="tv-key focusable" data-key="P" tabindex="0">P</button>
+            <button class="tv-key focusable" data-key="Q" tabindex="0">Q</button>
+            <button class="tv-key focusable" data-key="R" tabindex="0">R</button>
+            <button class="tv-key focusable" data-key="S" tabindex="0">S</button>
+            <button class="tv-key focusable" data-key="T" tabindex="0">T</button>
+          </div>
+          <div class="tv-keyboard-row">
+            <button class="tv-key focusable" data-key="U" tabindex="0">U</button>
+            <button class="tv-key focusable" data-key="V" tabindex="0">V</button>
+            <button class="tv-key focusable" data-key="W" tabindex="0">W</button>
+            <button class="tv-key focusable" data-key="X" tabindex="0">X</button>
+            <button class="tv-key focusable" data-key="Y" tabindex="0">Y</button>
+            <button class="tv-key focusable" data-key="Z" tabindex="0">Z</button>
+            <button class="tv-key focusable" data-key="1" tabindex="0">1</button>
+            <button class="tv-key focusable" data-key="2" tabindex="0">2</button>
+            <button class="tv-key focusable" data-key="3" tabindex="0">3</button>
+            <button class="tv-key focusable" data-key="4" tabindex="0">4</button>
+          </div>
+          <div class="tv-keyboard-row">
+            <button class="tv-key focusable" data-key="5" tabindex="0">5</button>
+            <button class="tv-key focusable" data-key="6" tabindex="0">6</button>
+            <button class="tv-key focusable" data-key="7" tabindex="0">7</button>
+            <button class="tv-key focusable" data-key="8" tabindex="0">8</button>
+            <button class="tv-key focusable" data-key="9" tabindex="0">9</button>
+            <button class="tv-key focusable" data-key="0" tabindex="0">0</button>
+            <button class="tv-key tv-key-wide focusable" data-key="SPACE" tabindex="0">SPACE</button>
+            <button class="tv-key tv-key-wide focusable" data-key="BACKSPACE" tabindex="0">⌫ DEL</button>
+            <button class="tv-key tv-key-action focusable" data-key="CLEAR" tabindex="0">CLEAR</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-results-box" id="searchResultsContainer">
+        <div class="search-placeholder-prompt">Click letters above or type to search ad-free music</div>
+      </div>
+
+      <div style="height: 140px;"></div>
+    </section>
+
+    <!-- 3. LIBRARY SCREEN -->
+    <section id="viewLibrary" class="app-screen">
+      <div class="content-block">
+        <h2 class="section-heading" style="margin-bottom: 24px;">Your Library</h2>
+        <div class="library-filter-pills">
+          <button class="lib-pill active focusable" data-libtab="liked" tabindex="0">Liked Songs</button>
+          <button class="lib-pill focusable" data-libtab="recent" tabindex="0">History</button>
+          <button class="lib-pill focusable" data-libtab="playlists" tabindex="0">Playlists</button>
+        </div>
+        <div id="libraryItemsContainer" class="library-items-list"></div>
+      </div>
+      <div style="height: 140px;"></div>
+    </section>
+
+    <!-- 4. ANALYTICS SCREEN -->
+    <section id="viewAnalytics" class="app-screen">
+      <div class="content-block">
+        <h2 class="section-heading" style="margin-bottom: 8px;">Analytics & Listening Stats</h2>
+        <div class="section-pre-tag">AYUSH'S STREAMING PROFILE</div>
+        <div class="analytics-card-grid">
+          <div class="stat-card">
+            <div class="stat-num" id="statPlays">14</div>
+            <div class="stat-label">Tracks Streamed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statMinutes">52m</div>
+            <div class="stat-label">Playback Time</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="statFavorites">7</div>
+            <div class="stat-label">Liked Songs</div>
+          </div>
+        </div>
+      </div>
+      <div style="height: 140px;"></div>
+    </section>
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- FLOATING CAPSULE MINI PLAYER (Exact match of user_ss.jpg)  -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="miniPlayer" class="floating-capsule-mini-player focusable" tabindex="0">
+    <div class="mp-left" id="mpOpenNowPlaying">
+      <img id="mpThumb" src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f9/ac/85/f9ac85bb-9e47-2f10-6981-b5ff19c7ca6b/26UM1IM28034.rgb.jpg/600x600bb.jpg" alt="Art" class="mp-art">
+      <div class="mp-meta">
+        <div id="mpTitle" class="mp-title">Wake Up</div>
+        <div id="mpArtist" class="mp-artist">Krish Rao</div>
+      </div>
+    </div>
+    <div class="mp-actions">
+      <button id="mpFaveBtn" class="mp-icon-btn focusable" title="Favorite" tabindex="0">
+        <svg id="mpFaveSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+      </button>
+      <button id="mpPlayPauseBtn" class="mp-play-pill focusable" title="Play/Pause" tabindex="0">
+        <svg id="mpPlayPauseSvg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- FLOATING FROSTED BOTTOM NAVIGATION BAR                     -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <nav class="floating-bottom-nav">
+    <div class="nav-capsule">
+      <button class="nav-tab active focusable" data-screen="viewHome" tabindex="0">
+        <div class="nav-pill-bg">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </div>
+        <span class="nav-text">Home</span>
+      </button>
+
+      <button class="nav-tab focusable" data-screen="viewHome" data-mood="Mix" tabindex="0">
+        <div class="nav-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        </div>
+        <span class="nav-text">Mix</span>
+      </button>
+
+      <button class="nav-tab focusable" data-screen="viewAnalytics" tabindex="0">
+        <div class="nav-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        </div>
+        <span class="nav-text">Analytics</span>
+      </button>
+
+      <button class="nav-tab focusable" data-screen="viewLibrary" tabindex="0">
+        <div class="nav-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zm-7-2h2v-4h4V8h-6v6z"/></svg>
+        </div>
+        <span class="nav-text">Library</span>
+      </button>
+    </div>
+
+    <!-- Floating Circular Search FAB Button (Right side, exactly as in user_ss.jpg) -->
+    <button class="floating-search-fab focusable" id="searchFabBtn" data-screen="viewSearch" title="Search" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- FULLSCREEN NOW PLAYING MODAL (Apple Music dynamic mesh blur)-->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="nowPlayingModal" class="now-playing-fullscreen hidden">
+    <div id="dynamicMeshBackdrop" class="mesh-backdrop"></div>
+    
+    <header class="np-header">
+      <button id="npCloseBtn" class="np-icon-btn focusable" title="Close" tabindex="0">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+      </button>
+      <div class="np-header-meta">
+        <span class="np-playing-from">AYUSHMUZIC NOW PLAYING</span>
+        <span id="npHeaderAlbum" class="np-header-album">Starboy</span>
+      </div>
+      <button id="npLyricsHeaderBtn" class="np-icon-btn focusable" title="Lyrics" tabindex="0">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      </button>
+    </header>
+
+    <div class="np-body">
+      <!-- Left / Center: Artwork & Controls -->
+      <div class="np-art-column">
+        <div class="np-art-wrap">
+          <img id="npArtwork" src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f9/ac/85/f9ac85bb-9e47-2f10-6981-b5ff19c7ca6b/26UM1IM28034.rgb.jpg/600x600bb.jpg" alt="Artwork" class="np-large-art">
+        </div>
+
+        <div class="np-track-row">
+          <div class="np-track-info">
+            <div id="npTitle" class="np-title">Wake Up</div>
+            <div id="npArtist" class="np-artist">Krish Rao</div>
+          </div>
+          <button id="npFaveBtn" class="np-fave-btn focusable" title="Like" tabindex="0">
+            <svg id="npFaveSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Scrubber -->
+        <div class="np-scrubber-wrap">
+          <input type="range" id="npSeekBar" min="0" max="100" value="0" class="np-slider focusable" tabindex="0">
+          <div class="np-times-row">
+            <span id="npCurrentTime">0:00</span>
+            <span id="npDurationTime">3:45</span>
+          </div>
+        </div>
+
+        <!-- Main Controls -->
+        <div class="np-controls-row">
+          <button id="npShuffleBtn" class="np-ctrl-btn focusable" title="Shuffle" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          </button>
+          <button id="npPrevBtn" class="np-ctrl-btn focusable" title="Previous" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button id="npPlayPauseBtn" class="np-play-large-btn focusable" title="Play/Pause" tabindex="0">
+            <svg id="npMainPlaySvg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          </button>
+          <button id="npNextBtn" class="np-ctrl-btn focusable" title="Next" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+          <button id="npRepeatBtn" class="np-ctrl-btn focusable" title="Repeat" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+          </button>
+        </div>
+
+        <!-- Footer Toggles -->
+        <div class="np-footer-row">
+          <button id="toggleLyricsBtn" class="np-pill-btn focusable" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+            <span>Live Lyrics</span>
+          </button>
+          <button id="toggleQueueBtn" class="np-pill-btn focusable" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+            <span>Queue</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Synced Lyrics Container -->
+      <div id="npLyricsColumn" class="np-lyrics-column">
+        <div class="lyrics-card-header">Live Synced Lyrics (LRCLIB)</div>
+        <div id="lyricsScrollBox" class="lyrics-scroll-box">
+          <div class="lyrics-line-active">Stream a song to see live synced lyrics</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SETTINGS MODAL                                            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="settingsModal" class="app-modal hidden">
+    <div class="app-modal-backdrop" id="settingsModalBackdrop"></div>
+    <div class="app-modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Settings</h3>
+        <button id="closeSettingsBtn" class="modal-close-btn focusable" tabindex="0">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-group">
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">App Version</span>
+              <span class="settings-item-sub">AyushMuzic v2.0.0 (Samsung Smart TV Edition)</span>
+            </div>
+            <span class="settings-item-badge">v2.0.0</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Audio Stream Quality</span>
+              <span class="settings-item-sub">Direct Akamai/Apple AAC 256kbps Ultra-HD</span>
+            </div>
+            <span class="settings-item-badge active">256 kbps</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Live Synced Lyrics</span>
+              <span class="settings-item-sub">Real-time word sync via LRCLIB engine</span>
+            </div>
+            <span class="settings-item-badge active">Enabled</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Theme & Layout</span>
+              <span class="settings-item-sub">Pure AMOLED Black (1:1 Android Mobile Replica)</span>
+            </div>
+            <span class="settings-item-badge">AMOLED</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Smart TV D-Pad Navigation</span>
+              <span class="settings-item-sub">Hardware Remote & Media Key Support</span>
+            </div>
+            <span class="settings-item-badge active">Active</span>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-title">Reset & Reload</span>
+              <span class="settings-item-sub">Clear cache and restart player engine</span>
+            </div>
+            <button id="resetAppBtn" class="settings-action-btn focusable" tabindex="0">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ADD PLAYLIST MODAL                                        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="addModal" class="app-modal hidden">
+    <div class="app-modal-backdrop" id="addModalBackdrop"></div>
+    <div class="app-modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">New Playlist</h3>
+        <button id="closeAddBtn" class="modal-close-btn focusable" tabindex="0">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">Create a new playlist for quick access on TV.</p>
+        <input type="text" id="playlistNameInput" class="modal-input focusable" placeholder="Playlist Name..." tabindex="0">
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button id="savePlaylistBtn" class="modal-primary-btn focusable" tabindex="0">Create Playlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Primary Native Audio Element for Direct Instant Streaming -->
+<audio id="html5AudioPlayer" preload="auto"></audio>
+
+<!-- Core Application Script -->
+<script src="js/app.js"></script>
+</body>
+</html>

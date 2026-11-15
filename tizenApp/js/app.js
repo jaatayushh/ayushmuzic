@@ -409,6 +409,17 @@
     if (UI.npBgBlur) UI.npBgBlur.style.backgroundImage = `url('${coverUrl}')`;
 
     updateFaveUI(State.favorites.has(song.id || song.title));
+
+    // Send to iOS Native Lock Screen / Dynamic Island Bridge
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.ayushMuzicBridge) {
+      window.webkit.messageHandlers.ayushMuzicBridge.postMessage({
+        type: 'trackChanged',
+        title: song.title,
+        artist: song.artist,
+        duration: song.duration || 240,
+        cover: coverUrl
+      });
+    }
   }
 
   function updatePlaybackStateUI(playing) {
@@ -417,6 +428,15 @@
 
     if (UI.miniPlayBtn) UI.miniPlayBtn.innerHTML = playing ? pauseIconSvg : playIconSvg;
     if (UI.npPlayBtn) UI.npPlayBtn.innerHTML = playing ? pauseIconSvg : playIconSvg;
+
+    // Send playback state to iOS Lock Screen
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.ayushMuzicBridge) {
+      window.webkit.messageHandlers.ayushMuzicBridge.postMessage({
+        type: 'playbackState',
+        playing: playing,
+        currentTime: State.currentTime
+      });
+    }
   }
 
   function updateProgressUI(current, duration) {
@@ -913,5 +933,15 @@
     updateTrackMetadataUI(State.currentSong);
     console.log('AyushMuzic Pure Native Audio Engine initialized.');
   });
+
+  // Global Native Remote Hooks (iOS Lock Screen, Apple Watch, AirPods)
+  window.ayushPlayerToggle = function(shouldPlay) {
+    if (shouldPlay === undefined) togglePlayPause();
+    else if (shouldPlay && audioEl.paused) audioEl.play();
+    else if (!shouldPlay && !audioEl.paused) audioEl.pause();
+  };
+  window.ayushPlayerNext = function() { playNext(); };
+  window.ayushPlayerPrev = function() { playPrevious(); };
+  window.ayushPlayerSeek = function(sec) { seekTo(sec); };
 
 })();

@@ -322,10 +322,44 @@ jobs:
           name: tizen-package
           path: tizen-output/*.wgt
 
+  build-ios:
+    name: Build iOS IPA (iPhone & iPad)
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(grep '^version-name' gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "App version: $VERSION"
+
+      - name: Build iOS IPA
+        run: |
+          chmod +x scripts/ios/build_ipa.sh
+          ./scripts/ios/build_ipa.sh
+
+      - name: Stage IPA for upload
+        run: |
+          mkdir -p ipa-output
+          VERSION="${{ steps.version.outputs.version }}"
+          if [ -f build/AyushMuzic.ipa ]; then
+            cp build/AyushMuzic.ipa "ipa-output/AyushMuzic-v${VERSION}.ipa"
+          fi
+          ls -lh ipa-output/
+
+      - name: Upload iOS IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: ipa-output/*.ipa
+
   publish-release:
     name: Publish GitHub Release
-    needs: [build-android, build-windows, build-mac, build-linux, build-tizen]
-    if: always() && !cancelled() && (needs.build-android.result == 'success' || needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-mac.result == 'success' || needs.build-tizen.result == 'success')
+    needs: [build-android, build-windows, build-mac, build-linux, build-tizen, build-ios]
+    if: always() && !cancelled() && (needs.build-android.result == 'success' || needs.build-windows.result == 'success' || needs.build-linux.result == 'success' || needs.build-mac.result == 'success' || needs.build-tizen.result == 'success' || needs.build-ios.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -348,7 +382,7 @@ jobs:
       - name: Organize release assets
         run: |
           mkdir -p dist
-          find release-assets -type f \( -name "*.apk" -o -name "*.msi" -o -name "*.exe" -o -name "*.dmg" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.zip" -o -name "*.wgt" \) -exec cp {} dist/ \;
+          find release-assets -type f \( -name "*.apk" -o -name "*.msi" -o -name "*.exe" -o -name "*.dmg" -o -name "*.deb" -o -name "*.tar.gz" -o -name "*.zip" -o -name "*.wgt" -o -name "*.ipa" \) -exec cp {} dist/ \;
           ls -lh dist/
 
       - name: Create or Update GitHub Release
@@ -360,15 +394,17 @@ jobs:
             ## AyushMuzic v${{ steps.version.outputs.version }}
             
             ### What's Changed
-            - **100% Visual & Functional Parity**: Replicated the complete reference application experience across Android, Windows Desktop, macOS, Linux, and Samsung Smart TV (Tizen).
+            - **100% Visual & Functional Parity**: Replicated the complete reference application experience across Android, Windows Desktop, iOS, macOS, Linux, and Samsung Smart TV (Tizen).
             - **Core Functionality & API**: Data-fetching layer completely restored for home feeds, recommendations, playlists, and artist pages.
             - **Search Engine**: Real-time YouTube Music search with exact metadata, authentic video IDs, high-resolution artwork, and instant filtering.
             - **Audio Playback**: Unblockable, resilient audio playback with zero infinite 403 retries, expired-URL prevention, and native MPV / embedded playback.
+            - **iOS Sideloadable IPA**: Added native iOS app with AVPlayer background audio, lock screen media controls, Dynamic Island, and AirPods remote support.
             - **Tizen Smart TV Package**: Fixed installation error [118, -4] by removing partner privilege requirements, adding permissive CSP, and bundling standalone YouTube Music Innertube + LRCLIB engine.
             - **Typography & Theme**: Apple SF Pro typography, dynamic mesh background blur, capsule mini-player, and 10-band equalizer.
             - **Release Signing**: Production release builds signed with unified AyushMuzic keystore.
             
             ### Assets
+            - `AyushMuzic-v${{ steps.version.outputs.version }}.ipa` — iOS sideloadable package for iPhone & iPad (AltStore, TrollStore, Scarlet, Sideloadly, LiveContainer).
             - `AyushMuzic-v${{ steps.version.outputs.version }}-arm64.apk` — Optimized build for modern 64-bit Android devices (arm64-v8a).
             - `AyushMuzic-v${{ steps.version.outputs.version }}-universal.apk` — Universal Android build supporting all architectures.
             - `AyushMuzic-v${{ steps.version.outputs.version }}-armv7.apk` — 32-bit Android build (armeabi-v7a).

@@ -79,7 +79,7 @@ actual class Extractor {
         tier: String,
     ): String? =
         runCatching {
-            StreamInfo.getInfo(ServiceList.YouTube, "https://music.youtube.com/watch?v=$videoId").hlsUrl
+            StreamInfo.getInfo(ServiceList.YouTube, "https://www.youtube.com/watch?v=$videoId").hlsUrl
         }.onFailure {
             Logger.w(TAG, "PipePipe[$tier] live extraction failed for $videoId: ${it.message}")
         }.getOrNull()
@@ -111,7 +111,7 @@ actual class Extractor {
     ): List<Pair<Int, String>>? {
         try {
             val streamInfo =
-                StreamInfo.getInfo(ServiceList.YouTube, "https://music.youtube.com/watch?v=$videoId")
+                StreamInfo.getInfo(ServiceList.YouTube, "https://www.youtube.com/watch?v=$videoId")
             val streamsList = streamInfo.audioStreams + streamInfo.videoStreams + streamInfo.videoOnlyStreams
             val pipeResult =
                 streamsList.mapNotNull {

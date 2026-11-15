@@ -1359,7 +1359,7 @@ class Ytmusic {
         return try {
             val response =
                 httpClient.get(url) {
-                    header("Range", "bytes=0-0")
+                    header("Range", "bytes=0-")
                     header("User-Agent", YouTubeClient.USER_AGENT_WEB)
                 }
             response.status.value in 400..499
